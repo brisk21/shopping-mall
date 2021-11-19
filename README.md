@@ -15,11 +15,20 @@
 
 #### 安装教程
 
-1.  下载源码
-2.  解压源码
-3.  虚拟域名指向public（宝塔需要将运行目录指向public）
-4.  创建数据库，导入sql（config下面的bs_shop.sql)数据
-5.  访问域名（xxxx.com）访问
+1. 下载源码
+
+   github：<a href="https://github.com/brisk21/shopping-mall">https://github.com/brisk21/shopping-mall</a>
+   
+   gitee：<a href="https://gitee.com/brisklan/thinkphp5-shopping-mall">https://gitee.com/brisklan/thinkphp5-shopping-mall</a>
+
+2. 解压源码
+
+3. 虚拟域名指向public（宝塔需要将运行目录指向public）
+
+4. 创建数据库，导入sql（config下面的bs_shop.sql)数据
+
+5. 访问域名（xxxx.com）访问
+
 6.  伪静态设置（参考thinkphp）,下面是nginx配置：
 ```nginx
 location / { 
@@ -29,7 +38,7 @@ location / {
     }
  }
 ```
- 
+
 
 
 #### 使用说明
