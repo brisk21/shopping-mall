@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<title>全部订单</title>
+  <{include file="public/header" /}>
+</head>
+<body ontouchstart>
+<header class="wy-header" style="position:fixed; top:0; left:0; right:0; z-index:200;">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">订单管理</div>
+</header>
+<div class='weui-content'>
+  <div class="weui-tab">
+    <div class="weui-navbar" style="position:fixed; top:44px; left:0; right:0; height:44px; background:#fff;">
+
+      <a class="weui-navbar__item proinfo-tab-tit font-14 weui-bar__item--on" onclick="setStatus('')" href="#tab1">全部</a>
+      <a class="weui-navbar__item proinfo-tab-tit font-14" onclick="setStatus('0')" href="#tab2">待付款</a>
+      <a class="weui-navbar__item proinfo-tab-tit font-14" onclick="setStatus(1)" href="#tab3">待发货</a>
+      <a class="weui-navbar__item proinfo-tab-tit font-14" onclick="setStatus(2)" href="#tab4">待收货</a>
+      <a class="weui-navbar__item proinfo-tab-tit font-14" onclick="setStatus(3)" href="#tab5">待评价</a>
+    </div>
+    <div class="weui-tab__bd proinfo-tab-con" style="padding-top:87px;">
+      <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
+
+
+        
+      </div>
+      <div id="tab2" class="weui-tab__bd-item"></div>
+      <div id="tab3" class="weui-tab__bd-item">
+
+      </div>
+      <div id="tab4" class="weui-tab__bd-item"></div>
+      <div id="tab5" class="weui-tab__bd-item"></div>
+    </div>
+  </div>
+</div>
+
+<{include file="public/footer" /}>
+<script>
+  var page = 1;
+  var status = '';
+  var stop = false;
+  $(document).ready(function () {
+
+    $("#tab1").empty()
+    getData();
+  })
+
+  function getData(){
+    if (stop){
+      return ;
+    }
+    bs_request("<{:url('/mall/order/my_orders')}>",{page:page,status:status},function (res) {
+      if (res.code==0 && res.data.orders.length>0){
+        var idName = '';
+        if (status==''){
+          idName = 'tab1';
+        }else if (status=='0'){
+          idName = 'tab2';
+        }else if (status==1){
+          idName = 'tab3';
+        }else if (status==2){
+          idName = 'tab4';
+        }else if (status==3){
+          idName = 'tab5';
+        }
+
+        var orders = res.data.orders;
+        for (var i=0;i<orders.length;i++){
+          var item = '<div class="weui-panel weui-panel_access">\n' +
+                  '          <div class="weui-panel__hd"><span>单号：'+orders[i].order_sn+'</span><span class="ord-status-txt-ts fr">交易成功</span></div>\n' +
+                  '          <div class="weui-media-box__bd  pd-10">\n' ;
+                  var proCount = 0;
+                  for(var j=0;j<orders[i].goods_list.length;j++){
+                    proCount++;
+
+                      item+= '            <div class="weui-media-box_appmsg ord-pro-list">\n' +
+                              '              <div class="weui-media-box__hd"><a href="<{:url(\'/mall/goods/detail\')}>?id='+orders[i].goods_list[j].goods_id+'"><img class="weui-media-box__thumb" src="'+orders[i].goods_list[j].thumb+'" alt=""></a></div>\n' +
+                              '              <div class="weui-media-box__bd">\n' +
+                              '                <h1 class="weui-media-box__desc"><a href="<{:url(\'/mall/goods/detail\')}>?id='+orders[i].goods_list[j].goods_id+'" class="ord-pro-link">'+orders[i].goods_list[j].title+'</a></h1>\n' +
+                              '                <!--<p class="weui-media-box__desc">规格：<span>红色</span>，<span>23</span></p>-->\n' +
+                              '                <div class="clear mg-t-10">\n' +
+                              '                  <div class="wy-pro-pri fl">¥<em class="num font-15">'+orders[i].goods_list[j].price+'</em></div>\n' +
+                              '                  <div class="pro-amount fr"><span class="font-13">数量×<em class="name">'+orders[i].goods_list[j].count+'</em></span></div>\n' +
+                              '                </div>\n' +
+                              '              </div>\n' +
+                              '            </div>\n';
+                  }
+
+
+
+
+
+
+                 item+='          <div class="ord-statistics">\n' +
+                  '            <span>共<em class="num">'+proCount+'</em>件商品，</span>\n' +
+                  '            <span class="wy-pro-pri">总金额：¥<em class="num font-15">'+orders[i].price+'</em></span>\n' +
+                  '            <span>(含运费<b>￥0.00</b>)</span>\n' +
+                  '          </div>\n'
+
+
+          item+= ' <div class="weui-panel__ft">\n' +
+                  ' <div class="weui-cell weui-cell_access weui-cell_link oder-opt-btnbox">\n'  ;
+
+          if (orders[i].status=='0'){
+            item+='<a href="javascript:;" class="ords-btn-dele">删除订单</a>' +
+                    '<a href="pay" class="ords-btn-com">去付款</a>';
+          }else if(orders[i].status==1){
+            item+='商品正在打包中，请您耐心等待....';
+          }else if(orders[i].status==2){
+            item+='<a href="javascript:;" class="ords-btn-com receipt">确认收货</a>';
+          }else if(orders[i].status==3){
+            item+=' <a href="comment.html" class="ords-btn-com">评价</a>';
+          }
+          item+='</div> </div></div>';
+          $("#"+idName).append(item)
+        }
+      }else{
+        stop = true;
+      }
+    });
+  }
+
+
+  $(document).on("click", ".ords-btn-dele", function() {
+    $.confirm("您确定要删除此订单吗?", "确认删除?", function() {
+      $.toast("订单已经删除!");
+    }, function() {
+      //取消操作
+    });
+  });
+  $(document).on("click", ".receipt", function() {
+    $.alert("五星好评送蓝豆哦，赶快去评价吧！", "收货完成！");
+  });
+
+  //改变状态
+
+  function setStatus(nowStatus) {
+
+    if (status == nowStatus){
+      return ;
+    }
+    stop = false;
+     status = nowStatus;
+     page = 1;
+     if (nowStatus==''){
+       $("#tab1").empty()
+     }else if (nowStatus=='0'){
+       $("#tab2").empty()
+     }else if (nowStatus==1){
+       $("#tab3").empty()
+     }else if (nowStatus==2){
+       $("#tab4").empty()
+     }else if (nowStatus==3){
+       $("#tab5").empty()
+     }
+    getData();
+  }
+
+  $(window).scroll(function() {
+    var scrollTop = $(this).scrollTop();
+    var scrollHeight = $(document).height();
+    var windowHeight = $(this).height();
+    if (scrollTop + windowHeight == scrollHeight) {
+      page++;
+      getData();
+    }
+  });
+
+    </script>
+
+
+</body>
+</html>

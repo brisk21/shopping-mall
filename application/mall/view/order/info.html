@@ -1,0 +1,141 @@
+<!DOCTYPE html  >
+<html lang="zh">
+<head>
+<title>订单结算</title>
+  <{include file="public/header" /}>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">订单详情</div>
+</header>
+<div class="weui-content">
+  <div class="wy-media-box weui-media-box_text address-select">
+    <div class="weui-media-box_appmsg">
+      <div class="weui-media-box__hd proinfo-txt-l" style="width:20px;"><span class="promotion-label-tit"><img src="/static/mall/images/icon_nav_city.png" /></span></div>
+      <div class="weui-media-box__bd">
+        <a href=""  class="weui-cell_access addr">
+          <h4 class="address-name"><span class="addr-username"></span><span class="addr-mobile"></span></h4>
+          <div class="address-txt addr-detail"></div>
+        </a>
+      </div>
+      <div class="weui-media-box__hd proinfo-txt-l" style="width:16px;"><div class="weui-cell_access"><span class="weui-cell__ft"></span></div></div>
+    </div>
+  </div>
+  <div class="wy-media-box weui-media-box_text">
+    <div class="weui-media-box__bd">
+     <div class="weui-media-box_appmsg ord-pro-list">
+        <div class="weui-media-box__hd"><a href="" class="pro-url"><img class="weui-media-box__thumb pro-thumb" src="" alt=""></a></div>
+        <div class="weui-media-box__bd">
+          <h1 class="weui-media-box__desc"><a href="" class="ord-pro-link pro-name pro-url"></a></h1>
+          <p class="weui-media-box__desc"> </p>
+          <div class="clear mg-t-10">
+            <div class="wy-pro-pri fl">¥<em class="num font-15 pro-price"></em></div>
+            <div class="pro-amount fr"><div  class="Spinner" data-spin="spinner"><a class="Decrease " href="javascript:void(0)"><i>-</i></a><input class="Amount count" value="1" autocomplete="off" maxlength="3"><a class="Increase Increase17" href="javascript:void(0)"><i>+</i></a></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+ <!-- <div class="weui-panel">
+    <div class="weui-panel__bd">
+      <div class="weui-media-box weui-media-box_small-appmsg">
+        <div class="weui-cells">
+          <div class="weui-cell weui-cell_access">
+            <div class="weui-cell__bd weui-cell_primary">
+              <p class="font-14"><span class="mg-r-10">配送方式</span><span class="fr">快递</span></p>
+            </div>
+          </div>
+          <div class="weui-cell weui-cell_access" href="javascript:;">
+            <div class="weui-cell__bd weui-cell_primary">
+              <p class="font-14"><span class="mg-r-10">运费</span><span class="fr txt-color-red">￥<em class="num">10.00</em></span></p>
+            </div>
+          </div>
+          <a class="weui-cell weui-cell_access" href="money.html">
+            <div class="weui-cell__bd weui-cell_primary">
+              <p class="font-14"><span class="mg-r-10">可用蓝豆</span><span class="sitem-tip"><em class="num">1235</em>个</span></p>
+            </div>
+            <span class="weui-cell__ft"></span>
+          </a>
+          <a class="weui-cell weui-cell_access" href="coupon.html">
+            <div class="weui-cell__bd weui-cell_primary">
+              <p class="font-14"><span class="mg-r-10">优惠券</span><span class="sitem-tip"><em class="num">0</em>张可用</span></p>
+            </div>
+            <span class="weui-cell__ft"></span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>-->
+  <div class="wy-media-box weui-media-box_text">
+    <div class="mg10-0 t-c">总金额：<span class="wy-pro-pri mg-tb-5">¥<em class="num font-20 totalMoney">0.00</em></span></div>
+    <div class="mg10-0"><a href="javascript:create()" class="weui-btn weui-btn_primary">微信付款</a></div>
+  </div>
+</div>
+
+<{include file="public/footer" /}>
+<script>
+  var id = bs_get_param('id');
+  var count = 1;
+
+
+  if (id){
+    var addr_id = bs_get_param('addr_id');
+    getData();
+  }
+
+  $(".Decrease,.Increase").on('click',function (e) {
+
+     count = Number($(".count").val());
+    var nowCount;
+    if ($(this).hasClass('Decrease')){
+      nowCount = count-1;
+    }else {
+      nowCount = count+1;
+    }
+    if (nowCount<=0){
+        return $.alert('至少购买一个')
+    }else {
+      $(".count").val(nowCount)
+      count = nowCount;
+      getData();
+    }
+  });
+
+  function getData() {
+    bs_request("<{:url('/mall/order/ready')}>",{id:id,addr_id:addr_id,count:count},function (res) {
+      if (res.code !=0){
+        return $.alert(res.msg);
+      }
+
+      if (res.data.address){
+        $(".addr-username").html(res.data.address.username);
+        $(".addr-mobile").html(res.data.address.mobile);
+        $(".addr-detail").html(res.data.address.province+' '+res.data.address.city+' '+res.data.address.area+' '+res.data.address.address);
+        $(".addr").attr('href',"<{:url('/mall/user/address_list')}>?from=info&id="+id)
+        addr_id = res.data.address.id;
+      }
+      var goods = res.data.goods_list[0];
+      $(".count").val(goods.count);
+      $(".pro-price").html(goods.price);
+      $(".pro-name").html(goods.title);
+      $(".pro-url").attr('href',"<{:url('/mall/goods/detail')}>?id="+id);
+      $(".pro-thumb").attr('src',goods.thumb);
+      $(".totalMoney").text(res.data.order.totalMoney);
+
+    });
+  }
+
+  function create(){
+    bs_request("<{:url('/mall/order/create')}>",{id:id,addr_id:addr_id,count:count},function (res) {
+        if (res.code!==0){
+          return $.alert(res.msg);
+        }
+        //todo 发起支付
+        $.alert('创建订单成功')
+    });
+  }
+</script>
+</body>
+</html>

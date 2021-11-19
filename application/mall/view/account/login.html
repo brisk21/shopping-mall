@@ -1,0 +1,80 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+    <title>登陆</title>
+    <{include file="public/header" /}>
+</head>
+<body ontouchstart style="background:#323542;">
+<!--主体-->
+<div class="login-box">
+    <div class="lg-title">欢迎登陆小V商城</div>
+    <div class="login-form">
+        <form action="#">
+            <div class="login-user-name common-div">
+            	<span class="eamil-icon common-icon">
+                	<img src="/static/mall/images/eamil.png" />
+                </span>
+                <input type="email" name="account" value="" placeholder="请输入您的账号" />
+            </div>
+            <div class="login-user-pasw common-div">
+            	<span class="pasw-icon common-icon">
+                	<img src="/static/mall/images/password.png" />
+                </span>
+                <input type="password" name="pwd" value="" placeholder="请输入您的密码" />
+            </div>
+            <a href="javascript:;" class="login-btn common-div" onclick="submit()">登陆</a>
+            <!--<a href="javascript:;" class="login-oth-btn common-div">微信登陆</a>
+            <a href="javascript:;" class="login-oth-btn common-div">QQ登陆</a>-->
+            <{:token()}>
+        </form>
+    </div>
+    <div class="forgets">
+        <a href="<{:url('/mall/account/pwd_change')}>">忘记密码？</a>
+        <a href="<{:url('/mall/account/reg')}>">免费注册</a>
+    </div>
+</div>
+<{include file="public/footer" /}>
+<script>
+
+    function submit(){
+        var account = $("input[name='account']").val();
+        var pwd1 = $("input[name='pwd']").val();
+        var token = $("input[name='__token__']").val();
+
+        if (!account){
+            return   $.alert('账号未设置','温馨提示')
+        }
+
+        if ( !pwd1){
+            return   $.alert('密码未输入','温馨提示')
+        }
+
+        $.ajax({
+            url:"<{:url('do_login')}>",
+            type:'post',
+            data:{
+                account:account,
+                pwd:pwd1,
+                token:token,
+            },
+            success:function (res) {
+                console.log(res);
+
+                res = JSON.parse(res)
+                if (res.code==0){
+                    //跳转登录页面
+                    location.href = "<{:url('index')}>"
+                }else {
+                    $.alert(res.msg)
+                }
+            },
+            error:function (){
+                $.alert('网络超时')
+            }
+        })
+    }
+</script>
+</body>
+</html>
+
+

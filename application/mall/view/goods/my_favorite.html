@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<title>我的收藏</title>
+<{include file="public/header" /}>
+  <style>
+    .proListWrap{
+      overflow: auto;
+      height: 700px;
+    }
+  </style>
+</head>
+<body ontouchstart>
+<!--顶部搜索-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">我的收藏</div>
+</header>
+<!--主体-->
+<div class="weui-content">
+  <!--产品列表--滑动加载-->
+ <!-- <div class="weui-pull-to-refresh__layer">
+    <div class='weui-pull-to-refresh__arrow'></div>
+    <div class='weui-pull-to-refresh__preloader'></div>
+    <div class="down">下拉刷新</div>
+    <div class="up">释放刷新</div>
+    <div class="refresh">正在刷新</div>
+  </div>-->
+  <div class='proListWrap'></div>
+
+  <div class="weui-loadmore" style="display: none">
+    <i class="weui-loading"></i>
+    <span class="weui-loadmore__tips">正在加载</span>
+  </div>
+</div>
+
+
+
+<{include file="public/footer" /}>
+<script>
+  var cpage = 1;
+  var st = 1;
+  function load_data(){
+    if (st==0){
+      return ;
+    }
+    bs_request("<{:url('/mall/goods/my_favorite_goods')}>",{page:cpage},function (res) {
+
+
+      if (res.code==0 && res.data.goods.length>0) {
+
+        for (var i = 0; i < res.data.goods.length; i++) {
+          var  item = '<div class="pro-items id'+res.data.goods[i].id+'">\n' +
+                  '      <div class="weui-media-box weui-media-box_appmsg">\n' +
+                  '        <div class="weui-media-box__hd"><a href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'"><img class="weui-media-box__thumb" src="'+res.data.goods[i].thumb+'" alt="'+res.data.goods[i].title+'"></a></div>\n' +
+                  '        <div class="weui-media-box__bd">\n' +
+                  '          <h1 class="weui-media-box__desc"><a href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'" class="ord-pro-link">'+res.data.goods[i].title+'</a></h1>\n' +
+                  '          <div class="wy-pro-pri">¥<em class="num font-15">'+res.data.goods[i].price+'</em></div>\n' +
+                  '          <ul class="weui-media-box__info prolist-ul">\n' +
+                  '            <li class="weui-media-box__info__meta del" data-id="'+res.data.goods[i].id+'"><a href="javascript:void(0)" class="wy-dele"></a></li>\n' +
+                  '          </ul>\n' +
+                  '        </div>\n' +
+                  '      </div>\n' +
+                  '    </div>';
+
+
+          $(".proListWrap").append(item)
+        }
+      }else{
+        st = 0;
+      }
+    });
+  }
+
+  load_data();
+
+  /*$(document.body).pullToRefresh().on("pull-to-refresh", function() {
+    $(".proListWrap").empty();
+    cpage = 1;
+
+    setTimeout(function() {
+      $("#time").text(new Date);
+      $(document.body).pullToRefreshDone();
+      load_data();
+    }, 1000);
+  });*/
+
+  // 滚动加载
+  var loading = false;
+  $(".proListWrap").infinite().on("infinite", function() {
+    $(".weui-loadmore").show();
+    if(loading) return;
+    loading = true;
+    setTimeout(function() {
+      cpage = cpage+1;
+      load_data();
+      loading = false;
+      $(".weui-loadmore").hide();
+    }, 1000);
+  });
+
+  $(function () {
+    $(".proListWrap").on('click','.del',function (e) {
+      var id = $(this).data('id');
+      var obj = $(this);
+
+      bs_request("<{:url('/mall/goods/favorite_action')}>",{id:id},function (res) {
+        if (res.code != 0){
+          return $.alert(res.msg);
+        }
+        $.toast(res.msg, function() {
+          if (res.data==1){
+
+          }else {
+            $(".id"+id).remove()
+          }
+          //console.log('close');
+        });
+      });
+
+    })
+  })
+</script>
+</body>
+</html>

@@ -1,0 +1,198 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>会员中心</title>
+  <{include file="public/header" /}>
+
+</head>
+<body ontouchstart>
+<!--主体-->
+<div class='weui-content'>
+  <div class="wy-center-top">
+    <div class="weui-media-box weui-media-box_appmsg">
+      <div class="weui-media-box__hd"><img class="weui-media-box__thumb radius" src="/static/mall/upload/headimg.jpg" alt=""></div>
+      <div class="weui-media-box__bd">
+        <h4 class="weui-media-box__title user-name">孤傲草狼</h4>
+        <p class="user-grade">等级：普通会员</p>
+        <p class="user-integral">待返还金额：<em class="num">500.0</em>元</p>
+      </div>
+    </div>
+<!--    <div class="xx-menu weui-flex">
+      <div class="weui-flex__item"><div class="xx-menu-list"><em>987</em><p>账户余额</p></div></div>
+      <div class="weui-flex__item"><div class="xx-menu-list"><em>459</em><p>我的蓝豆</p></div></div>
+      <div class="weui-flex__item"><div class="xx-menu-list"><em>4</em><p>收藏商品</p></div></div>
+    </div>-->
+  </div>
+  <div class="weui-panel weui-panel_access">
+    <div class="weui-panel__hd">
+      <a href="<{:url('/mall/order/all_orders',['status'=>''])}>" class="weui-cell weui-cell_access center-alloder">
+        <div class="weui-cell__bd wy-cell">
+          <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-order-all.png" alt="" class="center-list-icon"></div>
+          <div class="weui-cell__bd weui-cell_primary"><p class="center-list-txt">全部订单</p></div>
+        </div>
+        <span class="weui-cell__ft"></span>
+      </a>   
+    </div>
+    <div class="weui-panel__bd">
+      <div class="weui-flex">
+        <div class="weui-flex__item">
+          <a href="<{:url('/mall/order/all_orders',['status'=>''])}>" class="center-ordersModule">
+            <span class="weui-badge order-count0" style="position: absolute;top:5px;right:10px; font-size:10px;"></span>
+            <div class="imgicon"><img src="/static/mall/images/center-icon-order-dfk.png" /></div>
+            <div class="name">待付款</div>
+          </a>
+        </div>
+        <div class="weui-flex__item">
+          <a href="<{:url('/mall/order/all_orders',['status'=>''])}>" class="center-ordersModule">
+            <span class="weui-badge  order-count1" style="position: absolute;top:5px;right:10px; font-size:10px;"></span>
+            <div class="imgicon"><img src="/static/mall/images/center-icon-order-dfh.png" /></div>
+            <div class="name">待发货</div>
+          </a>
+        </div>
+        <div class="weui-flex__item">
+          <a href="<{:url('/mall/order/all_orders',['status'=>''])}>" class="center-ordersModule">
+            <span class="weui-badge  order-count2" style="position: absolute;top:5px;right:10px; font-size:10px;"></span>
+            <div class="imgicon"><img src="/static/mall/images/center-icon-order-dsh.png" /></div>
+            <div class="name">待收货</div>
+          </a>
+        </div>
+        <div class="weui-flex__item">
+          <a href="orders.html" class="center-ordersModule">
+            <span class="weui-badge order-count3" style="position: absolute;top:5px;right:10px; font-size:10px;"></span>
+            <div class="imgicon"><img src="/static/mall/images/center-icon-order-dpj.png" /></div>
+            <div class="name">待评价</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <div class="weui-panel weui-panel_access">
+    <div class="weui-panel__hd">
+      <a href="myburse.html" class="weui-cell weui-cell_access center-alloder">
+        <div class="weui-cell__bd wy-cell">
+          <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-jk.png" alt="" class="center-list-icon"></div>
+          <div class="weui-cell__bd weui-cell_primary"><p class="center-list-txt">我的小金库</p></div>
+        </div>
+        <span class="weui-cell__ft"></span>
+      </a>   
+    </div>
+    <div class="weui-panel__bd">
+      <div class="weui-flex">
+        <div class="weui-flex__item">
+          <a href="myburse.html" class="center-ordersModule">
+            <div class="center-money"><em>800.0</em></div>
+            <div class="name">账户总额</div>
+          </a>
+        </div>
+        <div class="weui-flex__item">
+          <a href="myburse.html" class="center-ordersModule">
+            <div class="center-money"><em>50.0</em></div>
+            <div class="name">返现金额</div>
+          </a>
+        </div>
+        <div class="weui-flex__item">
+          <a href="myburse.html" class="center-ordersModule">
+            <div class="center-money"><em>550.0</em></div>
+            <div class="name">待返还</div>
+          </a>
+        </div>
+        <div class="weui-flex__item">
+          <a href="myburse.html" class="center-ordersModule">
+            <div class="center-money"><em>165</em></div>
+            <div class="name">蓝豆</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  
+  <div class="weui-panel">
+        <div class="weui-panel__bd">
+          <div class="weui-media-box weui-media-box_small-appmsg">
+            <div class="weui-cells">
+              <a class="weui-cell weui-cell_access" href="record.html">
+                <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-jyjl.png" alt="" class="center-list-icon"></div>
+                <div class="weui-cell__bd weui-cell_primary">
+                  <p class="center-list-txt">交易记录</p>
+                </div>
+                <span class="weui-cell__ft"></span>
+              </a>
+              <a class="weui-cell weui-cell_access" href="<{:url('/mall/goods/my_favorite')}>">
+                <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-sc.png" alt="" class="center-list-icon"></div>
+                <div class="weui-cell__bd weui-cell_primary">
+                  <p class="center-list-txt">我的收藏</p>
+                </div>
+                <span class="weui-cell__ft"></span>
+              </a>
+              <a class="weui-cell weui-cell_access" href="<{:url('/mall/user/address_list')}>">
+                <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-dz.png" alt="" class="center-list-icon"></div>
+                <div class="weui-cell__bd weui-cell_primary">
+                  <p class="center-list-txt">地址管理</p>
+                </div>
+                <span class="weui-cell__ft"></span>
+              </a>
+              <a class="weui-cell weui-cell_access" href="card.html">
+                <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-yhk.png" alt="" class="center-list-icon"></div>
+                <div class="weui-cell__bd weui-cell_primary">
+                  <p class="center-list-txt">我的银行卡</p>
+                </div>
+                <span class="weui-cell__ft"></span>
+              </a>
+              <a class="weui-cell weui-cell_access" href="password.html">
+                <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-dlmm.png" alt="" class="center-list-icon"></div>
+                <div class="weui-cell__bd weui-cell_primary">
+                  <p class="center-list-txt">密码修改</p>
+                </div>
+                <span class="weui-cell__ft"></span>
+              </a>
+              <a class="weui-cell weui-cell_access" href="login.html">
+                <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-out.png" alt="" class="center-list-icon"></div>
+                <div class="weui-cell__bd weui-cell_primary">
+                  <p class="center-list-txt">退出账号</p>
+                </div>
+                <span class="weui-cell__ft"></span>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+  
+  
+  
+</div>
+
+<!--底部导航-->
+<{include file="public/footer_nav" /}>
+
+<{include file="public/footer" /}>
+<script>
+  bs_request("<{:url('/mall/user/order_count')}>",{},function (res) {
+    if (res.code==0){
+        var count = res.data.count;
+        if (count.count0){
+          $(".order-count0").text(count.count0)
+        }else {
+          $(".order-count0").hide();
+        }
+        if (count.count1){
+          $(".order-count1").text(count.count1)
+        }else {
+          $(".order-count1").hide();
+        }
+        if (count.count2){
+          $(".order-count2").text(count.count2)
+        }else {
+          $(".order-count2").hide();
+        }
+        if (count.count3){
+          $(".order-count3").text(count.count3)
+        }else {
+          $(".order-count3").hide();
+        }
+    }
+  })
+</script>
+</body>
+</html>

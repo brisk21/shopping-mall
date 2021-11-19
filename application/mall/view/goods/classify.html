@@ -1,0 +1,95 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>商城分类</title>
+  <{include file="public/header" /}>
+</head>
+<body ontouchstart>
+<!--顶部搜索-->
+<!--主体-->
+<div class="wy-content">
+  <div class="category-top">
+    <header class='weui-header'>
+  <div class="weui-search-bar" id="searchBar">
+    <form class="weui-search-bar__form" action="<{:url('/mall/goods/pro_list')}>">
+      <div class="weui-search-bar__box">
+        <i class="weui-icon-search"></i>
+        <input type="search" name="keyword" class="weui-search-bar__input" id="searchInput" placeholder="搜索您想要的商品" required>
+        <a href="javascript:" class="weui-icon-clear" id="searchClear"></a>
+      </div>
+      <label class="weui-search-bar__label" id="searchText" style="transform-origin: 0px 0px 0px; opacity: 1; transform: scale(1, 1);">
+        <i class="weui-icon-search"></i>
+        <span>搜索您想要的商品</span>
+      </label>
+    </form>
+    <a href="javascript:" class="weui-search-bar__cancel-btn" id="searchCancel">取消</a>
+  </div>
+</header>
+  </div>
+  <aside>
+    <div class="menu-left scrollbar-none" id="sidebar">
+      <ul id="left-category">
+      </ul>
+    </div>
+  </aside>
+
+  <div id="subcat">
+
+  </div>
+
+
+
+</div>
+
+<!--底部导航-->
+<{include file="public/footer_nav" /}>
+
+<{include file="public/footer" /}>
+<script type="text/javascript">
+	$(function(){
+
+      bs_request("<{:url('get_classify')}>",{},function (res) {
+
+        if (res.code==0 && res.data.category){
+          for (var i=0;i<res.data.category.length;i++){
+
+            //跳过没有二级分类
+            if (!res.data.category[i].subcat){
+              continue;
+            }
+
+            //console.log('cccc',res.data.category)
+            //
+            $("#left-category").append('<li class="'+(i==0?'active':'')+'">'+res.data.category[i].name+'</li>');
+
+            var item = '<section class="menu-right padding-all j-content" style="display:'+(i==0?'block':'none')+'"><h5>'+res.data.category[i].name+'</h5><ul>' ;
+
+            for (var j=0;j<res.data.category[i].subcat.length;j++){
+              item+='<li class="w-3"><a href="<{:url(\'/mall/goods/pro_list\')}>?category_id='+res.data.category[i].subcat[j].category_id+'"></a> <img alt="'+res.data.category[i].subcat[j].name+'" src="'+res.data.category[i].subcat[j].img+'"><span>'+res.data.category[i].subcat[j].name+'</span></li>';
+            }
+
+
+
+            item+='</ul></section>';
+
+
+          $("#subcat").append(item)
+
+
+
+
+
+          }
+        }
+
+      });
+
+      $("#sidebar").on('click','li',function (e) {
+          $(this).addClass('active').siblings('li').removeClass('active');
+          var index = $(this).index();
+          $('.j-content').eq(index).show().siblings('.j-content').hide();
+      });
+	})
+</script>
+</body>
+</html>

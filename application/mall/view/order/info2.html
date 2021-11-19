@@ -1,0 +1,102 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>订单详情</title>
+  <{include file="public/header" /}>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">订单详情</div>
+</header>
+<div class="weui-content">
+  <div class="wy-media-box weui-media-box_text address-select">
+    <div class="weui-media-box_appmsg">
+      <div class="weui-media-box__hd proinfo-txt-l" style="width:20px;"><span class="promotion-label-tit">
+        <img src="/static/mall/images/icon_nav_city.png" /></span></div>
+      <div class="weui-media-box__bd">
+        <a href=""  class="weui-cell_access addr">
+          <h4 class="address-name"><span class="addr-username"></span><span class="addr-mobile"></span></h4>
+          <div class="address-txt addr-detail"></div>
+        </a>
+      </div>
+      <div class="weui-media-box__hd proinfo-txt-l" style="width:16px;"><div class="weui-cell_access"><span class="weui-cell__ft"></span></div></div>
+    </div>
+  </div>
+  <div class="wy-media-box weui-media-box_text">
+    <div class="weui-media-box__bd " id="pro-list">
+
+      <!--<div class="weui-media-box_appmsg ord-pro-list">
+        <div class="weui-media-box__hd"><a href="pro_info.html"><img class="weui-media-box__thumb" src="/static/mall/upload/pro3.jpg" alt=""></a></div>
+        <div class="weui-media-box__bd">
+          <h1 class="weui-media-box__desc"><a href="pro_info.html" class="ord-pro-link">蓝之蓝蓝色瓶装经典Q7浓香型白酒500ml52度高端纯粮食酒2瓶装包邮</a></h1>
+          <p class="weui-media-box__desc">规格：<span>红色</span>，<span>23</span></p>
+          <div class="clear mg-t-10">
+            <div class="wy-pro-pri fl">¥<em class="num font-15">296.00</em></div>
+            <div class="pro-amount fr"><span class="font-13">数量×<em class="name">1</em></span></div>
+          </div>
+        </div>
+      </div>-->
+    </div>
+  </div>
+  <div class="wy-media-box weui-media-box_text">
+    <div class="mg10-0 t-c">总金额：<span class="wy-pro-pri mg-tb-5">¥<em class="num font-20 totalMoney">296.00</em></span></div>
+    <div class="mg10-0"><a href="javascript:create()" class="weui-btn weui-btn_primary">微信付款</a></div>
+  </div>
+</div>
+<{include file="public/footer" /}>
+
+<script>
+  var addr_id = bs_get_param('addr_id')
+  getData();
+  function getData() {
+    bs_request("<{:url('/mall/order/ready')}>",{addr_id:addr_id},function (res) {
+      if (res.code !=0){
+        return $.alert(res.msg);
+      }
+
+      if (res.data.address){
+        $(".addr-username").html(res.data.address.username);
+        $(".addr-mobile").html(res.data.address.mobile);
+        $(".addr-detail").html(res.data.address.province+' '+res.data.address.city+' '+res.data.address.area+' '+res.data.address.address);
+        $(".addr").attr('href',"<{:url('/mall/user/address_list')}>?from=info2")
+        addr_id = res.data.address.id;
+      }
+      var goods = res.data.goods_list;
+
+      for (var i=0;i<goods.length;i++){
+        var item = ' <div class="weui-media-box_appmsg ord-pro-list">\n' +
+                '        <div class="weui-media-box__hd"><a href="pro_info.html"><img class="weui-media-box__thumb" src="'+goods[i].thumb+'" alt=""></a></div>\n' +
+                '        <div class="weui-media-box__bd">\n' +
+                '          <h1 class="weui-media-box__desc"><a href="pro_info.html" class="ord-pro-link">'+goods[i].title+'</a></h1>\n' +
+                '          <!--<p class="weui-media-box__desc">规格：<span>红色</span>，<span>23</span></p>-->\n' +
+                '          <div class="clear mg-t-10">\n' +
+                '            <div class="wy-pro-pri fl">¥<em class="num font-15">'+goods[i].totalPrice+'</em></div>\n' +
+                '            <div class="pro-amount fr"><span class="font-13">数量×<em class="name">'+goods[i].count+'</em></span></div>\n' +
+                '          </div>\n' +
+                '        </div>\n' +
+                '      </div>';
+
+
+        $("#pro-list").append(item)
+      }
+
+
+      $(".totalMoney").text(res.data.order.totalMoney);
+
+    });
+  }
+
+  function create(){
+    bs_request("<{:url('/mall/order/create')}>",{addr_id:addr_id},function (res) {
+      if (res.code!==0){
+        return $.alert(res.msg);
+      }
+      //todo 发起支付
+      $.alert('创建订单成功')
+    });
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<title>商城首页</title>
+  <{include file="public/header" /}>
+
+</head>
+<body ontouchstart>
+<!--顶部搜索-->
+<header class='weui-header'>
+  <div class="weui-search-bar" id="searchBar">
+    <form class="weui-search-bar__form" action="<{:url('/mall/goods/pro_list')}>">
+      <div class="weui-search-bar__box">
+        <i class="weui-icon-search"></i>
+        <input type="search" name="keyword" class="weui-search-bar__input" id="searchInput" placeholder="搜索您想要的商品" required>
+        <a href="javascript:" class="weui-icon-clear" id="searchClear"></a>
+      </div>
+      <label class="weui-search-bar__label" id="searchText" style="transform-origin: 0px 0px 0px; opacity: 1; transform: scale(1, 1);">
+        <i class="weui-icon-search"></i>
+        <span>搜索您想要的商品</span>
+      </label>
+    </form>
+    <a href="javascript:" class="weui-search-bar__cancel-btn" id="searchCancel">取消</a>
+  </div>
+</header>
+<!--主体-->
+<div class='weui-content'>
+  <!--顶部轮播-->
+  <div class="swiper-container swiper-banner">
+    <div class="swiper-wrapper banner-item"></div>
+    <div class="swiper-pagination"></div>
+  </div>
+  <!--图标分类-->
+  <div class="weui-flex wy-iconlist-box">
+  </div>
+  <!--新闻切换-->
+  <div class="wy-ind-news">
+    <i class="news-icon-laba"></i>
+    <div class="swiper-container swiper-news">
+      <div class="swiper-wrapper news-item">
+
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+    <a href="news_list.html" class="newsmore"><i class="news-icon-more"></i></a>
+  </div>
+  <!--精选推荐-->
+  <div class="wy-Module jingxuan-tuijian" style="display: none">
+    <div class="wy-Module-tit"><span>精选推荐</span></div>
+    <div class="wy-Module-con">
+      <div class="swiper-container swiper-jingxuan" style="padding-top:34px;">
+        <div class="swiper-wrapper goods-top-item">
+        </div>
+        <div class="swiper-pagination jingxuan-pagination"></div>
+      </div>
+    </div>
+  </div>
+  <!--酒水专场-->
+  <div class="wy-Module hot-tuijian" style="display: none">
+    <div class="wy-Module-tit"><span>热门推荐</span></div>
+    <div class="wy-Module-con">
+      <div class="swiper-container swiper-jiushui" style="padding-top:34px;">
+        <div class="swiper-wrapper goods-category-rec">
+        </div>
+        <div class="swiper-pagination jingxuan-pagination"></div>
+      </div>
+    </div>
+  </div>
+  <!--猜你喜欢-->
+  <div class="wy-Module goods-list" style="display: none">
+    <div class="wy-Module-tit-line"><span>猜你喜欢</span></div>
+    <div class="wy-Module-con">
+      <ul class="wy-pro-list clear">
+      </ul>
+      <div class="morelinks"><a href="<{:url('/mall/goods/pro_list')}>">查看更多 >></a></div>
+    </div>
+  </div>
+</div>
+
+<!--底部导航-->
+<{include file="public/footer_nav" /}>
+
+<{include file="public/footer" /}>
+<script src="/static/mall/js/swiper.js"></script>
+<script>
+  $(function () {
+    //轮播
+    bs_request("<{:url('get_banner')}>",{},function (res) {
+
+      if (res.code==0 && res.data.banner.length>0){
+          for (var i=0;i<res.data.banner.length;i++){
+            $(".banner-item").append('<div class="swiper-slide"><a href="'+res.data.banner[i].url+'"><img src="'+res.data.banner[i].img+'" alt="'+res.data.banner[i].title+'" /></a></div>')
+          }
+      }
+      $(".swiper-banner").swiper({
+        loop: true,
+        autoplay: 3000
+      });
+    });
+
+    //导航
+    bs_request("<{:url('get_navs')}>",{},function (res) {
+
+      if (res.code==0 && res.data.navs.length>0){
+        for (var i=0;i<res.data.navs.length;i++){
+          $(".wy-iconlist-box").append('<div class="weui-flex__item"><a href="'+res.data.navs[i].url+'" class="wy-links-iconlist"><div class="img"><img src="'+res.data.navs[i].img+'" alt="'+res.data.navs[i].title+'"></div><p>'+res.data.navs[i].title+'</p></a></div>')
+        }
+      }
+
+    });
+
+    //公告
+    bs_request("<{:url('get_article')}>",{},function (res) {
+
+      if (res.code==0 && res.data.article.length>0){
+        for (var i=0;i<res.data.article.length;i++){
+          $(".news-item").append('<div class="swiper-slide"><a href="<{:url(\'news_info\')}>?id='+res.data.article[i].id+'">'+res.data.article[i].title+'</a></div>')
+        }
+      }
+      $(".swiper-news").swiper({
+        loop: true,
+        direction: 'vertical',
+        paginationHide :true,
+        autoplay: 5000
+      });
+    });
+
+    //精选推荐
+    bs_request("<{:url('/mall/goods/goods_list')}>",{is_top:1,page:1},function (res) {
+      $(".jingxuan-tuijian").show();
+      if (res.code==0 && res.data.goods.length>0){
+        for (var i=0;i<res.data.goods.length;i++){
+          $(".goods-top-item").append('<div class="swiper-slide"><a href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'" ><img src="'+res.data.goods[i].thumb+'" /></a></div>')
+        }
+      }
+      $(".swiper-jingxuan").swiper({
+        pagination: '.swiper-pagination',
+        loop: true,
+        paginationType:'fraction',
+        slidesPerView:3,
+        paginationClickable: true,
+        spaceBetween: 2
+      });
+    });
+    //热门推荐
+    bs_request("<{:url('/mall/goods/goods_list')}>",{category_id:1,page:1},function (res) {
+      $(".hot-tuijian").show();
+      if (res.code==0 && res.data.goods.length>0){
+        for (var i=0;i<res.data.goods.length;i++){
+          $(".goods-category-rec").append(' <div class="swiper-slide"><a href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'"><img src="'+res.data.goods[i].thumb+'" /></a></div>')
+        }
+      }
+      $(".swiper-jiushui").swiper({
+        pagination: '.swiper-pagination',
+        paginationType:'fraction',
+        loop: true,
+        slidesPerView:3,
+        slidesPerColumn: 2,
+        paginationClickable: true,
+        spaceBetween:2
+      });
+    });
+
+    //猜你喜欢
+    bs_request("<{:url('/mall/goods/goods_list')}>",{page:1,home:1},function (res) {
+       $.showLoading()
+      if (res.code==0 && res.data.goods.length>0) {
+        $(".goods-list").show();
+        for (var i = 0; i < res.data.goods.length; i++) {
+          $(".wy-pro-list").append('<li>\n' +
+                  '          <a href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'">\n' +
+                  '            <div class="proimg"><img src="'+res.data.goods[i].thumb+'" alt=""></div>\n' +
+                  '            <div class="protxt">\n' +
+                  '              <div class="name">'+res.data.goods[i].title+'</div>\n' +
+                  '              <div class="wy-pro-pri">¥<span>'+res.data.goods[i].price+'</span></div>\n' +
+                  '            </div>\n' +
+                  '          </a>\n' +
+                  '        </li>')
+        }
+      }
+      $.hideLoading()
+    });
+  })
+
+</script>
+
+</body>
+</html>

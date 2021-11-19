@@ -1,0 +1,113 @@
+<!DOCTYPE html  >
+<html lang="zh">
+<head>
+<title>操作地址</title>
+  <{include file="public/header" /}>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">操作地址</div>
+</header>
+<div class="weui-content">
+  <div class="weui-cells weui-cells_form wy-address-edit">
+    <div class="weui-cell">
+      <div class="weui-cell__hd"><label class="weui-label wy-lab">收货人</label></div>
+      <div class="weui-cell__bd"><input class="weui-input" name="username" type="text"  placeholder="收货人姓名"></div>
+    </div>
+    <div class="weui-cell">
+      <div class="weui-cell__hd"><label class="weui-label wy-lab">手机号</label></div>
+      <div class="weui-cell__bd"><input class="weui-input" name="mobile" type="number" pattern="[0-9]*" placeholder="收货人手机号"></div>
+    </div>
+    <div class="weui-cell">
+      <div class="weui-cell__hd"><label   class="weui-label wy-lab">所在地区</label></div>
+      <div class="weui-cell__bd"><input class="weui-input" name="addr" id="addr" type="text" value="北京 北京市 东城区" readonly="" data-code="110101" data-codes="110000,110000,110101"></div>
+    </div>
+    <div class="weui-cell">
+      <div class="weui-cell__hd"><label class="weui-label wy-lab">详细地址</label></div>
+      <div class="weui-cell__bd">
+        <textarea class="weui-textarea" name="detail" placeholder="详细地址，如xxx号"></textarea>
+      </div>
+    </div>
+    <div class="weui-cell weui-cell_switch">
+      <div class="weui-cell__bd">设为默认地址</div>
+      <div class="weui-cell__ft"><input class="weui-switch" type="checkbox"  name="is_default"></div>
+    </div>
+  </div> 
+  <div class="weui-btn-area btn-action">
+    <a class="weui-btn weui-btn_primary" href="javascript:save()"  >保存此地址</a>
+
+
+  </div>
+
+</div>
+
+<{include file="public/footer" /}>
+
+
+<script src="/static/mall/js/city-picker.js"></script>
+<script>
+
+  var id = bs_get_param('id');
+
+  if (id){
+    $(".btn-action").append('<a href="javascript:del();"  class="weui-btn weui-btn_warn">删除此地址</a>');
+
+    bs_request("<{:url('my_address_info')}>",{id:id},function (res) {
+      if (res.code==0 && res.data.address){
+          $("input[name='username']").val(res.data.address.username)
+          $("input[name='mobile']").val(res.data.address.mobile)
+          $("textarea[name='detail']").val(res.data.address.address)
+          $("input[name='addr']").val(res.data.address.province+' '+res.data.address.city+' '+res.data.address.area);
+          if (res.data.address.is_default){
+            $("input[name='is_default']").prop("checked", true);
+          }else {
+            $("input[name='is_default']").prop("checked", false);
+          }
+      }
+    })
+  }
+  $("#addr").cityPicker({
+        title: "选择出发地",
+        onChange: function (picker, values, displayValues) {
+         // console.log(values, displayValues);
+        }
+      });
+
+  function save(){
+    var username = $("input[name='username']").val()
+    var mobile = $("input[name='mobile']").val()
+    var detail = $("textarea[name='detail']").val()
+    var addr = $("input[name='addr']").val();
+    var is_default = 0;
+    if ($("input[name='is_default']").prop("checked")){
+      is_default = 1;
+    }
+
+    bs_request("<{:url('my_address_action')}>",{
+      username:username,mobile:mobile,detail:detail,addr:addr,is_default:is_default,id:id
+    },function (res) {
+        $.toast(res.msg,res.code==0?'':'cancel',function () {
+          if (res.code==0){
+            location.href = "<{:url('address_list')}>"
+          }
+        })
+    })
+
+  }
+  function del(){
+    $.confirm('确定删除吗?',function () {
+      bs_request("<{:url('my_address_action')}>",{id:id,from:'del'},function (res) {
+        $.toast(res.msg,res.code==0?'':'cancel',function () {
+          if (res.code==0){
+            location.href = "<{:url('address_list')}>"
+          }
+        })
+      })
+    })
+
+  }
+    </script>
+</body>
+</html>

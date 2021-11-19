@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<title>文章列表</title>
+    <{include file="public/header" /}>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">文章列表</div>
+</header>
+<div class="weui-content">
+  <div class="weui-cells wy-news-list">
+
+
+  </div>
+  
+</div>
+
+<{include file="public/footer" /}>
+<script>
+    $(function () {
+        //公告
+        bs_request("<{:url('get_article')}>",{},function (res) {
+
+            if (res.code==0 && res.data.article.length>0){
+                for (var i=0;i<res.data.article.length;i++){
+                    $(".wy-news-list").append(' <a class="weui-cell weui-cell_access" href="<{:url(\'news_info\')}>?id='+res.data.article[i].id+'">\n' +
+                        '      <div class="weui-cell__bd">\n' +
+                        '        <p>'+res.data.article[i].title+'</p>\n' +
+                        '      </div>\n' +
+                        '      <div class="weui-cell__ft"></div>\n' +
+                        '     </a>');
+                }
+            }
+            $(".swiper-news").swiper({
+                loop: true,
+                direction: 'vertical',
+                paginationHide :true,
+                autoplay: 5000
+            });
+        });
+    })
+</script>
+</body>
+</html>

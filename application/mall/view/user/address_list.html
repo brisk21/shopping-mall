@@ -1,0 +1,73 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>地址管理</title>
+  <{include file="public/header" /}>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">地址管理</div>
+</header>
+<div class="weui-content">
+  <div class="weui-panel address-box">
+
+    
+  </div>
+  <div class="weui-btn-area">
+    <a class="weui-btn weui-btn_primary" href="<{:url('/mall/user/address_info')}>" id="showTooltips">添加收货地址</a>
+  </div>
+</div>
+
+<{include file="public/footer" /}>
+<script>
+
+
+
+  $(function () {
+    var id = bs_get_param('id');
+    var from = bs_get_param('from');
+
+
+    if (id && from && from=='info'){
+      $(".address-box").on('click','.address-item',function (res) {
+        var addr_id = $(this).data('id');
+        location.href = "<{:url('/mall/order/info')}>?id="+id+'&addr_id='+addr_id;
+      })
+    }else if( from && from=='info2'){
+      $(".address-box").on('click','.address-item',function (res) {
+        var addr_id = $(this).data('id');
+        location.href = "<{:url('/mall/order/info2')}>?addr_id="+addr_id;
+      })
+
+    }
+
+    bs_request("<{:url('/mall/user/my_address')}>",{page:1},function (res) {
+
+      if (res.code==0){
+        var data = res.data.address;
+        if (data.length>0){
+          for (var i=0;i<data.length;i++){
+            var item = '<div class="weui-panel__bd address-item" data-id="'+data[i].id+'">\n' +
+                    '      <div class="weui-media-box weui-media-box_text address-list-box">\n' +
+                    '        <a href="<{:url(\'/mall/user/address_info\')}>?id='+data[i].id+'" class="address-edit"></a>\n' +
+                    '        <h4 class="weui-media-box__title"><span>'+data[i].username+'</span><span>'+data[i].mobile+'</span></h4>\n' +
+                    '        <p class="weui-media-box__desc address-txt">'+data[i].province+data[i].city+data[i].area+data[i].town+data[i].address+'</p>\n'
+
+            if (data[i].is_default==1){
+              item+='<span class="default-add">默认地址</span>';
+            }
+
+
+                    item +='      </div>\n' +
+                    '    </div>';
+            $(".address-box").append(item)
+          }
+        }
+      }
+    })
+  })
+</script>
+</body>
+</html>

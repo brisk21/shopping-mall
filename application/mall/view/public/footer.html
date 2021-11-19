@@ -1,0 +1,43 @@
+<script src="/static/mall/lib/jquery-2.1.4.js"></script>
+<script src="/static/mall/lib/fastclick.js"></script>
+<!---->
+
+
+<script>
+    $(function() {
+        FastClick.attach(document.body);
+    });
+</script>
+
+<script src="/static/mall/js/jquery-weui.js"></script>
+<script src="/static/mall/com/com.js"></script>
+
+<script>
+    $(".wy-header-icon-back").on('click',function () {
+       history.back();
+    });
+
+
+
+    bs_request("<{:url('/mall/goods/my_cart_total')}>",{from:'home'},function (res){
+        if (res.code==0){
+            $(".cart-num").text(res.data.total)
+        }
+    })
+
+</script>
+
+<script>
+
+    /*$(".weui-tabbar__item").on('click',function (e){
+        e.stopPropagation();
+        e.preventDefault();
+
+        $(".weui-tabbar__item").removeClass('weui-bar__item--on')
+        if (!$(this).hasClass('weui-bar__item--on')){
+            $(this).addClass('weui-bar__item--on').siblings('.weui-bar__item--on').removeClass('weui-bar__item--on');
+            //window.location.replace($(this).attr('href'))
+            //return location.href = $(this).attr('href')
+        }
+    })*/
+</script>

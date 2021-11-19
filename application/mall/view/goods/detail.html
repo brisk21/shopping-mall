@@ -1,0 +1,227 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>产品详情</title>
+
+  <{include file="public/header" /}>
+</head>
+<body ontouchstart>
+<!--主体-->
+<div class="weui-content">
+  <!--产品详情-->
+  <div class="weui-tab">
+    <div class="weui-navbar" style="position:fixed; top:0; left:0; right:0; height:44px;">
+      <a class="weui-navbar__item proinfo-tab-tit weui-bar__item--on" href="#tab1">商品</a>
+      <a class="weui-navbar__item proinfo-tab-tit" href="#tab2">详情</a>
+    </div>
+    <div class="weui-tab__bd proinfo-tab-con">
+      <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
+        <!--主图轮播-->
+        <div class="swiper-container swiper-zhutu">
+          <div class="swiper-wrapper banner-item">
+
+          </div>
+          <div class="swiper-pagination swiper-zhutu-pagination"></div>
+        </div>
+        <div class="wy-media-box-nomg weui-media-box_text">
+          <h4 class="wy-media-box__title goods-title"></h4>
+          <div class="wy-pro-pri mg-tb-5">¥<em class="num font-20 goods-price" ></em></div>
+          <p class="weui-media-box__desc goods-desc"></p>
+        </div>
+      </div>
+      <div id="tab2" class="weui-tab__bd-item ">
+        <div class="pro-detail">
+        </div>
+      </div>
+    </div>
+  </div>  
+</div>
+<span id="tophovertree" title="返回顶部"></span>
+<!--底部导航-->
+<div class="foot-black"></div>
+<div class="weui-tabbar wy-foot-menu">
+  <a href="<{:url('/mall/home/index',['status'=>''])}>" class="promotion-foot-menu-items">
+    <div class="weui-tabbar__icon promotion-foot-menu-kefu"></div>
+    <p class="weui-tabbar__label">客服</p>
+  </a>
+  <a href="javascript:;" id='favorite' class="promotion-foot-menu-items">
+    <div class="weui-tabbar__icon promotion-foot-menu-collection "></div>
+    <p class="weui-tabbar__label">收藏</p>
+  </a>
+  <a href="<{:url('/mall/goods/cart')}>" class="promotion-foot-menu-items">
+    <span class="weui-badge cart-num"  style="position: absolute;top: -.4em;right: 1em;"></span>
+    <div class="weui-tabbar__icon promotion-foot-menu-cart"></div>
+    <p class="weui-tabbar__label">购物车</p>
+  </a>
+  <a href="javascript:;" class="weui-tabbar__item yellow-color open-popup add-cart" data-target="#join_cart">
+    <p class="promotion-foot-menu-label">加入购物车</p>
+  </a>
+  <a href="javascript:toPay()" class="weui-tabbar__item red-color buy-now" >
+    <p class="promotion-foot-menu-label">立即购买</p>
+  </a>
+</div>
+<div id="join_cart" class='weui-popup__container popup-bottom' style="z-index:600;">
+  <div class="weui-popup__overlay" style="opacity:1;"></div>
+  <div class="weui-popup__modal">
+    <div class="modal-content">
+      <div class="weui-msg" style="padding-top:0;">
+        <div class="weui-msg__icon-area"><i class="weui-icon-success weui-icon_msg"></i></div>
+        <div class="weui-msg__text-area">
+          <h2 class="weui-msg__title">成功加入购物车</h2>
+          <p class="weui-msg__desc">亲爱的用户，您的商品已成功加入购物车，为了保证您的商品快速送达，请您尽快到购物车结算。</p>
+        </div>
+        <div class="weui-msg__opr-area">
+          <p class="weui-btn-area">
+            <a href="<{:url('/mall/goods/cart')}>" class="weui-btn weui-btn_primary">去购物车结算</a>
+            <a href="javascript:;" class="weui-btn weui-btn_default close-popup">不，我再看看</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<{include file="public/footer" /}>
+<script src="/static/mall/js/swiper.js"></script>
+
+
+<script>
+  var id = bs_get_param('id');
+  function toPay(){
+    location.href="<{:url('/mall/order/info')}>?id="+id;
+  }
+  
+  $(function () {
+    
+    bs_request("<{:url('/mall/goods/goods_detail')}>",{id:id},function (res) {
+
+      if (res.code==0 && res.data.goods){
+        var goods = res.data.goods;
+
+        //主图
+        if (goods.banners){
+          for (var i=0;i<goods.banners.length;i++){
+              $(".banner-item").append('<div class="swiper-slide"><img src="'+goods.banners[i]+'" /></div>');
+          }
+
+          $(".swiper-zhutu").swiper({
+            loop: true,
+            paginationType:'fraction',
+            autoplay:5000
+          });
+        }
+        $(".pro-detail").empty().html(goods.content);
+        $(".goods-title").empty().html(goods.title);
+        $(".goods-price").empty().html(goods.price);
+        $(".goods-desc").empty().html(goods.goods_desc);
+        //已收藏
+        if (goods.has_favorite){
+          $("#favorite").find('div').addClass('promotion-foot-menu-collection-on');
+        }
+      }
+
+    });
+  });
+
+</script>
+
+
+<script>
+      $(document).on("click", "#favorite", function() {
+        bs_request("<{:url('/mall/goods/favorite_action')}>",{id:id},function (res) {
+          if (res.code != 0){
+            return $.alert(res.msg);
+          }
+          $.toast(res.msg, function() {
+            if (res.data==1){
+              $("#favorite").find('div').addClass('promotion-foot-menu-collection-on')
+            }else {
+              $("#favorite").find('div').removeClass('promotion-foot-menu-collection-on')
+            }
+            console.log('close');
+          });
+        });
+
+
+
+
+      });
+      /*$(".buy-now").on('click',function () {
+
+        $.toast("购买", function() {
+          console.log('close');
+        });
+
+      });*/
+      $(".add-cart").on('click',function (e){
+        bs_request("<{:url('/mall/goods/my_cart_action')}>",{goods_id:id,count:1,dotype:'Increase'},function (res) {
+
+        });
+      })
+      bs_request("<{:url('/mall/goods/my_cart_total')}>",{form:'detail'},function (res){
+        if (res.code==0){
+          $(".cart-num").text(res.data.total)
+        }
+      })
+</script>
+<script>
+  $(document).on("open", ".weui-popup-modal", function () {
+    console.log("open popup");
+  }).on("close", ".weui-popup-modal", function () {
+    console.log("close popup");
+  });
+</script>
+<script>
+  $(function () {
+    initTopHoverTree("tophov" + "ertree", 30, 10, 10);
+  })
+</script>
+<script>
+  function initTopHoverTree(hvtid, times, right, bottom) {
+    $("#" + hvtid).css("right", right).css("bottmo", bottom);
+    $("#" + hvtid).on("click", function () {
+      goTopHovetree(times);
+    })
+    $(window).scroll(function () {
+      if ($(window).scrollTop() > 268) {
+        $("#" + hvtid).fadeIn(100);
+      } else {
+        $("#" + hvtid).fadeOut(100);
+      }
+    });
+  }
+
+  //返回顶部动画
+  //goTop(500);//500ms内滚回顶部
+  function goTopHovetree(times) {
+    if (!!!times) {
+      $(window).scrollTop(0);
+      return;
+    }
+    var sh = $('body').scrollTop();//移动总距离
+    var inter = 13.333;//ms,每次移动间隔时间
+    var forCount = Math.ceil(times / inter);//移动次数
+    var stepL = Math.ceil(sh / forCount);//移动步长
+    var timeId = null;
+
+    function aniHovertree() {
+      !!timeId && clearTimeout(timeId);
+      timeId = null;
+//console.log($('body').scrollTop());
+      if ($('body').scrollTop() <= 0 || forCount <= 0) {//移动端判断次数好些，因为移动端的scroll事件触发不频繁，有可能检测不到有<=0的情况
+        $('body').scrollTop(0);
+        return;
+      }
+      forCount--;
+      sh -= stepL;
+      $('body').scrollTop(sh);
+      timeId = setTimeout(function () {
+        aniHovertree();
+      }, inter);
+    }
+
+    aniHovertree();
+  }
+</script>
+</body>
+</html>

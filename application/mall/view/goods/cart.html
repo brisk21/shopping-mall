@@ -1,0 +1,234 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>购物车</title>
+    <{include file="public/header" /}>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">购物车</div>
+</header>
+<div class="weui-content cart-list">
+
+</div>
+<!--底部导航-->
+<div class="foot-black"></div>
+<div class="weui-tabbar wy-foot-menu">
+  <div class="npd cart-foot-check-item weui-cells_checkbox allselect">
+    <label class="weui-cell allsec-well weui-check__label" for="all">
+        <div class="weui-cell__hd">
+          <input type="checkbox" class="weui-check" name="all-sec" id="all">
+          <i class="weui-icon-checked"></i>
+        </div>
+        <div class="weui-cell__bd">
+          <p class="font-14">全选</p>
+        </div>
+    </label>
+  </div>
+  <div class="weui-tabbar__item  npd">
+    <p class="cart-total-txt">合计：<i>￥</i><em class="num font-16" id="totalMoney">0.00</em></p>
+  </div>
+  <a href="<{:url('/mall/order/info2')}>" class="red-color npd w-90 t-c">
+    <p class="promotion-foot-menu-label">去结算</p>
+  </a>
+</div>
+
+
+<!--底部导航-->
+
+
+<{include file="public/footer" /}>
+
+
+<!---全选按钮-->
+
+<script type="text/javascript">
+$(document).ready(function () {
+    checkCart()
+	$(".allselect").click(function () {
+	    var doType;
+		if($(this).find("input[name=all-sec]").prop("checked")){
+			$("input[name=cartpro]").each(function () {
+				$(this).prop("checked", true);
+			});
+            doType = '1';
+		}else{
+			$("input[name=cartpro]").each(function () {
+				if ($(this).prop("checked")) {
+					$(this).prop("checked", false);
+				} else {
+					$(this).prop("checked", true);
+				} 
+			});
+            doType = '';
+   		}
+        bs_request("<{:url('/mall/goods/my_cart_select_status')}>",{dotype:doType},function (res) {
+            if (res.code==0){
+                checkCart()
+            }
+        })
+	});
+
+	$(".cart-list").on('click','.checkgoods',function (e){
+	    var doType;
+	    var id = $(this).data('id');
+        if ($(this).prop("checked")) {
+            $(this).prop("checked", true);
+            doType =1;
+        } else {
+            $(this).prop("checked", false);
+            doType = 0;
+        }
+        bs_request("<{:url('/mall/goods/my_cart_select_status')}>",{dotype:doType,id:id},function (res) {
+            if (res.code==0){
+                checkCart()
+            }
+        })
+    });
+
+	//增减
+	$(".cart-list").on('click','.Decrease,.Increase',function (e) {
+      var id = Number($(this).parent('.Spinner').data('id'));
+      var count = Number($(".count"+id).val());
+      var nowCount,dotype;
+
+      if ($(this).hasClass('Decrease')){
+           nowCount = count-1;
+          dotype = 'Decrease'
+      }else {
+           nowCount = count+1;
+           dotype = 'Increase'
+      }
+      if (nowCount<=0){
+          $.confirm("您确定要把此商品从购物车删除吗?", "确认删除?", function() {
+              bs_request("<{:url('/mall/goods/my_cart_action')}>",{id:id,count:nowCount,dotype:'del'},function (res) {
+                  if (res.code==0){
+                      if (nowCount<=0){
+                          $(".id"+id).remove();
+                      }
+                      checkCart();
+                  }
+
+              });
+          });
+      }else {
+          $(".count"+id).val(nowCount)
+          bs_request("<{:url('/mall/goods/my_cart_action')}>",{id:id,count:nowCount,dotype:dotype},function (res) {
+              if (res.code==0){
+                  checkCart()
+              }
+          });
+      }
+    });
+
+});
+
+function checkCart(){
+    bs_request("<{:url('/mall/goods/my_cart_total')}>",{from:'checked'},function (res){
+        if (res.code==0){
+            $("#totalMoney").text(res.data.totalMoney)
+        }
+    })
+}
+  var cpage = 1;
+  var st = 1;
+  function load_data(){
+    if (st==0){
+      return ;
+    }
+    bs_request("<{:url('/mall/goods/my_cart_goods')}>",{page:cpage},function (res) {
+
+
+      if (res.code==0 && res.data.goods.length>0) {
+
+        if (res.data.isAllChecked==true){
+          $("input[name=all-sec]").prop("checked",true)
+        }
+
+        for (var i = 0; i < res.data.goods.length; i++) {
+          var  item = '<div class="weui-panel weui-panel_access id'+res.data.goods[i].id+'" >\n' +
+                  '    <div class="weui-panel__hd"><span>'+res.data.goods[i].store_name+'</span><a href="javascript:;" class="wy-dele" data-id="'+res.data.goods[i].id+'"></a></div>\n' +
+                  '    <div class="weui-panel__bd">\n' +
+                  '      <div class="weui-media-box_appmsg pd-10">\n' +
+                  '        <div class="weui-media-box__hd check-w weui-cells_checkbox">\n' +
+                  '          <label class="weui-check__label" for="cart-pto2_'+res.data.goods[i].id+'">\n' +
+                  '            <div class="weui-cell__hd cat-check"><input type="checkbox" class="weui-check checkgoods" data-id="'+res.data.goods[i].id+'" name="cartpro" '+(res.data.goods[i].status==1?"checked":"")+'  id="cart-pto2_'+res.data.goods[i].id+'"><i class="weui-icon-checked"></i></div>\n' +
+                  '          </label>\n' +
+                  '        </div>\n' +
+                  '        <div class="weui-media-box__hd"><a href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'"><img class="weui-media-box__thumb" src="'+res.data.goods[i].thumb+'" alt=""></a></div>\n' +
+                  '        <div class="weui-media-box__bd">\n' +
+                  '          <h1 class="weui-media-box__desc"><a href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'" class="ord-pro-link">'+res.data.goods[i].title+'</a></h1>\n' +
+                  '          <!--<p class="weui-media-box__desc">规格：<span>红色</span>，<span>23</span></p>-->\n' +
+                  '          <div class="clear mg-t-10">\n' +
+                  '            <div class="wy-pro-pri fl">¥<em class="num font-15">'+res.data.goods[i].price+'</em></div>\n' +
+
+              '<div class="pro-amount fr"><div data-id="'+res.data.goods[i].id+'" class="Spinner" data-spin="spinner"><a class="Decrease Decrease'+res.data.goods[i].id+'" href="javascript:void(0)"><i>-</i></a><input class="Amount count'+res.data.goods[i].id+'" value="'+res.data.goods[i].count+'" autocomplete="off" maxlength="3"><a class="Increase Increase'+res.data.goods[i].id+'" href="javascript:void(0)"><i>+</i></a></div></div>'+
+
+                  '            <div class="pro-amount fr"><div class="Spinner" data-spin="spinner"></div></div>\n' +
+                  '          </div>\n' +
+                  '        </div>\n' +
+                  '      </div>\n' +
+                  '    </div>\n' +
+                  '  </div>';
+
+
+          $(".cart-list").append(item)
+        }
+      }else{
+        st = 0;
+      }
+    });
+  }
+
+  load_data();
+
+
+  // 滚动加载
+  var loading = false;
+  $(".cart-list").infinite().on("infinite", function() {
+    $(".weui-loadmore").show();
+    if(loading) return;
+    loading = true;
+    setTimeout(function() {
+      cpage = cpage+1;
+      load_data();
+      loading = false;
+      $(".weui-loadmore").hide();
+    }, 1000);
+  });
+
+  $(function () {
+
+    $(document).on("click", ".wy-dele", function() {
+      var id = $(this).data('id');
+      var obj = $(this);
+      $.confirm("您确定要把此商品从购物车删除吗?", "确认删除?", function() {
+        bs_request("<{:url('/mall/goods/my_cart_action')}>",{id:id,dotype:'del',count: -1},function (res) {
+            if (res.code==0){
+                checkCart()
+            }
+          if (res.code != 0){
+            return $.alert(res.msg);
+          }
+          $.toast(res.msg, function() {
+            if (res.data==1){
+
+            }else {
+              $(".id"+id).remove()
+
+            }
+            //console.log('close');
+          });
+        });
+      }, function() {
+        //取消操作
+      });
+    });
+
+
+  })
+</script>
+</body>
+</html>

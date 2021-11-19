@@ -1,0 +1,46 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>文章详情</title>
+  <{include file="public/header" /}>
+  <style>
+    .weui-content{
+      background: white;
+    }
+  </style>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">详情</div>
+</header>
+<div class="weui-content">
+  <article class="weui-article">
+    <h1 class="art-title"></h1>
+    <h3 class="wy-news-time art-time"></h3>
+    <section class="wy-news-info">
+
+    </section>
+  </article>
+  
+</div>
+<{include file="public/footer" /}>
+<script>
+  //公告
+  bs_request("<{:url('get_article_info')}>",{id:"<{$Request.param.id}>"},function (res) {
+
+    if (res.code==0 && res.data.article){
+
+        $(".art-title").html(res.data.article.title)
+        $(".art-time").html(res.data.article.add_time)
+
+        $(".wy-news-info").html(res.data.article.content)
+    }else {
+      $.alert('已下线','温馨提示')
+    }
+
+  });
+</script>
+</body>
+</html>
