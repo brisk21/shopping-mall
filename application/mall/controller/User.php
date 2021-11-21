@@ -6,9 +6,16 @@ namespace app\mall\controller;
 
 use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
+use app\service\Credits;
+use think\Request;
 
 class User extends Mall
 {
+    public function __construct(Request $request = null)
+    {
+        parent::__construct($request);
+    }
+
     //个人中心
     public function index()
     {
@@ -21,6 +28,12 @@ class User extends Mall
     }
 
     public function address_list()
+    {
+        return $this->fetch();
+    }
+
+    //交易记录
+    public function record()
     {
         return $this->fetch();
     }
@@ -124,6 +137,43 @@ class User extends Mall
         data_return('ok', 0, [
             'count' => $data
         ]);
+    }
 
+    //我的账户余额
+    public function my_credits()
+    {
+        $data = Credits::get($this->uid,'point,credit');
+        //我收藏的商品数量
+        $data['goods'] = AppCommon::db('goods_favorite')->where(['uid'=>$this->uid])->count('*') ;
+        data_return('ok',0,[
+            'credits'=>$data
+        ]);
+    }
+
+    //我的交易记录
+    public function my_records()
+    {
+        $type = !empty($this->param['type'])?intval($this->param['type']):1;
+        $where = ['uid'=>$this->uid,'type'=>$type];
+        $page = !empty($this->param['page'])?intval($this->param['page']):1;
+
+        $data = AppCommon::data_list('common_user_credit_log',$where,$page,'add_time,remark,num,type');
+
+        if (!empty($data)){
+            foreach ($data as &$value){
+                $value['add_time'] = date('Y-m-d H:i:s',$value['add_time']);
+                if ($value['num']>0){
+                    $value['ctype'] = '+';
+                }else{
+                    $value['num'] = abs($value['num']);
+                    $value['ctype'] = '-';
+                }
+            }
+            unset($value);
+        }
+
+        data_return('ok',0,[
+            'records'=>$data
+        ]);
     }
 }

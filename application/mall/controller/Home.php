@@ -9,6 +9,15 @@ use app\mall\controller\com\Mall;
 
 class Home extends Mall
 {
+    public $whiteList = [
+        'mall/home/index',
+        'mall/home/news_info',
+        'mall/home/news_list',
+        'mall/home/get_banner',
+        'mall/home/get_navs',
+        'mall/home/get_article',
+        'mall/home/get_article_info',
+    ];
     public function index()
     {
         return $this->fetch();

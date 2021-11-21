@@ -39,6 +39,21 @@ class Order
         return ['code'=>0,'msg'=>'ok','data'=>['order_sn'=>$order_sn]];
     }
 
+    //更新订单
+    public static function update($order_sn,$data)
+    {
+        if (!self::get($order_sn,'id')){
+            return false;
+        }
+        return AppCommon::data_update('order',['order_sn'=>$order_sn],$data);
+    }
+
+    //查询订单
+    public static function get($order_sn,$field='*')
+    {
+        return AppCommon::data_get('order',['order_sn'=>trim($order_sn)],$field);
+    }
+
     //订单商品
     public static function add_order_goods($data)
     {

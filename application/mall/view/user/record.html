@@ -1,0 +1,105 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>交易记录</title>
+  <{include file="public/header" /}>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header" style="position:fixed; top:0; left:0; right:0; z-index:200;">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">交易记录</div>
+</header>
+<div class='weui-content'>
+  <div class="weui-tab">
+    <div class="weui-navbar" style="position:fixed; top:44px; left:0; right:0; height:44px; background:#fff;">
+      <a class="weui-navbar__item proinfo-tab-tit font-14 weui-bar__item--on" href="#tab1" onclick="setType(1)">商品购买</a>
+      <a class="weui-navbar__item proinfo-tab-tit font-14" href="#tab2" onclick="setType(2)">充值记录</a>
+      <a class="weui-navbar__item proinfo-tab-tit font-14" href="#tab3" onclick="setType(3)">提现记录</a>
+    </div>
+    <div class="weui-tab__bd proinfo-tab-con" style="padding-top:87px;">
+      <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
+        <div class="weui-panel jyjl">
+          <!--<div class="weui-panel__hd">购买商品总金额：-￥<em class="num">0.00</em></div>-->
+
+
+        </div>
+        
+        
+      </div>
+      <div id="tab2" class="weui-tab__bd-item">
+        <div class="weui-panel jyjl"></div>
+      </div>
+      <div id="tab3" class="weui-tab__bd-item">
+        <div class="weui-panel jyjl"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<{include file="public/footer" /}>
+
+<script>
+  var type = 1;
+  var page = 1;
+  var stop = false;
+
+  $(document).ready(function () {
+
+    $("#tab1").children('.jyjl').empty()
+    getData();
+  });
+
+  $(window).scroll(function () {
+    var scrollTop = $(this).scrollTop();
+    var scrollHeight = $(document).height();
+    var windowHeight = $(this).height();
+    if (scrollTop + windowHeight == scrollHeight) {
+      page++;
+      getData();
+    }
+  });
+
+  function setType(t) {
+    type = t;
+    stop = false;
+    page = 1;
+    if (type == 1) {
+      $("#tab1").children('.jyjl').empty()
+    } else if (type == 2) {
+      $("#tab2").children('.jyjl').empty()
+    } else if (type == 3) {
+      $("#tab3").children('.jyjl').empty()
+    }
+    getData();
+  }
+
+  function getData() {
+    if (stop) {
+      return;
+    }
+    bs_request("<{:url('/mall/user/my_records')}>", {page: page, type: type}, function (res) {
+      if (res.code == 0 && res.data.records.length > 0) {
+        var idName = 'tab' + type;
+
+        var records = res.data.records;
+        for (var i = 0; i < records.length; i++) {
+          var item = '<div class="weui-panel__bd">\n' +
+                  '            <div class="weui-media-box weui-media-box_text">\n' +
+                  '              <h4 class="weui-media-box__title">'+records[i].ctype+'￥<em class="num">'+records[i].num+'</em></h4>\n' +
+                  '              <p class="weui-media-box__desc">'+records[i].remark+'</p>\n' +
+                  '              <ul class="weui-media-box__info">\n' +
+                  '                <li class="weui-media-box__info__meta">交易时间：<em class="num">'+records[i].add_time+'</em></li>\n' +
+                  '              </ul>\n' +
+                  '            </div>\n' +
+                  '          </div>';
+          $("#" + idName).children('.jyjl').append(item)
+        }
+      } else {
+        stop = true;
+      }
+    });
+  }
+</script>
+</body>
+</html>

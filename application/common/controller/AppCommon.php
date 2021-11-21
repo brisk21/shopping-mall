@@ -13,6 +13,7 @@ class AppCommon extends Controller
     public static $db_where_or = null;
     public static $fetch_sql = false;
     public static $db_order = null;
+    public static $db_pageSize = 20;
 
 
     /**
@@ -47,7 +48,7 @@ class AppCommon extends Controller
     //批量查询
     public static function data_list($table, $where = null,$page=null,$field='*')
     {
-        return Db::name($table)->fetchSql(self::$fetch_sql)->where($where)->where(self::$db_where)->whereOr(self::$db_where_or)->order(self::$db_order)->page($page)->field($field)->select();
+        return Db::name($table)->fetchSql(self::$fetch_sql)->where($where)->where(self::$db_where)->whereOr(self::$db_where_or)->order(self::$db_order)->page($page,self::$db_pageSize)->field($field)->select();
     }
 
     public static function db($table)

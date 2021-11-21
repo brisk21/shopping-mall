@@ -1,7 +1,12 @@
 # thinkphp5购物商城
 
 #### 介绍
-用tp5开发一个购物商城，从简单到复杂
+用tp5开发一个购物商城，从简单到复杂，商品、搜索、购物车、订单、收藏、充值、交易记录等。
+
+###### 在线体验: [http://demo.bs.shop.wei1.top/](http://demo.bs.shop.wei1.top/)
+
+
+###### 运行效果
 
 ![alt 用户中心](./public/test/user.png "用户中心")
 ![alt 购物车](./public/test/cart.png "购物车")

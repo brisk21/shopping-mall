@@ -9,12 +9,33 @@ use app\mall\controller\com\Mall;
 
 class Goods extends Mall
 {
+    public $whiteList = [
+        'mall/goods/goods_list',
+        'mall/goods/goods_detail',
+        'mall/goods/get_classify',
+        'mall/goods/pro_list',
+        'mall/goods/classify',
+        'mall/goods/detail',
+        'mall/goods/my_cart_total',
+    ];
+
     //商品列表
     public function goods_list()
     {
         $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
-
-        AppCommon::$db_order = 'id desc';
+        $sort = !empty($this->param['sort']) ? trim($this->param['sort']) : 'normal';
+        if ($sort == 'normal') {
+            $order = 'sale desc,id desc';
+        } elseif ($sort == 'price_desc') {
+            $order = "price desc,sale desc,id desc";
+        } elseif ($sort == 'price_asc') {
+            $order = "price asc,sale desc,id desc";
+        } elseif ($sort == 'sale_asc') {
+            $order = "sale asc,id desc";
+        } elseif ($sort == 'sale_desc') {
+            $order = "sale desc,id desc";
+        }
+        AppCommon::$db_order = $order;
 
         $where = ['status' => 1];
         if (!empty($this->param['is_top'])) {
@@ -127,15 +148,15 @@ class Goods extends Mall
             ->field('b.title,b.price,b.thumb,a.id,a.count,a.status,a.goods_id,c.store_name,c.store_name')
             ->select();
 
-        $has = AppCommon::data_get('cart',['uid'=>$this->uid,'status'=>0],'id');
+        $has = AppCommon::data_get('cart', ['uid' => $this->uid, 'status' => 0], 'id');
         $isAllChecked = true;
-        if (!empty($has['id'])){
+        if (!empty($has['id'])) {
             $isAllChecked = false;
         }
 
         data_return('ok', 0, [
             'goods' => $goods,
-            'isAllChecked'=>$isAllChecked
+            'isAllChecked' => $isAllChecked
         ]);
 
     }
@@ -143,63 +164,63 @@ class Goods extends Mall
     //操作购物车
     public function my_cart_action()
     {
-        $type = !empty($this->param['dotype'])?$this->param['dotype']:'add';
-        $id = !empty($this->param['id'])?intval($this->param['id']):0;
-        $count = !empty($this->param['count'])?intval($this->param['count']):0;
+        $type = !empty($this->param['dotype']) ? $this->param['dotype'] : 'add';
+        $id = !empty($this->param['id']) ? intval($this->param['id']) : 0;
+        $count = !empty($this->param['count']) ? intval($this->param['count']) : 0;
 
-        if (!empty($id)){
-            $data = AppCommon::data_get('cart',['id'=>$id,'uid'=>$this->uid]);
+        if (!empty($id)) {
+            $data = AppCommon::data_get('cart', ['id' => $id, 'uid' => $this->uid]);
             //todo 判断商品是否可用
         }
 
-      if ($type=='Decrease' || $type=='del'){
-            if ($count<=0){
+        if ($type == 'Decrease' || $type == 'del') {
+            if ($count <= 0) {
                 //删除
-                AppCommon::data_del('cart',['uid'=>$this->uid,'id'=>intval($id)]);
-            }elseif (empty($data)){
-                data_return('先添加购物车',-1);
-            }else{
-                AppCommon::data_update('cart',['id'=>$id],[
-                    'count'=>$count
+                AppCommon::data_del('cart', ['uid' => $this->uid, 'id' => intval($id)]);
+            } elseif (empty($data)) {
+                data_return('先添加购物车', -1);
+            } else {
+                AppCommon::data_update('cart', ['id' => $id], [
+                    'count' => $count
                 ]);
             }
-        }else{
-          $goods_id = !empty($this->param['goods_id'])?intval($this->param['goods_id']):0;
-          if (!empty($goods_id)){
-              if (!AppCommon::data_get('goods',['id'=>$goods_id])){
-                  data_return('商品不存在',-1);
-              }
+        } else {
+            $goods_id = !empty($this->param['goods_id']) ? intval($this->param['goods_id']) : 0;
+            if (!empty($goods_id)) {
+                if (!AppCommon::data_get('goods', ['id' => $goods_id])) {
+                    data_return('商品不存在', -1);
+                }
 
-              $data = AppCommon::data_get('cart',['uid'=>$this->uid,'goods_id'=>$goods_id]);
-          }
-          if (!empty($data)){
-              AppCommon::data_update('cart',['id'=>$id],[
-                  'count'=>$count
-              ]);
-          }elseif (!empty($goods_id)){
-              AppCommon::data_add('cart',[
-                  'uid'=>$this->uid,
-                  'goods_id'=>$goods_id,
-                  'count'=>1,
-                  'status'=>1
-              ]);
-          }
-      }
-      data_return();
+                $data = AppCommon::data_get('cart', ['uid' => $this->uid, 'goods_id' => $goods_id]);
+            }
+            if (!empty($data)) {
+                AppCommon::data_update('cart', ['id' => $id], [
+                    'count' => $count
+                ]);
+            } elseif (!empty($goods_id)) {
+                AppCommon::data_add('cart', [
+                    'uid' => $this->uid,
+                    'goods_id' => $goods_id,
+                    'count' => 1,
+                    'status' => 1
+                ]);
+            }
+        }
+        data_return();
     }
 
     public function my_cart_select_status()
     {
-        $type = !empty($this->param['dotype'])?$this->param['dotype']:'';
-        $id = !empty($this->param['id'])?intval($this->param['id']):0;
-        $where = ['uid'=>$this->uid];
-        if (!empty($id)){
+        $type = !empty($this->param['dotype']) ? $this->param['dotype'] : '';
+        $id = !empty($this->param['id']) ? intval($this->param['id']) : 0;
+        $where = ['uid' => $this->uid];
+        if (!empty($id)) {
             $where['id'] = $id;
         }
-        if ($type=='1'){
-            AppCommon::data_update('cart',$where,['status'=>1]);
-        }else{
-            AppCommon::data_update('cart',$where,['status'=>0]);
+        if ($type == '1') {
+            AppCommon::data_update('cart', $where, ['status' => 1]);
+        } else {
+            AppCommon::data_update('cart', $where, ['status' => 0]);
         }
 
         data_return();
@@ -209,36 +230,36 @@ class Goods extends Mall
     public function my_cart_total()
     {
         $prefix = config('database')['prefix'];
-        $from = !empty($this->param['from'])?trim($this->param['from']):'';
-        $where = " a.uid='".$this->uid."' ";
-        if ($from=='checked'){
-            $where.=" and a.status=1 ";
+        $from = !empty($this->param['from']) ? trim($this->param['from']) : '';
+        $where = " a.uid='" . $this->uid . "' ";
+        if ($from == 'checked') {
+            $where .= " and a.status=1 ";
         }
 
         $goods = AppCommon::db('cart')->query("
-            select count(a.id) as total,sum(a.count*b.price) as totalMoney from ".$prefix."cart as a 
-            left join ".$prefix."goods as b on a.goods_id = b.id
+            select count(a.id) as total,sum(a.count*b.price) as totalMoney from " . $prefix . "cart as a 
+            left join " . $prefix . "goods as b on a.goods_id = b.id
             
-            where ".$where." 
+            where " . $where . " 
         
         ");
-        if (empty($goods[0]['total'])){
+        if (empty($goods[0]['total'])) {
             $goods[0]['total'] = 0;
         }
-        if (empty($goods[0]['totalMoney'])){
+        if (empty($goods[0]['totalMoney'])) {
             $goods[0]['totalMoney'] = '0.00';
         }
 
-        data_return('ok',0,$goods[0]);
+        data_return('ok', 0, $goods[0]);
     }
 
     //分类接口
     public function get_classify()
     {
-        $data = AppCommon::data_list('goods_category',['status'=>1]);
+        $data = AppCommon::data_list('goods_category', ['status' => 1]);
 
         data_return('ok', 0, [
-            'category' => $data?tree($data,'category_id','parent_id','subcat'):null
+            'category' => $data ? tree($data, 'category_id', 'parent_id', 'subcat') : null
         ]);
     }
 

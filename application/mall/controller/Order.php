@@ -6,6 +6,7 @@ namespace app\mall\controller;
 
 use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
+use app\service\Credits;
 use think\Db;
 
 class Order extends Mall
@@ -30,25 +31,25 @@ class Order extends Mall
     //我的订单
     public function my_orders()
     {
-        $where = ['uid'=>$this->uid];
-        $page = !empty($this->param['page'])?intval($this->param['page']):1;
-        $status = isset($this->param['status']) && is_numeric($this->param['status'])?intval($this->param['status']):'';
-        if (is_numeric($status)){
+        $where = ['uid' => $this->uid];
+        $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
+        $status = isset($this->param['status']) && is_numeric($this->param['status']) ? intval($this->param['status']) : '';
+        if (is_numeric($status)) {
             //-1-已取消，0-待支付，1-已支付，2-待收货，3-已完，-2-已退款
             $where['status'] = $status;
         }
         AppCommon::$db_order = 'id desc';
-        $orders = AppCommon::data_list('order',$where,$page,'order_sn,price,status,pay_time,pay_price,add_time');
+        $orders = AppCommon::data_list('order', $where, $page, 'order_sn,price,status,pay_time,pay_price,add_time');
 
-        if (!empty($orders)){
-            foreach ($orders as &$order){
-                $order['goods_list'] = AppCommon::data_list('order_goods',['order_sn'=>$order['order_sn']],1,'*');
+        if (!empty($orders)) {
+            foreach ($orders as &$order) {
+                $order['goods_list'] = AppCommon::data_list('order_goods', ['order_sn' => $order['order_sn']], 1, '*');
             }
             unset($order);
         }
 
-        data_return('ok',0,[
-            'orders'=>$orders
+        data_return('ok', 0, [
+            'orders' => $orders
         ]);
     }
 
@@ -74,7 +75,7 @@ class Order extends Mall
                 data_return('库存不足', -1);
             }
             $order = [
-                'totalMoney' => round($goods['count'] * $goods['price'], 2)
+                'totalMoney' => sprintf("%0.2f", $goods['count'] * $goods['price'])
             ];
 
             data_return('ok', 0, [
@@ -96,12 +97,12 @@ class Order extends Mall
 
             $totalMoney = 0;
             foreach ($goods as &$val) {
-                $val['totalPrice'] = round($val['price'] * $val['count'], 2);
+                $val['totalPrice'] = sprintf('%.02f', $val['price'] * $val['count']);
                 $totalMoney += $val['totalPrice'];
             }
             unset($val);
             $order = [
-                'totalMoney' => round($totalMoney, 2)
+                'totalMoney' => sprintf("%0.2f", $totalMoney)
             ];
             data_return('ok', 0, [
                 'order' => $order,
@@ -239,5 +240,90 @@ class Order extends Mall
             AppCommon::data_del('cart', ['uid' => $this->uid, 'status' => 1]);
             data_return('ok', 0, $res['data']);
         }
+    }
+
+    //余额支付
+    public function pay()
+    {
+        if (empty($this->param['order_sn'])) {
+            data_return('单号未设置', -1);
+        } elseif (empty($this->param['payType']) || !in_array(trim($this->param['payType']), ['credit'])) {
+            data_return('不支持的支付方式', -1);
+        }
+        $order = \app\service\Order::get($this->param['order_sn']);
+
+        if (empty($order)) {
+            data_return('订单不存在', -1);
+        }/*elseif ($order['uid']<>$this->uid){
+            data_return('仅限操作自己的订单',-1);
+        }*/
+        //-1-已取消，0-待支付，1-已支付，2-待收货，3-已完，-2-已退款
+        if ($order['status'] >= 1) {
+            data_return('订单已付款，请勿重复支付', -1);
+        }
+        if ($order['cancel_pay_time'] < time()) {
+            data_return('订单已超过可支付时间', -1);
+        }
+
+        $creditInfo = Credits::get($this->uid, 'credit');
+
+        if (empty($creditInfo['credit']) || $creditInfo['credit'] < $order['price']) {
+            data_return('您的余额不足，请先充值后使用', -1);
+        }
+
+        //事务提交
+        Db::transaction(function () use ($order, $creditInfo) {
+
+            //扣除余额
+            $res1 = Credits::update($this->uid, 'credit', -$order['price']);
+            if (!$res1) {
+                data_return('系统正忙5003', -1);
+            }
+
+            //资金扣除流水记录
+            $log = [
+                'uid' => $this->uid,
+                'remark' => '购买商品支付',
+                'type' => 1,//1-购买商品，2-充值记录，3-提现记录,
+                'before_num' => $creditInfo['credit'],
+                'num' => -$order['price'],
+                'after_num' => $creditInfo['credit'] - $order['price']
+            ];
+            $res2 = Credits::log_add($log);
+
+            if (!$res2) {
+                data_return('系统正忙5002', -1);
+            }
+
+            //更新订单
+            $data = [
+                'pay_price' => $order['price'],
+                'pay_time' => time(),
+                'up_time' => time(),
+                'status' => 1,
+            ];
+            $up = \app\service\Order::update($order['order_sn'], $data);
+
+            if (!$up) {
+                data_return('系统正忙5001', -1);
+            }
+
+            //更新库存
+            AppCommon::$db_pageSize = 50;
+            $orderGoods = AppCommon::data_list('order_goods',['order_sn'=>$order['order_sn']],1,'goods_id,count');
+            if (!empty($orderGoods)){
+                foreach ($orderGoods as $v){
+                    //直接减少锁库的量即可
+                    AppCommon::db('goods')->where(['id'=>$v['goods_id']])->setDec('stock_locked',$v['count']);
+                    //增加销量
+                    AppCommon::db('goods')->where(['id'=>$v['goods_id']])->setInc('sale',$v['count']);
+                }
+            }
+
+
+        });
+
+
+        data_return('支付成功', 0, ['order_sn' => $order['order_sn']]);
     }
 }

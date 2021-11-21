@@ -18,7 +18,7 @@
     <form class="weui-search-bar__form">
       <div class="weui-search-bar__box">
         <i class="weui-icon-search"></i>
-        <input type="search" value="<{$Request.param.keyword?$Request.param.keyword:''}>" name="keyword" class="weui-search-bar__input" id="searchInput" placeholder="搜索您想要的商品" required>
+        <input type="search" value="" name="keyword" class="weui-search-bar__input" id="searchInput" placeholder="搜索您想要的商品" required>
         <a href="javascript:" class="weui-icon-clear" id="searchClear"></a>
       </div>
       <label class="weui-search-bar__label" id="searchText" style="transform-origin: 0px 0px 0px; opacity: 1; transform: scale(1, 1);">
@@ -30,9 +30,9 @@
   </div>
   <div class="pro-sort">
     <div class="weui-flex">
-      <div class="weui-flex__item"><div class="placeholder NormalCss">综合</div></div>
-      <div class="weui-flex__item"><div class="placeholder SortAscCss">按销量</div></div>
-      <div class="weui-flex__item"><div class="placeholder SortDescCss">按价格</i></div></div>
+      <div class="weui-flex__item"><div class="placeholder NormalCss sort-item" onclick="setSort('normal',this)">综合</div></div>
+      <div class="weui-flex__item"><div class="placeholder  sort-item" onclick="setSort('sale',this)">按销量</div></div>
+      <div class="weui-flex__item"><div class="placeholder  sort-item" onclick="setSort('price',this)">按价格</div></div>
     </div>
   </div>
 </header>
@@ -63,13 +63,18 @@
 <script>
   var cpage = 1;
   var st = 1;
-  var category_id= "<{$Request.param.category_id?$Request.param.category_id:''}>";
+  var category_id= bs_get_param('category_id');
+  var sort = 'normal';
+  var keyword = bs_get_param('keyword');
+  if (keyword){
+    $("#searchInput").val(keyword)
+  }
   function load_data(){
     if (st==0){
       return ;
     }
     var keyword = $("#searchInput").val();
-    bs_request("<{:url('/mall/goods/goods_list')}>",{page:cpage,keyword:keyword,category_id:category_id},function (res) {
+    bs_request("<{:url('/mall/goods/goods_list')}>",{page:cpage,keyword:keyword,category_id:category_id,sort:sort},function (res) {
 
 
       if (res.code==0 && res.data.goods.length>0) {
@@ -97,10 +102,58 @@
 
   load_data();
 
+
+  function setSort(stype,obj){
+    //SortAscCss,SortDescCss,NormalCss
+
+    var nowSort = '';
+    if (stype=='normal'){
+        nowSort = 'normal';
+
+        $(".sort-item").removeClass("SortAscCss SortDescCss");
+        $(obj).addClass("NormalCss");
+    }else if(stype=='price'){
+      if (!$(obj).hasClass('SortAscCss')){
+        nowSort = 'price_asc';
+        $(".sort-item").removeClass("SortAscCss SortDescCss NormalCss");
+        $(obj).removeClass('SortDescCss');
+        $(obj).addClass('SortAscCss');
+      }else {
+        nowSort = 'price_desc';
+        $(".sort-item").removeClass("SortAscCss SortDescCss NormalCss");
+        $(obj).removeClass('SortAscCss');
+        $(obj).addClass('SortDescCss');
+      }
+
+    }else if(stype=='sale'){
+
+      if (!$(obj).hasClass('SortAscCss')){
+        nowSort = 'sale_asc';
+        $(".sort-item").removeClass("SortAscCss SortDescCss NormalCss");
+        $(obj).removeClass('SortDescCss');
+        $(obj).addClass('SortAscCss');
+      }else {
+        nowSort = 'sale_desc';
+        $(".sort-item").removeClass("SortAscCss SortDescCss NormalCss");
+        $(obj).removeClass('SortAscCss');
+        $(obj).addClass('SortDescCss');
+      }
+    }
+    if (sort==nowSort){
+      return ;
+    }
+    sort = nowSort;
+    cpage = 1;
+    st =1;
+    $("#list").empty();
+    load_data();
+  }
+
   $("#searchCancel").on('click',function () {
     $("#searchInput").val('')
     cpage = 1;
     st =1;
+    $("#list").empty();
     load_data();
   });
 

@@ -9,6 +9,9 @@ function bs_request(url,data,callback,type) {
 
         },
         success:function (res) {
+            if (res.code == '4003' && res.data.login_url ){
+                return location.href = res.data.login_url;
+            }
             if (typeof callback =='function'){
                 callback(res)
             }

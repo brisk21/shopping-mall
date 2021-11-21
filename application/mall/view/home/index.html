@@ -81,16 +81,30 @@
 <{include file="public/footer_nav" /}>
 
 <{include file="public/footer" /}>
+<script>
+  bs_request("<{:url('/mall/goods/my_cart_total')}>",{from:'home'},function (res){
+    if (res.code==0){
+      if (res.data.total>0){
+        $(".cart-num").text(res.data.total)
+        $(".cart-num").show()
+      }else{
+        $(".cart-num").hide()
+      }
+    }else {
+      $(".cart-num").hide()
+    }
+  })
+</script>
 <script src="/static/mall/js/swiper.js"></script>
 <script>
   $(function () {
     //轮播
-    bs_request("<{:url('get_banner')}>",{},function (res) {
+    bs_request("<{:url('/mall/home/get_banner')}>",{},function (res) {
 
       if (res.code==0 && res.data.banner.length>0){
-          for (var i=0;i<res.data.banner.length;i++){
-            $(".banner-item").append('<div class="swiper-slide"><a href="'+res.data.banner[i].url+'"><img src="'+res.data.banner[i].img+'" alt="'+res.data.banner[i].title+'" /></a></div>')
-          }
+        for (var i=0;i<res.data.banner.length;i++){
+          $(".banner-item").append('<div class="swiper-slide"><a href="'+res.data.banner[i].url+'"><img src="'+res.data.banner[i].img+'" alt="'+res.data.banner[i].title+'" /></a></div>')
+        }
       }
       $(".swiper-banner").swiper({
         loop: true,

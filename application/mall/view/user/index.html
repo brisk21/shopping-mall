@@ -14,14 +14,14 @@
       <div class="weui-media-box__bd">
         <h4 class="weui-media-box__title user-name">孤傲草狼</h4>
         <p class="user-grade">等级：普通会员</p>
-        <p class="user-integral">待返还金额：<em class="num">500.0</em>元</p>
+     <!--   <p class="user-integral">待返还金额：<em class="num">0.0</em>元</p>-->
       </div>
     </div>
-<!--    <div class="xx-menu weui-flex">
-      <div class="weui-flex__item"><div class="xx-menu-list"><em>987</em><p>账户余额</p></div></div>
-      <div class="weui-flex__item"><div class="xx-menu-list"><em>459</em><p>我的蓝豆</p></div></div>
-      <div class="weui-flex__item"><div class="xx-menu-list"><em>4</em><p>收藏商品</p></div></div>
-    </div>-->
+    <div class="xx-menu weui-flex">
+      <div class="weui-flex__item credit_record"><div class="xx-menu-list"><em class="my_credit">0</em><p>账户余额</p></div></div>
+      <div class="weui-flex__item"><div class="xx-menu-list"><em class="my_point">0</em><p>我的积分</p></div></div>
+      <div class="weui-flex__item my_goods_favorite" ><div class="xx-menu-list"><em class="my_goods">0</em><p>收藏商品</p></div></div>
+    </div>
   </div>
   <div class="weui-panel weui-panel_access">
     <div class="weui-panel__hd">
@@ -67,7 +67,7 @@
     </div>
   </div>
   
-  <div class="weui-panel weui-panel_access">
+  <!--<div class="weui-panel weui-panel_access">
     <div class="weui-panel__hd">
       <a href="myburse.html" class="weui-cell weui-cell_access center-alloder">
         <div class="weui-cell__bd wy-cell">
@@ -81,19 +81,19 @@
       <div class="weui-flex">
         <div class="weui-flex__item">
           <a href="myburse.html" class="center-ordersModule">
-            <div class="center-money"><em>800.0</em></div>
+            <div class="center-money"><em>0.0</em></div>
             <div class="name">账户总额</div>
           </a>
         </div>
         <div class="weui-flex__item">
           <a href="myburse.html" class="center-ordersModule">
-            <div class="center-money"><em>50.0</em></div>
+            <div class="center-money"><em>0.0</em></div>
             <div class="name">返现金额</div>
           </a>
         </div>
         <div class="weui-flex__item">
           <a href="myburse.html" class="center-ordersModule">
-            <div class="center-money"><em>550.0</em></div>
+            <div class="center-money"><em>0.0</em></div>
             <div class="name">待返还</div>
           </a>
         </div>
@@ -105,7 +105,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </div>-->
   
   
   <div class="weui-panel">
@@ -133,13 +133,13 @@
                 </div>
                 <span class="weui-cell__ft"></span>
               </a>
-              <a class="weui-cell weui-cell_access" href="card.html">
+              <!--<a class="weui-cell weui-cell_access" href="card.html">
                 <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-yhk.png" alt="" class="center-list-icon"></div>
                 <div class="weui-cell__bd weui-cell_primary">
                   <p class="center-list-txt">我的银行卡</p>
                 </div>
                 <span class="weui-cell__ft"></span>
-              </a>
+              </a>-->
               <a class="weui-cell weui-cell_access" href="password.html">
                 <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-dlmm.png" alt="" class="center-list-icon"></div>
                 <div class="weui-cell__bd weui-cell_primary">
@@ -147,7 +147,7 @@
                 </div>
                 <span class="weui-cell__ft"></span>
               </a>
-              <a class="weui-cell weui-cell_access" href="login.html">
+              <a class="weui-cell weui-cell_access" href="<{:url('/mall/account/logout')}>">
                 <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-out.png" alt="" class="center-list-icon"></div>
                 <div class="weui-cell__bd weui-cell_primary">
                   <p class="center-list-txt">退出账号</p>
@@ -168,6 +168,29 @@
 
 <{include file="public/footer" /}>
 <script>
+  bs_request("<{:url('/mall/goods/my_cart_total')}>",{from:'home'},function (res){
+    if (res.code==0){
+      if (res.data.total>0){
+        $(".cart-num").text(res.data.total)
+        $(".cart-num").show()
+      }else{
+        $(".cart-num").hide()
+      }
+    }else {
+      $(".cart-num").hide()
+    }
+  })
+</script>
+<script>
+  $(function () {
+    $(".my_goods_favorite").on('click',function () {
+      location.href = "<{:url('/mall/goods/my_favorite')}>"
+    }) ;
+    $(".credit_record").on('click',function () {
+      location.href = "<{:url('/mall/user/record')}>"
+    })
+  })
+
   bs_request("<{:url('/mall/user/order_count')}>",{},function (res) {
     if (res.code==0){
         var count = res.data.count;
@@ -192,6 +215,14 @@
           $(".order-count3").hide();
         }
     }
+  })
+
+  bs_request("<{:url('/mall/user/my_credits')}>",{},function (res) {
+      if (res.code==0){
+          $(".my_credit").text(res.data.credits.credit);
+          $(".my_point").text(res.data.credits.point);
+          $(".my_goods").text(res.data.credits.goods);
+      }
   })
 </script>
 </body>

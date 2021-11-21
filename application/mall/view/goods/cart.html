@@ -128,7 +128,7 @@ $(document).ready(function () {
 function checkCart(){
     bs_request("<{:url('/mall/goods/my_cart_total')}>",{from:'checked'},function (res){
         if (res.code==0){
-            $("#totalMoney").text(res.data.totalMoney)
+            $("#totalMoney").text(res.data.totalMoney);
         }
     })
 }

@@ -68,7 +68,25 @@
         var orders = res.data.orders;
         for (var i=0;i<orders.length;i++){
           var item = '<div class="weui-panel weui-panel_access">\n' +
-                  '          <div class="weui-panel__hd"><span>单号：'+orders[i].order_sn+'</span><span class="ord-status-txt-ts fr">交易成功</span></div>\n' +
+                  '          <div class="weui-panel__hd"><span>单号：'+orders[i].order_sn+'</span><span class="ord-status-txt-ts fr">';
+
+
+
+          if (orders[i].status=='0'){
+            item+='待支付';
+          }else if (orders[i].status=='1'){
+            item+='待发货';
+          }else if (orders[i].status=='2'){
+            item+='待收货';
+          }else if (orders[i].status=='3'){
+            item+='待评价';
+          }else if (orders[i].status=='4'){
+            item+='已完成';
+          }else {
+            item+='待定';
+          }
+
+          item+='</span></div>\n' +
                   '          <div class="weui-media-box__bd  pd-10">\n' ;
                   var proCount = 0;
                   for(var j=0;j<orders[i].goods_list.length;j++){

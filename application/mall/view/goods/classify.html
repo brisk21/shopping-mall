@@ -45,6 +45,21 @@
 <{include file="public/footer_nav" /}>
 
 <{include file="public/footer" /}>
+<script>
+  bs_request("<{:url('/mall/goods/my_cart_total')}>",{from:'home'},function (res){
+    if (res.code==0){
+      if (res.data.total>0){
+        $(".cart-num").text(res.data.total)
+        $(".cart-num").show()
+      }else{
+        $(".cart-num").hide()
+      }
+    }else {
+      $(".cart-num").hide()
+    }
+
+  })
+</script>
 <script type="text/javascript">
 	$(function(){
 

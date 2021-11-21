@@ -11,6 +11,17 @@ use think\Request;
 
 class Account extends Mall
 {
+    public $whiteList = [
+        'mall/account/login',
+        'mall/account/index',
+        'mall/account/get_vcode',
+        'mall/account/reg',
+        'mall/account/reg_action',
+        'mall/account/do_login',
+        'mall/account/xieyi',
+        'mall/account/pwd_change',
+    ];
+
     public function __construct(Request $request = null)
     {
         parent::__construct($request);
@@ -18,15 +29,15 @@ class Account extends Mall
 
     public function login()
     {
-        if (session($this->key_cache_user)){
-            return redirect('/mall/account/index');
+        if ($this->uid){
+            return redirect('/mall/home/index');
         }
         return $this->fetch();
     }
 
     public function index()
     {
-        exit('ok');
+        return redirect('/mall/account/login');
     }
 
 
@@ -59,7 +70,7 @@ class Account extends Mall
         if (strlen($this->param['pwd1']) < 6) {
             data_return('密码不够安全', -1);
         }
-        if (!captcha_check($this->param['vcode'], 'abc')) {
+        if (!captcha_check($this->param['vcode'], 'reg_vcode')) {
             data_return('验证码不正确', -1);
         }
         if ($this->param['pwd1'] !== $this->param['pwd2']) {
@@ -90,8 +101,16 @@ class Account extends Mall
         ];
 
         AppCommon::data_add('common_user', $data);
+
+        //登录记录
+        AppCommon::data_add('common_user_login_log', [
+            'uid' => $data['uid'],
+            'add_time' => time(),
+            'ip' => ip2long(get_ip()),
+        ]);
+
         //登录状态
-        session($this->key_cache_user, $data['uid'], 'bs_');
+        session($this->key_cache_user, $data['uid'], $this->session_prefix);
 
         data_return('注册成功');
     }
@@ -128,7 +147,7 @@ class Account extends Mall
         AppCommon::data_add('common_user_login_log', $loginData);
 
         //设置登录状态
-        session($this->key_cache_user,$data['uid']);
+        session($this->key_cache_user,$data['uid'],$this->session_prefix);
 
         data_return('登录成功');
     }
@@ -141,5 +160,12 @@ class Account extends Mall
     public function pwd_change()
     {
         return $this->fetch();
+    }
+
+    //退出
+    public function logout()
+    {
+        session($this->key_cache_user,null,$this->session_prefix);
+        return redirect('/mall/account/login');
     }
 }

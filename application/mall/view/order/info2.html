@@ -3,6 +3,18 @@
 <head>
 <title>订单详情</title>
   <{include file="public/header" /}>
+  <style>
+    .pay{
+      width: 45%;float: left;
+      margin-top:unset !important;
+      margin-left: 10px;
+    }
+    .mg10-0 {
+      margin: 10px 0;
+      overflow: hidden;
+      text-align: center;
+    }
+  </style>
 </head>
 <body ontouchstart>
 <!--主体-->
@@ -41,8 +53,8 @@
     </div>
   </div>
   <div class="wy-media-box weui-media-box_text">
-    <div class="mg10-0 t-c">总金额：<span class="wy-pro-pri mg-tb-5">¥<em class="num font-20 totalMoney">296.00</em></span></div>
-    <div class="mg10-0"><a href="javascript:create()" class="weui-btn weui-btn_primary">微信付款</a></div>
+    <div class="mg10-0 t-c">总金额：<span class="wy-pro-pri mg-tb-5">¥<em class="num font-20 totalMoney">0.00</em></span></div>
+    <div class="mg10-0"><a href="javascript:create('wechat')" class="weui-btn weui-btn_primary pay">微信付款</a> <a href="javascript:create('credit')" class="weui-btn weui-btn_default pay pay_credit">余额支付</a></div>
   </div>
 </div>
 <{include file="public/footer" /}>
@@ -62,14 +74,17 @@
         $(".addr-detail").html(res.data.address.province+' '+res.data.address.city+' '+res.data.address.area+' '+res.data.address.address);
         $(".addr").attr('href',"<{:url('/mall/user/address_list')}>?from=info2")
         addr_id = res.data.address.id;
+      }else {
+        $(".addr-username").html('<div style="    color: red;margin-top: 20px;font-size: 18px;line-height: 20px;">请先添加地址</div>');
+        $(".addr").attr('href',"<{:url('/mall/user/address_list')}>?from=info2")
       }
       var goods = res.data.goods_list;
 
       for (var i=0;i<goods.length;i++){
         var item = ' <div class="weui-media-box_appmsg ord-pro-list">\n' +
-                '        <div class="weui-media-box__hd"><a href="pro_info.html"><img class="weui-media-box__thumb" src="'+goods[i].thumb+'" alt=""></a></div>\n' +
+                '        <div class="weui-media-box__hd"><a href="<{:url(\'/mall/goods/detail\')}>?id='+goods[i].goods_id+'"><img class="weui-media-box__thumb" src="'+goods[i].thumb+'" alt=""></a></div>\n' +
                 '        <div class="weui-media-box__bd">\n' +
-                '          <h1 class="weui-media-box__desc"><a href="pro_info.html" class="ord-pro-link">'+goods[i].title+'</a></h1>\n' +
+                '          <h1 class="weui-media-box__desc"><a href="<{:url(\'/mall/goods/detail\')}>?id='+goods[i].goods_id+'" class="ord-pro-link">'+goods[i].title+'</a></h1>\n' +
                 '          <!--<p class="weui-media-box__desc">规格：<span>红色</span>，<span>23</span></p>-->\n' +
                 '          <div class="clear mg-t-10">\n' +
                 '            <div class="wy-pro-pri fl">¥<em class="num font-15">'+goods[i].totalPrice+'</em></div>\n' +
@@ -88,14 +103,36 @@
     });
   }
 
-  function create(){
-    bs_request("<{:url('/mall/order/create')}>",{addr_id:addr_id},function (res) {
-      if (res.code!==0){
-        return $.alert(res.msg);
-      }
-      //todo 发起支付
-      $.alert('创建订单成功')
-    });
+  function create(type){
+    if (type=='credit'){
+      return $.confirm("确定用余额支付吗？",function () {
+        bs_request("<{:url('/mall/order/create')}>",{addr_id:addr_id},function (res) {
+          if (res.code!==0){
+            return $.alert(res.msg);
+          }
+          //发起支付
+          bs_request("<{:url('/mall/order/pay')}>",{order_sn:res.data.order_sn,payType:'credit'},function (ret){
+            if (ret.code==0){
+              $.toast(ret.msg,function () {
+                location.href = "<{:url('/mall/order/all_orders',['status'=>'1'])}>"
+              })
+            }else {
+              return $.alert(ret.msg);
+            }
+          })
+        });
+      })
+    }else {
+      bs_request("<{:url('/mall/order/create')}>",{addr_id:addr_id},function (res) {
+        if (res.code!==0){
+          return $.alert(res.msg);
+        }
+        //todo 发起支付
+        $.alert('创建订单成功')
+      });
+    }
+
+
   }
 </script>
 </body>

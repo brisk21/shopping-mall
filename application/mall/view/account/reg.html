@@ -24,7 +24,7 @@
     <div class="weui-cell weui-cell_vcode">
       <div class="weui-cell__hd"><label class="weui-label wy-lab">验证码</label></div>
       <div class="weui-cell__bd"><input class="weui-input"  name="vcode" type="text" placeholder="请输入验证码"></div>
-      <div class="weui-cell__ft" id="vcode"><img class="weui-vcode-img" src="<{:captcha_src('abc')}>"></div>
+      <div class="weui-cell__ft" id="vcode"><img class="weui-vcode-img" src="<{:captcha_src('reg_vcode')}>"></div>
     </div>
     <div class="weui-cell">
       <div class="weui-cell__hd"><label class="weui-label wy-lab">设置密码</label></div>
@@ -57,7 +57,7 @@
 
   })
   function resetVcode(){
-    $(".weui-vcode-img").attr('src',"<{:captcha_src('abc')}>")
+    $(".weui-vcode-img").attr('src',"<{:captcha_src('reg_vcode')}>")
   }
 
   function submit(){

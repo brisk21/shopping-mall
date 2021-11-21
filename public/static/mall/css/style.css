@@ -249,6 +249,7 @@ header,.weui-navbar{
 /*商品详情底部按钮*/
 .promotion-foot-menu-items{position:relative; padding:5px 10px 0; text-align:center;}
 .promotion-foot-menu-kefu{background:url(../images/icon-kefu.png) no-repeat; background-size:22px;}
+.promotion-foot-menu-home{background:url(../images/footer01.png) no-repeat; background-size:22px;}
 .promotion-foot-menu-cart{background:url(../images/footer03.png) no-repeat; background-size:22px;}
 .promotion-foot-menu-collection{background:url(../images/icon-collection.png) no-repeat; background-size:22px;}
 

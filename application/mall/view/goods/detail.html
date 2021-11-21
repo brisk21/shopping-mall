@@ -41,8 +41,8 @@
 <div class="foot-black"></div>
 <div class="weui-tabbar wy-foot-menu">
   <a href="<{:url('/mall/home/index',['status'=>''])}>" class="promotion-foot-menu-items">
-    <div class="weui-tabbar__icon promotion-foot-menu-kefu"></div>
-    <p class="weui-tabbar__label">客服</p>
+    <div class="weui-tabbar__icon promotion-foot-menu-home"></div>
+    <p class="weui-tabbar__label">首页</p>
   </a>
   <a href="javascript:;" id='favorite' class="promotion-foot-menu-items">
     <div class="weui-tabbar__icon promotion-foot-menu-collection "></div>
@@ -160,7 +160,13 @@
       })
       bs_request("<{:url('/mall/goods/my_cart_total')}>",{form:'detail'},function (res){
         if (res.code==0){
-          $(".cart-num").text(res.data.total)
+          if (res.data.total>0){
+            $(".cart-num").text(res.data.total)
+            $(".cart-num").show()
+          }else{
+            $(".cart-num").hide()
+          }
+
         }
       })
 </script>
