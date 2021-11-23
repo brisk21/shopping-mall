@@ -378,3 +378,15 @@ header,.weui-navbar{
 .commg{margin:0; font-size:14px;}
 .weui-cells.commg:before{display:none;}
 
+.weui-toast,.weui-toast--visible{
+    margin: 0 auto !important;
+}
+.to_top{
+    position: fixed;
+    right: 0;
+    bottom: 40%;
+
+    width: 50px;
+    border-radius: 50%;
+    z-index: 999;
+}

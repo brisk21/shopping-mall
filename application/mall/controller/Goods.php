@@ -6,6 +6,7 @@ namespace app\mall\controller;
 
 use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
+use think\App;
 
 class Goods extends Mall
 {
@@ -24,6 +25,7 @@ class Goods extends Mall
     {
         $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
         $sort = !empty($this->param['sort']) ? trim($this->param['sort']) : 'normal';
+        $from = !empty($this->param['from']) ? trim($this->param['from']) : '';
         if ($sort == 'normal') {
             $order = 'sale desc,id desc';
         } elseif ($sort == 'price_desc') {
@@ -36,6 +38,12 @@ class Goods extends Mall
             $order = "sale desc,id desc";
         }
         AppCommon::$db_order = $order;
+
+        //详情的看了又看推荐 todo 根据用户搜索记录、购买记录推荐
+        if ($from=='detail'){
+            AppCommon::$db_pageSize = 30;
+            AppCommon::$db_order = 'sale desc';
+        }
 
         $where = ['status' => 1];
         if (!empty($this->param['is_top'])) {

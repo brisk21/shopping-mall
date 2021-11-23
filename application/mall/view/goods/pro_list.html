@@ -9,6 +9,9 @@
       overflow: auto;
       height: 700px;
     }
+    body{
+      height: auto;
+    }
   </style>
 </head>
 <body ontouchstart>
@@ -38,24 +41,17 @@
 </header>
 <!--主体-->
 <div class="weui-content" style="padding-top:85px;">
-  <!--产品列表--滑动加载-->
-  <div class="weui-pull-to-refresh__layer">
-    <div class='weui-pull-to-refresh__arrow'></div>
-    <div class='weui-pull-to-refresh__preloader'></div>
-    <div class="down">下拉刷新</div>
-    <div class="up">释放刷新</div>
-    <div class="refresh">正在刷新</div>
-  </div>
-  <div id="list"  class='demos-content-padded proListWrap'>
 
+  <div class="wy-Module goods-list" style="display: block">
 
+    <div class="wy-Module-con">
+      <ul class="wy-pro-list clear"></ul>
+    </div>
   </div>
-  <div class="weui-loadmore" style="display: none">
-    <i class="weui-loading"></i>
-    <span class="weui-loadmore__tips">正在加载</span>
+  <div class="to_top" style="display: none">
+    <img src="/static/mall/images/icon_to_top.png" alt="返回顶部" style="max-width: 100%" >
   </div>
- 
-  
+
 </div>
 
 
@@ -80,19 +76,15 @@
       if (res.code==0 && res.data.goods.length>0) {
 
         for (var i = 0; i < res.data.goods.length; i++) {
-          $("#list").append('<div class="pro-items">\n' +
-                  '      <a href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'" class="weui-media-box weui-media-box_appmsg">\n' +
-                  '        <div class="weui-media-box__hd"><img class="weui-media-box__thumb" src="'+res.data.goods[i].thumb+'" alt=""></div>\n' +
-                  '        <div class="weui-media-box__bd">\n' +
-                  '          <h1 class="weui-media-box__desc">'+res.data.goods[i].title+'</h1>\n' +
-                  '          <div class="wy-pro-pri">¥<em class="num font-15">'+res.data.goods[i].price+'</em></div>\n' +
-                  '          <ul class="weui-media-box__info prolist-ul">\n' +
-                  '            <li class="weui-media-box__info__meta"><em class="num">0</em>条评价</li>\n' +
-                  '            <li class="weui-media-box__info__meta"><em class="num">100%</em>好评</li>\n' +
-                  '          </ul>\n' +
-                  '        </div>\n' +
-                  '      </a>\n' +
-                  '    </div>')
+          $(".wy-pro-list").append('<li>\n' +
+                  '          <a class="goods-item" href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'">\n' +
+                  '            <div class="proimg"><img src="'+res.data.goods[i].thumb+'" alt=""></div>\n' +
+                  '            <div class="protxt">\n' +
+                  '              <div class="name">'+res.data.goods[i].title+'</div>\n' +
+                  '              <div class="wy-pro-pri">¥<span>'+res.data.goods[i].price+'</span></div>\n' +
+                  '            </div>\n' +
+                  '          </a>\n' +
+                  '        </li>')
         }
       }else{
         st = 0;
@@ -100,16 +92,13 @@
     });
   }
 
-  load_data();
+
 
 
   function setSort(stype,obj){
-    //SortAscCss,SortDescCss,NormalCss
-
     var nowSort = '';
     if (stype=='normal'){
         nowSort = 'normal';
-
         $(".sort-item").removeClass("SortAscCss SortDescCss");
         $(obj).addClass("NormalCss");
     }else if(stype=='price'){
@@ -145,7 +134,8 @@
     sort = nowSort;
     cpage = 1;
     st =1;
-    $("#list").empty();
+    $(".wy-pro-list").empty();
+    scrollTo(0,0);
     load_data();
   }
 
@@ -153,34 +143,73 @@
     $("#searchInput").val('')
     cpage = 1;
     st =1;
-    $("#list").empty();
+    $(".wy-pro-list").empty();
     load_data();
   });
 
-  $(document.body).pullToRefresh().on("pull-to-refresh", function() {
-    $("#list").empty();
-    cpage = 1;
+  $(".to_top").on('click',function (e) {
+    scrollTo(0,0);
+  })
 
-    setTimeout(function() {
-      $("#time").text(new Date);
-      $(document.body).pullToRefreshDone();
-      load_data();
-    }, 1000);
-  });
 
   // 滚动加载
   var loading = false;
-  $("#list").infinite().on("infinite", function() {
-    $(".weui-loadmore").show();
-    if(loading) return;
-    loading = true;
-    setTimeout(function() {
-      cpage = cpage+1;
+
+  // 滚动加载
+  $(window).scroll(function() {
+    var scrollTop = $(this).scrollTop();
+    if (scrollTop>700){
+      $(".to_top").show()
+    }else {
+      $(".to_top").hide()
+    }
+    var scrollHeight = $(document).height();
+    var windowHeight = $(this).height();
+    if (scrollTop + windowHeight == scrollHeight) {
+      cpage++;
       load_data();
-      loading = false;
-      $(".weui-loadmore").hide();
-    }, 1000);
+    }
   });
+
+  //点击的时候存储一下数据
+  $(".wy-pro-list").on('click','.goods-item',function () {
+
+    var status = {
+      cpage: cpage,
+      st: st,
+      category_id: category_id,
+      sort: sort,
+      keyword: $("#searchInput").val(),
+      scrollTop: $(window).scrollTop(),//当前滚动位置
+      data:$(".wy-pro-list").html(),
+    }
+
+    sessionStorage.setItem('key_status_goods_list', JSON.stringify(status));
+  })
+
+  //初始化页面检查：
+  var gstatus = sessionStorage.getItem('key_status_goods_list');
+  if (gstatus){
+    console.log(gstatus)
+    gstatus = JSON.parse(gstatus);
+    st = gstatus.st;
+    category_id = gstatus.category_id;
+    keyword = gstatus.keyword;
+    sort = gstatus.sort;
+    cpage = gstatus.cpage;
+
+    var offset =  gstatus.scrollTop;
+    //旧数据还原
+    $(".wy-pro-list").html(gstatus.data).scrollTop(offset);
+    //加载新的数据
+    load_data()
+  }else {
+    //从零开始咯
+    $(".wy-pro-list").empty()
+    load_data()
+  }
+
+
 </script>
 </body>
 </html>

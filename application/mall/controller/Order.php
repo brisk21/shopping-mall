@@ -8,17 +8,47 @@ use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
 use app\service\Credits;
 use think\Db;
+use app\service\Order as ServerOrder;
 
 class Order extends Mall
 {
+    //立即购买单品
     public function info()
     {
         return $this->fetch();
     }
 
-    //批量下单
+    //批量下单-购物车
     public function info2()
     {
+        return $this->fetch();
+    }
+
+    //订单详情
+    public function detail()
+    {
+        if (IS_AJAX) {
+            if (empty($this->param['order_sn'])) {
+                data_return('订单号缺失', -1);
+            }
+
+            $order = ServerOrder::get(trim($this->param['order_sn']));
+            if (empty($order) || $order['is_del']) {
+                data_return('订单找不到了', -1);
+            }
+
+
+            $address = json_decode($order['address'], true);
+
+            AppCommon::$db_pageSize = 50;
+            $goods = AppCommon::data_list('order_goods', ['order_sn' => $order['order_sn']]);
+            data_return('ok', 0, [
+                'order' => $order,
+                'address' => $address,
+                'goods_list' => $goods
+            ]);
+        }
+
         return $this->fetch();
     }
 
@@ -38,6 +68,7 @@ class Order extends Mall
             //-1-已取消，0-待支付，1-已支付，2-待收货，3-已完，-2-已退款
             $where['status'] = $status;
         }
+        $where['is_del'] = 0;
         AppCommon::$db_order = 'id desc';
         $orders = AppCommon::data_list('order', $where, $page, 'order_sn,price,status,pay_time,pay_price,add_time');
 
@@ -170,14 +201,14 @@ class Order extends Mall
                 'store_num' => $goods['store_num'],
             ];
 
-            $res = \app\service\Order::add($arg);
+            $res = ServerOrder::add($arg);
 
             if ($res['code'] <> 0) {
                 data_return('服务正忙，请稍后', -1);
             }
 
             //添加商品
-            $resGoods = \app\service\Order::add_order_goods([
+            $resGoods = ServerOrder::add_order_goods([
                 'order_sn' => $res['data']['order_sn'],
                 'goods_id' => $goods['id'],
                 'count' => $goods['count'],
@@ -212,33 +243,50 @@ class Order extends Mall
                 $totalMoney += $val['totalPrice'];
             }
             //目前这个版本是一个店铺,todo 扩展多店铺版本
-            $arg = [
-                'address' => $address,
-                'price' => $totalMoney,
-                'uid' => $this->uid,
-                'store_num' => $goods[0]['store_num'],
-            ];
+            $ret = [];
+            Db::transaction(function () use ($address, $totalMoney, $goods, &$ret) {
+                $arg = [
+                    'address' => $address,
+                    'price' => $totalMoney,
+                    'uid' => $this->uid,
+                    'store_num' => $goods[0]['store_num'],
+                ];
 
-            $res = \app\service\Order::add($arg);
-            if ($res['code'] <> 0) {
-                data_return('服务正忙，请稍后', -1);
+                $res = ServerOrder::add($arg);
+                if ($res['code'] <> 0) {
+                    $ret = false;
+                    return;
+                }
+
+                $order_sn = $res['data']['order_sn'];
+                foreach ($goods as $value) {
+                    $trest = ServerOrder::add_order_goods([
+                        'order_sn' => $order_sn,
+                        'goods_id' => $value['id'],
+                        'count' => $value['count'],
+                        'thumb' => $value['thumb'],
+                        'price' => $value['price'],
+                        'title' => $value['title'],
+                    ]);
+                    if (!$trest) {
+                        $ret = false;
+                        return;
+                    }
+                    //锁库
+                    AppCommon::db('goods')->where(['id' => $value['goods_id']])->setDec('stock', $value['count']);
+                    AppCommon::db('goods')->where(['id' => $value['goods_id']])->setInc('stock_locked', $value['count']);
+                }
+                //清理对应的购物车
+                AppCommon::data_del('cart', ['uid' => $this->uid, 'status' => 1]);
+
+                return $ret = $res;
+            });
+            if ($ret) {
+                data_return('ok', 0, $ret['data']);
             }
-            $order_sn = $res['data']['order_sn'];
-            foreach ($goods as $value) {
-                \app\service\Order::add_order_goods([
-                    'order_sn' => $order_sn,
-                    'goods_id' => $value['id'],
-                    'count' => $value['count'],
-                    'thumb' => $value['thumb'],
-                    'price' => $value['price'],
-                    'title' => $value['title'],
-                ]);
-                //锁库
-                AppCommon::data_update('goods', ['id' => $value['goods_id']], ['stock_locked' => $value['count'] + $value['stock_locked'], 'stock' => $value['stock'] - $value['count']]);
-            }
-            //清理对应的购物车
-            AppCommon::data_del('cart', ['uid' => $this->uid, 'status' => 1]);
-            data_return('ok', 0, $res['data']);
+
+            data_return('创建超时，请稍后重试', -1);
+
         }
     }
 
@@ -250,7 +298,7 @@ class Order extends Mall
         } elseif (empty($this->param['payType']) || !in_array(trim($this->param['payType']), ['credit'])) {
             data_return('不支持的支付方式', -1);
         }
-        $order = \app\service\Order::get($this->param['order_sn']);
+        $order = ServerOrder::get($this->param['order_sn']);
 
         if (empty($order)) {
             data_return('订单不存在', -1);
@@ -272,12 +320,14 @@ class Order extends Mall
         }
 
         //事务提交
-        Db::transaction(function () use ($order, $creditInfo) {
+        $ret = null;
+        Db::transaction(function () use ($order, $creditInfo, &$ret) {
 
             //扣除余额
             $res1 = Credits::update($this->uid, 'credit', -$order['price']);
             if (!$res1) {
-                data_return('系统正忙5003', -1);
+                $ret = false;
+                return;
             }
 
             //资金扣除流水记录
@@ -292,7 +342,8 @@ class Order extends Mall
             $res2 = Credits::log_add($log);
 
             if (!$res2) {
-                data_return('系统正忙5002', -1);
+                $ret = false;
+                return;
             }
 
             //更新订单
@@ -302,28 +353,51 @@ class Order extends Mall
                 'up_time' => time(),
                 'status' => 1,
             ];
-            $up = \app\service\Order::update($order['order_sn'], $data);
+            $up = ServerOrder::update($order['order_sn'], $data);
 
             if (!$up) {
-                data_return('系统正忙5001', -1);
+                $ret = false;
+                return;
             }
 
             //更新库存
             AppCommon::$db_pageSize = 50;
-            $orderGoods = AppCommon::data_list('order_goods',['order_sn'=>$order['order_sn']],1,'goods_id,count');
-            if (!empty($orderGoods)){
-                foreach ($orderGoods as $v){
+            $orderGoods = AppCommon::data_list('order_goods', ['order_sn' => $order['order_sn']], 1, 'goods_id,count');
+            if (!empty($orderGoods)) {
+                foreach ($orderGoods as $v) {
                     //直接减少锁库的量即可
-                    AppCommon::db('goods')->where(['id'=>$v['goods_id']])->setDec('stock_locked',$v['count']);
+                    AppCommon::db('goods')->where(['id' => $v['goods_id']])->setDec('stock_locked', $v['count']);
                     //增加销量
-                    AppCommon::db('goods')->where(['id'=>$v['goods_id']])->setInc('sale',$v['count']);
+                    AppCommon::db('goods')->where(['id' => $v['goods_id']])->setInc('sale', $v['count']);
                 }
             }
 
+            $ret = true;
 
         });
 
+        if ($ret) {
+            data_return('支付成功', 0, ['order_sn' => $order['order_sn']]);
+        }
+        data_return('系统忙碌，稍后再试', -1);
 
-        data_return('支付成功', 0, ['order_sn' => $order['order_sn']]);
+    }
+
+    //删除订单
+    public function del()
+    {
+        if (empty($this->param['order_sn'])) {
+            data_return('订单号未找到', -1);
+        }
+        $order = ServerOrder::get($this->param['order_sn']);
+
+        if (empty($order)) {
+            data_return('订单不存在', -1);
+        } elseif ($order['uid'] <> $this->uid) {
+            data_return('仅限操作自己的订单', -1);
+        }
+        $res = ServerOrder::del($this->param['order_sn']);
+
+        data_return($res ? '删除成功' : '系统正忙，请稍后重试', $res ? 0 : -1);
     }
 }

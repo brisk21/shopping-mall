@@ -55,7 +55,7 @@
       </div>
     </div>
   </div>
-  <!--酒水专场-->
+  <!--推荐2-->
   <div class="wy-Module hot-tuijian" style="display: none">
     <div class="wy-Module-tit"><span>热门推荐</span></div>
     <div class="wy-Module-con">
@@ -70,12 +70,15 @@
   <div class="wy-Module goods-list" style="display: none">
     <div class="wy-Module-tit-line"><span>猜你喜欢</span></div>
     <div class="wy-Module-con">
-      <ul class="wy-pro-list clear">
-      </ul>
-      <div class="morelinks"><a href="<{:url('/mall/goods/pro_list')}>">查看更多 >></a></div>
+      <ul class="wy-pro-list clear"></ul>
+      <div class="morelinks" style="display: none"><a href="<{:url('/mall/goods/pro_list')}>">查看更多 >></a></div>
     </div>
   </div>
+  <div class="to_top" style="display: none">
+    <img src="/static/mall/images/icon_to_top.png" alt="返回顶部" style="max-width: 100%" >
+  </div>
 </div>
+
 
 <!--底部导航-->
 <{include file="public/footer_nav" /}>
@@ -176,24 +179,84 @@
     });
 
     //猜你喜欢
-    bs_request("<{:url('/mall/goods/goods_list')}>",{page:1,home:1},function (res) {
-       $.showLoading()
-      if (res.code==0 && res.data.goods.length>0) {
-        $(".goods-list").show();
-        for (var i = 0; i < res.data.goods.length; i++) {
-          $(".wy-pro-list").append('<li>\n' +
-                  '          <a href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'">\n' +
-                  '            <div class="proimg"><img src="'+res.data.goods[i].thumb+'" alt=""></div>\n' +
-                  '            <div class="protxt">\n' +
-                  '              <div class="name">'+res.data.goods[i].title+'</div>\n' +
-                  '              <div class="wy-pro-pri">¥<span>'+res.data.goods[i].price+'</span></div>\n' +
-                  '            </div>\n' +
-                  '          </a>\n' +
-                  '        </li>')
+    var cpage = 1;
+    function load_data(){
+
+      bs_request("<{:url('/mall/goods/goods_list')}>",{page:cpage,from:'home'},function (res) {
+
+        $.showLoading()
+        if (res.code==0 && res.data.goods.length>0) {
+          $(".goods-list").show();
+          for (var i = 0; i < res.data.goods.length; i++) {
+            $(".wy-pro-list").append('<li>\n' +
+            '          <a class="goods-item" href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'">\n' +
+            '            <div class="proimg"><img src="'+res.data.goods[i].thumb+'" alt=""></div>\n' +
+            '            <div class="protxt">\n' +
+            '              <div class="name">'+res.data.goods[i].title+'</div>\n' +
+            '              <div class="wy-pro-pri">¥<span>'+res.data.goods[i].price+'</span></div>\n' +
+            '            </div>\n' +
+            '          </a>\n' +
+            '        </li>')
+          }
+        }else {
+          $(".morelinks").show()
         }
+        $.hideLoading()
+      });
+    }
+
+
+    // 滚动加载
+    $(window).scroll(function() {
+      var scrollTop = $(this).scrollTop();
+      if (scrollTop>700){
+        $(".to_top").show()
+      }else {
+        $(".to_top").hide()
       }
-      $.hideLoading()
+      var scrollHeight = $(document).height();
+      var windowHeight = $(this).height();
+      if (scrollTop + windowHeight == scrollHeight) {
+        cpage++;
+        load_data();
+      }
     });
+
+    //点击的时候存储一下数据
+    $(".wy-pro-list").on('click','.goods-item',function () {
+      var status = {
+        cpage: cpage,//当前分页
+        scrollTop: $(window).scrollTop(),//当前滚动位置
+        data:$(".wy-pro-list").html(),
+      }
+      sessionStorage.setItem('key_goods_home', JSON.stringify(status));
+    })
+
+    $(".to_top").on('click',function () {
+      document.body.scrollTop = document.documentElement.scrollTop = 0;
+      document.body.offsetHeight = document.documentElement.scrollHeight = 0;
+    })
+
+    //初始化页面检查：
+    var gstatus = sessionStorage.getItem('key_goods_home');
+    if (gstatus){
+      gstatus = JSON.parse(gstatus);
+      pt = gstatus.pt;
+      keyword = gstatus.keyword;
+      sort = gstatus.sort;
+      cpage = gstatus.cpage;
+
+      var offset =  gstatus.scrollTop;
+      //旧数据还原
+      $(".wy-pro-list").html(gstatus.data);
+      //滚动位置跟上哈
+      $(document).scrollTop(offset);
+      //加载新的数据
+      load_data()
+    }else {
+    //从零开始咯
+      load_data()
+    }
   })
 
 </script>

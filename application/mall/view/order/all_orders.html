@@ -67,7 +67,7 @@
 
         var orders = res.data.orders;
         for (var i=0;i<orders.length;i++){
-          var item = '<div class="weui-panel weui-panel_access">\n' +
+          var item = '<div class="weui-panel weui-panel_access order-item-'+orders[i].order_sn+'" >\n' +
                   '          <div class="weui-panel__hd"><span>单号：'+orders[i].order_sn+'</span><span class="ord-status-txt-ts fr">';
 
 
@@ -121,14 +121,14 @@
                   ' <div class="weui-cell weui-cell_access weui-cell_link oder-opt-btnbox">\n'  ;
 
           if (orders[i].status=='0'){
-            item+='<a href="javascript:;" class="ords-btn-dele">删除订单</a>' +
-                    '<a href="pay" class="ords-btn-com">去付款</a>';
+            item+='<a href="javascript:;" class="ords-btn-dele" data-sn="'+orders[i].order_sn+'">删除订单</a>' +
+                    '<a href="<{:url(\'/mall/order/detail\')}>?order_sn='+orders[i].order_sn+'" class="ords-btn-com" data-sn="'+orders[i].order_sn+'">去付款</a>';
           }else if(orders[i].status==1){
             item+='商品正在打包中，请您耐心等待....';
           }else if(orders[i].status==2){
-            item+='<a href="javascript:;" class="ords-btn-com receipt">确认收货</a>';
+            item+='<a href="javascript:;" class="ords-btn-com receipt" data-sn="'+orders[i].order_sn+'">确认收货</a>';
           }else if(orders[i].status==3){
-            item+=' <a href="comment.html" class="ords-btn-com">评价</a>';
+            item+=' <a href="comment.html" class="ords-btn-com" data-sn="'+orders[i].order_sn+'">评价</a>';
           }
           item+='</div> </div></div>';
           $("#"+idName).append(item)
@@ -141,8 +141,18 @@
 
 
   $(document).on("click", ".ords-btn-dele", function() {
+    var order_sn = $(this).data('sn');
     $.confirm("您确定要删除此订单吗?", "确认删除?", function() {
-      $.toast("订单已经删除!");
+
+      bs_request("<{:url('/mall/order/del')}>",{order_sn:order_sn},function (res) {
+
+        $.toast(res.msg,res.code==0?'success':'cancel');
+        if (res.code==0){
+          $(".order-item-"+ordersn).remove()
+        }
+      })
+
+
     }, function() {
       //取消操作
     });

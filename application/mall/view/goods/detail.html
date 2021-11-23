@@ -28,6 +28,18 @@
           <div class="wy-pro-pri mg-tb-5">¥<em class="num font-20 goods-price" ></em></div>
           <p class="weui-media-box__desc goods-desc"></p>
         </div>
+
+        <div class="wy-Module goods-list" style="display: none">
+          <div class="wy-Module-tit-line"><span>看了又看</span></div>
+          <div class="wy-Module-con">
+            <ul class="wy-pro-list clear"></ul>
+          </div>
+        </div>
+        <div class="to_top" style="display: none">
+          <img src="/static/mall/images/icon_to_top.png" alt="返回顶部" style="max-width: 100%" >
+        </div>
+
+
       </div>
       <div id="tab2" class="weui-tab__bd-item ">
         <div class="pro-detail">
@@ -36,7 +48,6 @@
     </div>
   </div>  
 </div>
-<span id="tophovertree" title="返回顶部"></span>
 <!--底部导航-->
 <div class="foot-black"></div>
 <div class="weui-tabbar wy-foot-menu">
@@ -90,9 +101,49 @@
   function toPay(){
     location.href="<{:url('/mall/order/info')}>?id="+id;
   }
-  
+  //推荐
+  goods_list()
+  function goods_list(){
+    var cpage = 1;
+    bs_request("<{:url('/mall/goods/goods_list')}>",{page:cpage,id:id,from:'detail'},function (res) {
+
+
+      if (res.code==0 && res.data.goods.length>0) {
+        $(".goods-list").show();
+        for (var i = 0; i < res.data.goods.length; i++) {
+          $(".wy-pro-list").append('<li>\n' +
+          '          <a class="goods-item" href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'">\n' +
+          '            <div class="proimg"><img src="'+res.data.goods[i].thumb+'" alt=""></div>\n' +
+          '            <div class="protxt">\n' +
+          '              <div class="name">'+res.data.goods[i].title+'</div>\n' +
+          '              <div class="wy-pro-pri">¥<span>'+res.data.goods[i].price+'</span></div>\n' +
+          '            </div>\n' +
+          '          </a>\n' +
+          '        </li>')
+        }
+      }
+
+    });
+  }
+
+  // 滚动加载
+  $(window).scroll(function() {
+    var scrollTop = $(this).scrollTop();
+    if (scrollTop>700){
+      $(".to_top").show()
+    }else {
+      $(".to_top").hide()
+    }
+
+  });
+  $(".to_top").on('click',function () {
+    document.body.scrollTop = document.documentElement.scrollTop = 0;
+    document.body.offsetHeight = document.documentElement.scrollHeight = 0;
+  })
+
+
   $(function () {
-    
+
     bs_request("<{:url('/mall/goods/goods_detail')}>",{id:id},function (res) {
 
       if (res.code==0 && res.data.goods){
@@ -123,10 +174,10 @@
     });
   });
 
-</script>
 
 
-<script>
+
+
       $(document).on("click", "#favorite", function() {
         bs_request("<{:url('/mall/goods/favorite_action')}>",{id:id},function (res) {
           if (res.code != 0){
@@ -177,57 +228,6 @@
     console.log("close popup");
   });
 </script>
-<script>
-  $(function () {
-    initTopHoverTree("tophov" + "ertree", 30, 10, 10);
-  })
-</script>
-<script>
-  function initTopHoverTree(hvtid, times, right, bottom) {
-    $("#" + hvtid).css("right", right).css("bottmo", bottom);
-    $("#" + hvtid).on("click", function () {
-      goTopHovetree(times);
-    })
-    $(window).scroll(function () {
-      if ($(window).scrollTop() > 268) {
-        $("#" + hvtid).fadeIn(100);
-      } else {
-        $("#" + hvtid).fadeOut(100);
-      }
-    });
-  }
 
-  //返回顶部动画
-  //goTop(500);//500ms内滚回顶部
-  function goTopHovetree(times) {
-    if (!!!times) {
-      $(window).scrollTop(0);
-      return;
-    }
-    var sh = $('body').scrollTop();//移动总距离
-    var inter = 13.333;//ms,每次移动间隔时间
-    var forCount = Math.ceil(times / inter);//移动次数
-    var stepL = Math.ceil(sh / forCount);//移动步长
-    var timeId = null;
-
-    function aniHovertree() {
-      !!timeId && clearTimeout(timeId);
-      timeId = null;
-//console.log($('body').scrollTop());
-      if ($('body').scrollTop() <= 0 || forCount <= 0) {//移动端判断次数好些，因为移动端的scroll事件触发不频繁，有可能检测不到有<=0的情况
-        $('body').scrollTop(0);
-        return;
-      }
-      forCount--;
-      sh -= stepL;
-      $('body').scrollTop(sh);
-      timeId = setTimeout(function () {
-        aniHovertree();
-      }, inter);
-    }
-
-    aniHovertree();
-  }
-</script>
 </body>
 </html>
