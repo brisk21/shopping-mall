@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>后台管理</title>
+    <{include file="public/header"}>
+    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<!-- Site wrapper -->
+<div class="wrapper">
+    <!-- Navbar -->
+    <{include file="public/navbar"}>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    <!--左侧菜单-->
+    <{include file="public/sidebar"}>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>订单详情</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="<{:url('/admin/index/index')}>">首页</a></li>
+                            <li class="breadcrumb-item"><a href="<{:url('/admin/order.index/index')}>">订单管理</a></li>
+                            <li class="breadcrumb-item active">订单详情</li>
+                        </ol>
+                    </div>
+                </div>
+            </div><!-- /.container-fluid -->
+        </section>
+
+        <!-- Main content -->
+        <!-- Default box -->
+
+        <section class="content">
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"></h3>
+
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-card-widget="collapse" title="Collapse">
+                                <i class="fas fa-minus"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-card-widget="remove" title="Remove">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <table id="my_table" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>商品信息</th>
+                                <th>订单信息</th>
+
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>
+                                    <{foreach $data.goods_list as $k=> $goods}>
+                                    <div>
+                                        <img src="<{$goods.thumb}>" style="max-width: 50px" alt="">
+
+                                        <a href="<{:url('/mall/goods/detail')}>?id=<{$goods.goods_id}>" target="_blank">
+                                            <{$goods.title}>
+                                        </a>
+                                        <p style="margin-top: 5px">
+                                            <b>单价：</b><{$goods.price}>；
+                                            <b>数量：</b><{$goods.count}>；
+                                            <b>总价：</b><{:round($goods.count *$goods.price,2) }>
+                                        </p>
+                                    </div>
+                                    <{if !empty($data.goods_list[$k+1])}>
+                                    <hr class="cm-hr">
+                                    <{/if}>
+
+                                    <{/foreach}>
+                                </td>
+                                <td>
+                                    <p><b>单号：</b><{$data.order.order_sn}> </p>
+                                    <p><b>状态：</b><{$data.order.statusDesc}></p>
+                                    <p><b>地址：</b><{$data.order.full_address}> </p>
+                                    <p><b>收货人：</b><{$data.order.address.username}> </p>
+                                    <p><b>收货号码：</b><{$data.order.address.mobile}> </p>
+                                </td>
+                            </tr>
+
+
+                            </tbody>
+
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        下单时间：<{$data.order.add_time|date="Y-m-d H:i:s",###}>
+                        <b class="bs-left-30">实付：</b>￥<span class="bs-red "><{$data.order.pay_price}></span>
+                        <{if $data.order.express_no}>
+                        <p>
+                            物流公司：<{$data.order.express_com}>；&nbsp;&nbsp; 物流单号：<{$data.order.express_no}>
+                        </p>
+                        <{/if}>
+                        <p class="bs-top-30">
+                            <{if $data.order.status==1}>
+                            <span class="btn  btn-success" data-toggle="modal" data-target="#modal-default">去发货</span>
+                            <{elseif $data.order.status==2}>
+                            <span class="btn  btn-warning" data-toggle="modal" data-target="#modal-default">修改物流</span>
+                            <{/if}>
+
+
+                            <!--<span class="btn  btn-warning bs-left-30" onclick="alert('暂无相关逻辑')">处理售后</span>-->
+                            <a href="<{:url('index')}>" class="btn btn-outline-primary bs-left-30" >返回列表</a>
+                        </p>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                <!-- /.card -->
+            </div>
+
+            <div class="bs-model">
+                <div class="modal fade" id="modal-default">
+                    <div class="modal-dialog">
+                        <form action="<{:url('send')}>" method="post" id="check-form">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">订单发货</h4>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="express_com">物流公司</label>
+                                        <select name="express_com" id="express_com" class="form-control">
+                                            <{foreach $data.expressCom as $v}>
+                                            <option <{$data.order.express_com==$v.com?'selected':''}> value="<{$v.com}>"><{$v.name}></option>
+                                            <{/foreach}>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="express_no">运单号</label>
+                                        <input name="express_no" value="<{$data.order.express_no}>" type="text" class="form-control" id="express_no" placeholder="物流配送单号">
+                                        <input type="hidden" name="order_sn" value="<{$data?$data.order.order_sn:''}>">
+                                    </div>
+                                </div>
+                                <div class="modal-footer justify-content-between">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                    <button type="button" onclick="send()" class="btn btn-primary">保存</button>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- /.modal-content -->
+                    </div>
+                    <!-- /.modal-dialog -->
+                </div>
+                <!-- /.modal -->
+            </div>
+
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+    <{include file="public/copyright"}>
+
+
+</div>
+<!-- ./wrapper -->
+
+<{include file="public/footer"}>
+<!-- DataTables  & Plugins -->
+<script src="/static/adminlte/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+
+<script>
+
+    function send(){
+        form_submit([],'',false,function(res) {
+            if (res.code==0){
+                location.reload();
+            }
+        })
+    }
+
+    $(function () {
+
+        $("#my_table").DataTable({
+            "searching": false,//禁用搜索
+            "ordering": false,//禁用排序
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            //"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+            // "pageLength": 10,         //初始化显示几条数据
+            //serverSide: true, // use local process instead of server
+            // bFilter: true, // show top right search input box.
+            bPaginate: false,//是否开启分页
+            //iDisplayLength: 10, //默认显示的记录数
+            bInfo: false,//是否显示页脚信息，DataTables插件左下角显示记录数
+        }).buttons().container().appendTo('#my_table_wrapper .col-md-6:eq(0)');
+
+    });
+</script>
+</body>
+</html>

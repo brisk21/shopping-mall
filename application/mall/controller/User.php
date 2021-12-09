@@ -41,8 +41,7 @@ class User extends Mall
     //我的地址
     public function my_address()
     {
-        AppCommon::$db_order = ' is_default desc,id asc ';
-        $data = AppCommon::data_list('common_user_address', ['uid' => $this->uid], 1);
+        $data = AppCommon::data_list('common_user_address', ['uid' => $this->uid], 1,'*','is_default desc,id asc');
 
         data_return('ok', 0, [
             'address' => $data
@@ -122,7 +121,7 @@ class User extends Mall
     {
         $prefix = config('database')['prefix'];
         $table = $prefix . 'order';
-        $data = AppCommon::db('order')->query("select 
+        $data = AppCommon::query("select 
         sum(if(status=0,1,0)) as count0,
         sum(if(status=1,1,0)) as count1,
         sum(if(status=2,1,0)) as count2,

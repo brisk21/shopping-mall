@@ -17,17 +17,20 @@
     <div class="weui-tab__bd proinfo-tab-con">
       <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
         <!--主图轮播-->
-        <div class="swiper-container swiper-zhutu">
-          <div class="swiper-wrapper banner-item">
+        <div class="goodsinfo" style="display: none">
+          <div class="swiper-container swiper-zhutu">
+            <div class="swiper-wrapper banner-item">
 
+            </div>
+            <div class="swiper-pagination swiper-zhutu-pagination"></div>
           </div>
-          <div class="swiper-pagination swiper-zhutu-pagination"></div>
+          <div class="wy-media-box-nomg weui-media-box_text">
+            <h4 class="wy-media-box__title goods-title"></h4>
+            <div class="wy-pro-pri mg-tb-5">¥<em class="num font-20 goods-price" ></em></div>
+            <p class="weui-media-box__desc goods-desc"></p>
+          </div>
         </div>
-        <div class="wy-media-box-nomg weui-media-box_text">
-          <h4 class="wy-media-box__title goods-title"></h4>
-          <div class="wy-pro-pri mg-tb-5">¥<em class="num font-20 goods-price" ></em></div>
-          <p class="weui-media-box__desc goods-desc"></p>
-        </div>
+
 
         <div class="wy-Module goods-list" style="display: none">
           <div class="wy-Module-tit-line"><span>看了又看</span></div>
@@ -147,6 +150,7 @@
     bs_request("<{:url('/mall/goods/goods_detail')}>",{id:id},function (res) {
 
       if (res.code==0 && res.data.goods){
+        $(".goodsinfo").show();
         var goods = res.data.goods;
 
         //主图
@@ -169,6 +173,11 @@
         if (goods.has_favorite){
           $("#favorite").find('div').addClass('promotion-foot-menu-collection-on');
         }
+      }else {
+        $.toast("商品已下架",'cancel', function() {
+          $(".goodsinfo").hide();
+        });
+
       }
 
     });

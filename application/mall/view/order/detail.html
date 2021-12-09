@@ -49,6 +49,7 @@
   </div>
 </div>
 <{include file="public/footer" /}>
+<{include file="public/weixin_jsapi" /}>
 
 <script>
   var order_sn = bs_get_param('order_sn')
@@ -110,8 +111,20 @@
       })
     }else {
 
-        //todo 发起支付
-        $.alert('微信支付未接入')
+      bs_request("<{:url('/mall/order/wx_param')}>",{order_sn:order_sn,payType:'wechat'},function (ret){
+        if (ret.code !=0){
+          if (ret.code==30002){
+            $.confirm(ret.msg,function () {
+              return location.href = ret.data
+            })
+
+          }else {
+            return $.alert(ret.msg);
+          }
+        }else {
+            callpay(ret.data.payParam)
+        }
+      })
 
     }
 

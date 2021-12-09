@@ -174,3 +174,209 @@ function tree($arr, $id = 'id', $fid = 'fid', $child_name = 'children')
     }
     return $tree;
 }
+
+//判断访问的终端
+function fromClient()
+{
+    if (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'MicroMessenger')) {
+        return "weixin";
+    } elseif (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'AlipayClient')) {
+        return "alipay";
+    } elseif (isset($_SERVER['HTTP_USER_AGENT']) && strpos($_SERVER['HTTP_USER_AGENT'], 'QQ')) {
+        return "qq";
+    } else if (!isMobile()) {
+        return 'pc';
+    } else {
+        return 'other';
+    }
+}
+
+
+/*移动端判断*/
+function isMobile()
+{
+    // 如果有HTTP_X_WAP_PROFILE则一定是移动设备
+    if (isset ($_SERVER['HTTP_X_WAP_PROFILE'])) {
+        return true;
+    }
+    // 如果via信息含有wap则一定是移动设备,部分服务商会屏蔽该信息
+    if (isset ($_SERVER['HTTP_VIA'])) {
+        // 找不到为flase,否则为true
+        return stristr($_SERVER['HTTP_VIA'], "wap") ? true : false;
+    }
+    // 脑残法，判断手机发送的客户端标志,兼容性有待提高
+    if (isset ($_SERVER['HTTP_USER_AGENT'])) {
+        $clientkeywords = array('nokia',
+            'sony', 'ericsson', 'mot', 'samsung', 'htc', 'sgh', 'lg', 'sharp', 'sie-', 'philips', 'panasonic', 'alcatel',
+            'lenovo', 'iphone', 'ipod', 'blackberry', 'meizu', 'android', 'netfront', 'symbian', 'ucweb', 'windowsce',
+            'palm', 'operamini', 'operamobi', 'openwave', 'nexusone', 'cldc', 'midp', 'wap', 'mobile'
+        );
+        // 从HTTP_USER_AGENT中查找手机浏览器的关键字
+        if (preg_match("/(" . implode('|', $clientkeywords) . ")/i", strtolower($_SERVER['HTTP_USER_AGENT']))) {
+            return true;
+        }
+    }
+    // 协议法，因为有可能不准确，放到最后判断
+    if (isset ($_SERVER['HTTP_ACCEPT'])) {
+        // 如果只支持wml并且不支持html那一定是移动设备
+        // 如果支持wml和html但是wml在html之前则是移动设备
+        if ((strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') !== false) && (strpos($_SERVER['HTTP_ACCEPT'], 'text/html') === false || (strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') < strpos($_SERVER['HTTP_ACCEPT'], 'text/html')))) {
+            return true;
+        }
+    }
+    return false;
+
+}
+
+/**
+ * 打印数据
+ * @param $data
+ * @param bool $hide
+ */
+function view_data($data, $hide = false)
+{
+    if ($hide) {
+        echo '<!--';
+        print_r($data);
+        echo '-->';
+    } else {
+        print_r($data);
+    }
+}
+
+//浏览器控制台调试
+function view_data_console($data)
+{
+    if (is_object($data)||is_array($data)){
+        $data = json_encode($data,JSON_UNESCAPED_UNICODE);
+    }
+
+    $js ='<script >console.log('.$data.')</script>';
+    echo $js;
+}
+
+/**
+ * @param $str
+ * @return bool
+ */
+function is_url($str)
+{
+    $pattern = "#(http|https)://(.*\.)?.*\..*#i";
+    if (preg_match($pattern, $str)) {
+        return true;
+    } else {
+        return false;
+    }
+}
+
+/***
+ * 随机生成数字
+ * @param int $length
+ * @return string
+ */
+function GetNumberCode($length = 6)
+{
+    $code = '';
+    for ($i = 0; $i < intval($length); $i++) $code .= rand(1, 9);
+    return $code;
+}
+
+/**
+ * 隐藏部分字符串,比如隐藏手机中间4位，用*号代表：str_hidden(13500000000,3,4,'****');//135****0000
+ * @param $str string 要处理的字符串
+ * @param $start int 开始位置
+ * @param $length int 处理长度
+ * @param string $replaceTo 替换后的字符串
+ * @return mixed
+ */
+
+function str_hidden($str, $start, $length, $replaceTo = '****')
+{
+    return substr_replace($str, $replaceTo, $start, $length);
+}
+
+/**
+ * 支持中文的字符串截取
+ * @param $str
+ * @param $start
+ * @param $length
+ * @param null $enc
+ * @return string
+ */
+function str_mb_hidden($str, $start, $length, $enc = null)
+{
+    return mb_substr($str, $start, $length, $enc = null);
+}
+
+/**
+ * 截取字符串
+ * @param $str
+ * @param $length
+ * @param int $start
+ * @return string
+ */
+function str_cut($str, $length, $start = 0)
+{
+    return mb_substr($str, $start, $length, 'utf-8');
+}
+
+
+/**
+ * 获取设备类型
+ * @return string
+ */
+function get_device_type()
+{
+    //全部变成小写字母
+    $agent =isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']):'';
+    $type = 'other';
+    //分别进行判断
+    if (strpos($agent, 'iphone') || strpos($agent, 'ipad')) {
+        $type = 'ios';
+    }
+
+    if (strpos($agent, 'android')) {
+        $type = 'android';
+    }
+    return $type;
+}
+
+/**
+ * 是否是手机号
+ * @param $mobile
+ * @return bool
+ */
+function is_phone($mobile)
+{
+    if (!is_numeric($mobile)) {
+        return false;
+    }
+    return preg_match('#^1[3,4,5,7,8,9]{1}[\d]{9}$#', $mobile) ? true : false;
+}
+
+
+
+
+//判断是否属于uid
+function is_uid($str)
+{
+    if (stripos($str, 'bs') !== false && mb_strlen($str) === 34) {
+        return true;
+    }
+    return false;
+}
+
+function is_email($email)
+{
+    $chars = "/^([a-z0-9+_]|\\-|\\.)+@(([a-z0-9_]|\\-)+\\.)+[a-z]{2,6}\$/i";
+    if (strpos($email, '@') !== false && strpos($email, '.') !== false) {
+        if (preg_match($chars, $email)) {
+            return true;
+        } else {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+}

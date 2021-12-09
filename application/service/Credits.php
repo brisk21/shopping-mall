@@ -47,11 +47,13 @@ class Credits
      * @param $uid string 用户uid
      * @param $field string 字段,credit-余额，point-积分
      * @param $num float 大于零是增加，否则减少
+     * @param $arg array 扩展参数，remark-备注，type-类型
+     * @return false|int|string
      */
-    public static function update($uid, $field, $num)
+    public static function update($uid, $field, $num, $arg)
     {
         $account = self::get($uid, $field);
-        if (empty($account[$field]) || $num == 0) {
+        if (!isset($account[$field]) || $num == 0) {
             return false;
         }
         $before = $account[$field];
@@ -60,12 +62,37 @@ class Credits
         } else {
             $after = $before + abs($num);
         }
-
-        return AppCommon::data_update('common_user_credits',['uid'=>$uid],[$field=>$after]);
+        $res = AppCommon::data_update('common_user_credits', ['uid' => $uid], [$field => $after]);
+        if (!$res) {
+            return false;
+        }
+        //资金扣除流水记录
+        $log = [
+            'uid' => $uid,
+            'remark' => $arg['remark'],
+            'type' => isset($arg['type']) ? $arg['type'] : '0',//1-购买商品，2-充值记录，3-提现记录,
+            'before_num' => $before,
+            'num' => $num,
+            'after_num' => $after
+        ];
+        //积分操作
+        if ($field == 'point') {
+            unset($log['type']);
+            return self::add_point_log($log);
+        }
+        return self::add_credit_log($log);
     }
 
-    //添加流水记录
-    public static function log_add($data)
+    //积分记录
+    private static function add_point_log($data)
+    {
+        $data['add_time'] = time();
+        return AppCommon::data_add('common_user_point_log', $data);
+    }
+
+
+    //余额记录
+    private static function add_credit_log($data)
     {
         $data['add_time'] = time();
         return AppCommon::data_add('common_user_credit_log', $data);

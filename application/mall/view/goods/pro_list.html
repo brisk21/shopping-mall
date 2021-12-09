@@ -12,6 +12,12 @@
     body{
       height: auto;
     }
+    .proimg>img{
+      max-width: 100%;
+    }
+    .protxt>.name{
+      min-height: 40px;
+    }
   </style>
 </head>
 <body ontouchstart>
@@ -188,7 +194,8 @@
   })
 
   //初始化页面检查：
-  var gstatus = sessionStorage.getItem('key_status_goods_list');
+  load_data()
+  /*var gstatus = sessionStorage.getItem('key_status_goods_list');
   if (gstatus){
     console.log(gstatus)
     gstatus = JSON.parse(gstatus);
@@ -207,7 +214,7 @@
     //从零开始咯
     $(".wy-pro-list").empty()
     load_data()
-  }
+  }*/
 
 
 </script>

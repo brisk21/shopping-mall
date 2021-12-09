@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>后台管理</title>
+    <{include file="public/header"}>
+    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<!-- Site wrapper -->
+<div class="wrapper">
+    <!-- Navbar -->
+    <{include file="public/navbar"}>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    <!--左侧菜单-->
+    <{include file="public/sidebar"}>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1></h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="<{:url('/admin/index/index')}>">首页</a></li>
+                            <li class="breadcrumb-item"><a href="#">财务管理</a></li>
+                            <li class="breadcrumb-item active">积分记录</li>
+                        </ol>
+                    </div>
+                </div>
+            </div><!-- /.container-fluid -->
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+
+
+                <div class="card">
+                    <div class="card-header">
+                        <form action="<{:url()}>">
+                            <div class="form-row ">
+
+                                <div class="col-auto">
+                                    <input name="keyword"  type="text" class="form-control " placeholder="UID或者账号" value="<{$Request.param.keyword?$Request.param.keyword:''}>">
+                                </div>
+
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-primary mb-2 "><i class="fas fa-search"></i></button>
+                                    <a  href="<{:url()}>"  class="btn btn-default mb-2 bs-left-30" title="重置"><i class="fas fa-history"></i></a>
+
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="card-body">
+                        <table id="my_table" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>备注</th>
+                                <th>用户</th>
+                                <th>交易前</th>
+                                <th>交易量</th>
+                                <th>交易后</th>
+                                <th>时间</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <{if !empty($data)}>
+                            <{foreach $data as $item}>
+                            <tr>
+                                <td ><{$item.remark}></td>
+                                <td>
+                                    <a href="<{:url('/admin/user.index/index',['keyword'=>$item.uid])}>"><{$item.user.account}></a>
+                                </td>
+                                <td>
+                                    <{$item.before_num}>
+                                </td>
+                                <td>
+                                    <{$item.num}>
+                                </td>
+                                <td>
+                                    <{$item.after_num}>
+                                </td>
+
+                                <td>
+                                    <{$item.add_time|date="Y-m-d H:i:s",###}>
+                                </td>
+
+                            </tr>
+                            <{/foreach}>
+                            <{/if}>
+
+
+
+                            </tbody>
+                            <tfoot>
+
+
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <{$page?$page->render():''}>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+            </div>
+
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+    <{include file="public/copyright"}>
+
+
+</div>
+<!-- ./wrapper -->
+
+<{include file="public/footer"}>
+<!-- DataTables  & Plugins -->
+<script src="/static/adminlte/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="/static/adminlte/plugins/jszip/jszip.min.js"></script>
+<script src="/static/adminlte/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="/static/adminlte/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script>
+    $(function () {
+        $("#my_table").DataTable({
+            "ordering": false,//禁用排序
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            //"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+            // "pageLength": 10,         //初始化显示几条数据
+            //serverSide: true, // use local process instead of server
+            // bFilter: true, // show top right search input box.
+            bPaginate: false,//是否开启分页
+            //iDisplayLength: 10, //默认显示的记录数
+            bInfo: false,//是否显示页脚信息，DataTables插件左下角显示记录数
+        }).buttons().container().appendTo('#my_table_wrapper .col-md-6:eq(0)');
+
+    });
+</script>
+</body>
+</html>

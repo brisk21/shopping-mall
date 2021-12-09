@@ -15,7 +15,7 @@ return [
     // +----------------------------------------------------------------------
 
     // 应用调试模式
-    'app_debug'              => true,
+    'app_debug'              => 1,
     // 应用Trace
     'app_trace'              => 0,
     // 应用模式状态
@@ -41,7 +41,7 @@ return [
     // 是否开启多语言
     'lang_switch_on'         => false,
     // 默认全局过滤方法 用逗号分隔多个
-    'default_filter'         => '',
+    'default_filter'         => 'htmlspecialchars,trim',
     // 默认语言
     'default_lang'           => 'zh-cn',
     // 应用类库后缀
@@ -147,6 +147,7 @@ return [
     // 默认跳转页面对应的模板文件
     'dispatch_success_tmpl'  => THINK_PATH . 'tpl' . DS . 'dispatch_jump.tpl',
     'dispatch_error_tmpl'    => THINK_PATH . 'tpl' . DS . 'dispatch_jump.tpl',
+    //'dispatch_error_tmpl'    => ROOT_PATH . '/application/index/view/error/err_404.html',
 
     // +----------------------------------------------------------------------
     // | 异常及错误设置
@@ -154,6 +155,7 @@ return [
 
     // 异常页面的模板文件
     'exception_tmpl'         => THINK_PATH . 'tpl' . DS . 'think_exception.tpl',
+    //'exception_tmpl'         => ROOT_PATH . '/application/index/view/error/err_404.html',
 
     // 错误显示信息,非调试模式有效
     'error_message'          => '页面错误！请稍后再试～',
@@ -207,7 +209,7 @@ return [
         // SESSION_ID的提交变量,解决flash上传跨域
         'var_session_id' => '',
         // SESSION 前缀
-        'prefix'         => 'think',
+        'prefix'         => 'bs_shop',
         // 驱动方式 支持redis memcache memcached
         'type'           => '',
         // 是否自动开启 SESSION
@@ -237,7 +239,38 @@ return [
     //分页配置
     'paginate'               => [
         'type'      => 'bootstrap',
-        'var_page'  => 'page',
+        'var_page' => 'page',
         'list_rows' => 15,
+        'page_size' => 10, //页码数量
+        'page_button' => [
+            'total_rows' => true, //是否显示总条数
+            'turn_page' => true, //上下页按钮
+            'turn_group' => true, //上下组按钮
+            'first_page' => true, //首页
+            'last_page' => true  //尾页
+        ]
+    ],
+    //微信配置,生成参数时动态传入
+    'wechat'=>[
+        'use_sandbox' => false, // 是否使用 微信支付仿真测试系统
+        'app_id'       => '',  // 公众账号ID
+        'mch_id'       => '', // 商户id
+        'md5_key'      => '', // md5 秘钥
+        'app_cert_pem' => '',
+        'app_key_pem'  =>  '',
+        'sign_type'    => 'MD5', // MD5  HMAC-SHA256
+        'limit_pay'    => [
+            //'no_credit',
+        ], // 指定不能使用信用卡支付   不传入，则均可使用
+        'fee_type' => 'CNY', // 货币类型  当前仅支持该字段
+        'notify_url' => URL_WEB.'payment/wxnotify/index',//  回调地址
+        'redirect_url' => '', // 如果是h5支付，可以设置该值，返回到指定页面
+    ],
+    //上传设置
+    'upload' => [
+        'method' => 'local',//local-本地，oss-阿里云oss，qiniu-七牛云,
+        'fileSizeLimit' => 2 * 1024 * 1024,//文件大小限制
+        'defaultPath' => PUBLIC_PATH . 'upload/',//默认保存路径,
+        'enable_type'=>['jpg','png','jpeg']
     ],
 ];

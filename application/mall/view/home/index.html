@@ -3,7 +3,52 @@
 <head>
 <title>商城首页</title>
   <{include file="public/header" /}>
+  <style>
+    .proimg>img{
+      max-width: 100%;
+    }
 
+    .protxt>.name{
+      min-height: 40px;
+    }
+
+    .bs-navs {
+      width: 100%;
+
+    }
+    .bs-navs-ul {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      /* overflow-x: scroll; */
+      align-content: center
+    }
+    a.nav-item {
+      padding: 5px;
+      vertical-align: middle;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      flex-wrap: nowrap;
+      flex-grow: 0;
+      flex-shrink: 1;
+      flex-basis: 52px;
+      align-self: flex-end;
+    }
+    .nav-item-flex-grow{
+      display: inline-flex;
+      flex-grow: 1 !important;
+    }
+    .nav-item>img{
+      width: 50px;
+      height: 50px;
+      vertical-align:middle;
+    }
+    p.n-p{
+      font-size: 11px;
+    }
+
+  </style>
 </head>
 <body ontouchstart>
 <!--顶部搜索-->
@@ -31,7 +76,8 @@
     <div class="swiper-pagination"></div>
   </div>
   <!--图标分类-->
-  <div class="weui-flex wy-iconlist-box">
+  <div class="bs-navs bs-navs-ul">
+
   </div>
   <!--新闻切换-->
   <div class="wy-ind-news">
@@ -42,7 +88,7 @@
       </div>
       <div class="swiper-pagination"></div>
     </div>
-    <a href="news_list.html" class="newsmore"><i class="news-icon-more"></i></a>
+    <a href="<{:url('news_list')}>" class="newsmore"><i class="news-icon-more"></i></a>
   </div>
   <!--精选推荐-->
   <div class="wy-Module jingxuan-tuijian" style="display: none">
@@ -116,18 +162,27 @@
     });
 
     //导航
-    bs_request("<{:url('get_navs')}>",{},function (res) {
-
+    bs_request("<{:url('/mall/home/get_navs')}>",{},function (res) {
+     // return ;
       if (res.code==0 && res.data.navs.length>0){
-        for (var i=0;i<res.data.navs.length;i++){
-          $(".wy-iconlist-box").append('<div class="weui-flex__item"><a href="'+res.data.navs[i].url+'" class="wy-links-iconlist"><div class="img"><img src="'+res.data.navs[i].img+'" alt="'+res.data.navs[i].title+'"></div><p>'+res.data.navs[i].title+'</p></a></div>')
+        var length = res.data.navs.length;
+        var className = 'nav-item '
+        if (length<=5){
+          className+=' nav-item-flex-grow'
+        }
+        for (var i=0;i<length;i++){
+          $(".bs-navs-ul").append('<a href="'+res.data.navs[i].url+'" class="'+className+'">\n' +
+                  '      <img src="'+res.data.navs[i].img+'" alt="'+res.data.navs[i].title+'">\n' +
+                  '      <p class="n-p">'+res.data.navs[i].title+'</p>\n' +
+                  '    </a>')
+
         }
       }
 
     });
 
     //公告
-    bs_request("<{:url('get_article')}>",{},function (res) {
+    bs_request("<{:url('/mall/home/get_article')}>",{},function (res) {
 
       if (res.code==0 && res.data.article.length>0){
         for (var i=0;i<res.data.article.length;i++){
@@ -144,38 +199,44 @@
 
     //精选推荐
     bs_request("<{:url('/mall/goods/goods_list')}>",{is_top:1,page:1},function (res) {
-      $(".jingxuan-tuijian").show();
+
       if (res.code==0 && res.data.goods.length>0){
+        $(".jingxuan-tuijian").show();
         for (var i=0;i<res.data.goods.length;i++){
           $(".goods-top-item").append('<div class="swiper-slide"><a href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'" ><img src="'+res.data.goods[i].thumb+'" /></a></div>')
         }
-      }
-      $(".swiper-jingxuan").swiper({
+        $(".swiper-jingxuan").swiper({
         pagination: '.swiper-pagination',
         loop: true,
         paginationType:'fraction',
         slidesPerView:3,
         paginationClickable: true,
-        spaceBetween: 2
+        spaceBetween: 2,
+        autoplay: 3000
       });
+      }
+      
     });
     //热门推荐
     bs_request("<{:url('/mall/goods/goods_list')}>",{category_id:1,page:1},function (res) {
-      $(".hot-tuijian").show();
+
       if (res.code==0 && res.data.goods.length>0){
+        $(".hot-tuijian").show();
         for (var i=0;i<res.data.goods.length;i++){
           $(".goods-category-rec").append(' <div class="swiper-slide"><a href="<{:url(\'/mall/goods/detail\')}>?id='+res.data.goods[i].id+'"><img src="'+res.data.goods[i].thumb+'" /></a></div>')
         }
-      }
-      $(".swiper-jiushui").swiper({
+        $(".swiper-jiushui").swiper({
         pagination: '.swiper-pagination',
         paginationType:'fraction',
         loop: true,
         slidesPerView:3,
-        slidesPerColumn: 2,
+        slidesPerColumn: 1,
         paginationClickable: true,
-        spaceBetween:2
+        spaceBetween:2,
+        autoplay: 2000
       });
+      }
+      
     });
 
     //猜你喜欢

@@ -1,0 +1,356 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>后台管理</title>
+    <{include file="public/header"}>
+    <link rel="stylesheet" href="/static/adminlte/plugins/jq-uploadifive/uploadifive.css">
+    <link rel="stylesheet" href="/static/adminlte/plugins/summernote/summernote-bs4.min.css">
+    <link rel="stylesheet" href="/static/adminlte/plugins/webuploader-0.1.5/webuploader.css">
+    <link rel="stylesheet" href="/static/adminlte/plugins/bs/css/upload.css">
+    <style>
+        i.fas.fa-trash.banner-del {
+            color: red;
+            position: absolute;
+            z-index: 999;
+            font-size: 28px;
+            cursor: pointer;
+            border: 2px solid white;
+        }
+        .banner-item{
+            float: left;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<!-- Site wrapper -->
+<div class="wrapper">
+    <!-- 顶部导航 -->
+    <{include file="public/navbar"}>
+    <!--左侧菜单-->
+    <{include file="public/sidebar"}>
+
+    <div class="content-wrapper">
+        <!-- 面包屑导航 -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>商品管理</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="<{:url('/admin/index/index')}>">首页</a></li>
+                            <li class="breadcrumb-item"><a href="#">商品</a></li>
+                            <li class="breadcrumb-item active">商品新增</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 内容区-->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="row">
+                    <!-- left column -->
+                    <div class="col-md-12">
+                        <div class="card card-primary">
+                            <div class="card-header">
+                                <h3 class="card-title">商品操作</h3>
+                            </div>
+
+                            <form method="post" action="<{:url('/admin/goods.index/action')}>" id="check-form">
+                                <div class="card-body">
+                                    <div class="form-group">
+                                        <label for="title">商品名称</label>
+                                        <input name="title" value="<{$goods?$goods.title:''}>" type="text" class="form-control" id="title" placeholder="请输入商品名称">
+                                        <input type="hidden" name="id" value="<{$goods?$goods.id:'0'}>">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="store_num">选择店铺</label>
+                                        <select name="store_num" id="store_num" class="form-control">
+                                            <{if !empty($stores)}>
+                                            <{foreach $stores as $s}>
+                                            <option value="<{$s.store_num}>"><{$s.store_name}></option>
+                                            <{/foreach}>
+                                            <{else}>
+                                            <option value="0" class="bs-red">请先配置店铺</option>
+                                            <{/if}>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="category_id">商品分类</label>
+                                        <select name="category_id" id="category_id" class="form-control">
+                                            <{if !empty($category)}>
+                                            <{foreach $category as $one}>
+                                            <optgroup label="<{$one.name}>">
+                                                <{if !empty($one.subcat)}>
+                                                <{foreach $one.subcat as $two}>
+                                                <option <{if !empty($goods['category_id'])&&$goods['category_id']==$two.category_id}>selected<{/if}>   value ="<{$two.category_id}>"><{$two.name}></option>
+                                                <{/foreach}>
+                                                <{/if}>
+                                            </optgroup>
+                                            <{/foreach}>
+                                            <{else}>
+                                            <optgroup label="未设置分类"></optgroup>
+                                            <{/if}>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="thumb">封面图片<span id="file_upload"   type="file" ></span></label>
+                                        <input value="<{$goods?$goods.thumb:''}>" name="thumb" type="text" class="form-control"  id="thumb" placeholder="输入图片地址或者上传">
+                                        <div id="queue"></div>
+
+                                        <div class="show-thumb">
+                                            <img src="" width="150px" style="max-height: 150px" alt="">
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="desc">简单描述</label>
+                                        <textarea  name="desc" class="form-control"  id="desc" rows="3" placeholder="商品简单描述"><{$goods?$goods.goods_desc:''}></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <div class="row">
+                                            <div class="col-md-4 col-sm-4">
+                                                <label for="market_price">市场价</label>
+                                                <input name="market_price" value="<{$goods?$goods.market_price:'0.00'}>" style=";display: inline" type="number"  class="form-control" id="market_price" >
+                                            </div>
+                                            <div class="col-md-4 col-sm-4">
+                                                <label for="price" >销售价</label>
+                                                <input value="<{$goods?$goods.price:'0.00'}>" name="price" style="display: inline;" type="number" class="form-control" id="price" >
+                                            </div>
+                                            <div class="col-md-4 col-sm-4">
+                                                <label for="stock" >库存</label>
+                                                <input value="<{$goods?$goods.stock:'0'}>" name="stock" style="display: inline;" type="number" class="form-control" id="stock" >
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" style="margin-top: 10px">
+
+                                        <div class="row">
+
+                                            <div class="col-md-6 col-sm-6">
+                                                <div class="form-group clearfix">
+                                                    <div class="icheck-primary d-inline">
+                                                        <input type="checkbox" name="is_top" id="is_top" <{if !empty($goods['is_top'])}>checked<{/if}> >
+                                                        <label for="is_top">
+                                                            首页推荐
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 col-sm-6">
+                                                <div class="form-group clearfix">
+                                                    <div class="icheck-primary d-inline">
+                                                        <input type="checkbox" id="status" name="status" <{if !empty($goods['status'])}>checked<{/if}>>
+                                                        <label for="status">
+                                                            上架
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <h3 >详情页轮播图</h3>
+                                        <div class="imgs" style="margin-top: 10px">
+                                            <{if !empty($goods['banners'])}>
+                                            <{foreach $goods['banners'] as $src}>
+                                            <div class="banner-item">
+
+                                                <input type='hidden' name='banners[]' value="<{$src}>">
+                                                <span class="gimg">
+                                                     <i title="移除" class="fas fa-trash banner-del"></i>
+                                                    <img src="<{$src}>" style="width: 150px" alt="">
+                                                </span>
+
+                                            </div>
+                                            <{/foreach}>
+                                            <{/if}>
+
+                                        </div>
+                                        <div class="clean" style="clear: both"></div>
+                                        <div id="uploader">
+                                            <div class="queueList">
+                                                <div id="dndArea" class="placeholder">
+                                                    <div id="filePicker"></div>
+                                                    <p>单次最多可选10张</p>
+                                                </div>
+                                            </div>
+                                            <div class="statusBar" style="display:none;">
+                                                <div class="progress">
+                                                    <span class="text">0%</span>
+                                                    <span class="percentage"></span>
+                                                </div><div class="info"></div>
+                                                <div class="btns">
+                                                    <div id="filePicker2"></div><div class="uploadBtn">开始上传</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="textarea">商品详情</label>
+                                        <textarea id="textarea" name="content" class="form-control"  ><{$goods?$goods.content:''}></textarea>
+                                    </div>
+
+                                </div>
+
+
+                                <div class="card-footer">
+                                    <button type="button" onclick="form_submit()" class="btn btn-primary">提交保存</button>
+                                    <{if !empty($goods)}>
+                                    <a style="margin-left: 30px" href="<{:url('/admin/goods.index/index')}>" class="btn btn-default">返回商品列表</a>
+                                    <{/if}>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <{include file="public/copyright"}>
+
+
+</div>
+<!-- ./wrapper -->
+
+<{include file="public/footer"}>
+
+<script src="/static/adminlte/plugins/jq-uploadifive/jquery.uploadifive.min.js"></script>
+<script src="/static/adminlte/plugins/summernote/summernote-bs4.min.js"></script>
+<script type="text/javascript" src="/static/adminlte/plugins/webuploader-0.1.5/webuploader.min.js"></script>
+<script type="text/javascript" src="/static/adminlte/plugins/bs/upload.js"></script>
+<script>
+    $(".imgs").on('click','.banner-del',function () {
+        var obj = $(this);
+        layer.confirm('确定移除该图片吗？',{title:0,btn:['确定','再想想']},function (index) {
+           obj.parent('span').parent('.banner-item').remove();
+           layer.close(index)
+        })
+    })
+    //上传图片
+    function uploadFile($summernote, file) {
+        var data = new FormData();
+        data.append('fileKey','bs_shop')
+        data.append('from','bsgoods')
+        data.append("bs_shop", file);
+        $.ajax({
+            url:"<{:url('/admin/upload/image')}>",
+            data: data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            type: 'POST',
+            success: function (res) {
+                res = JSON.parse(res)
+                if (res.code==0){
+                    console.log('xxx',res)
+                    $summernote.summernote('insertImage', res.data.url, function ($image) {
+                        $image.attr('src', res.data.url);
+                    });
+                    //$summernote.summernote('insertImage', res.data.url,'img');
+                }
+
+            }
+        });
+    }
+    //删除图片
+    function removeFile(target){
+        var imgsrc = target[0].currentSrc;
+        console.log(imgsrc)
+        $.post('page/remove_img.php',{
+            imgSrc:imgsrc
+        },function(data){
+            console.log(data);
+        })
+
+    }
+    $(document).ready(function () {
+        var $summernote = $('#textarea').summernote({
+            height:300,                 // set editor height
+            minHeight:null,             // set minimum height of editor
+            maxHeight:null,             // set maximum height of editor
+            focus:true      ,            //
+            callbacks: {
+                //上传时调用
+                onImageUpload: function (files) {
+                    uploadFile($summernote, files[0]);
+                },
+                //删除时调用
+                onMediaDelete: function (target) {
+                    removeFile(target);
+                }
+            }
+
+        });
+
+        $('#file_upload').uploadifive({
+            method: 'POST' , //POST或GET
+            height        : 30, //高度
+            //swf           :  '/static/adminlte/plugins/uploadify3.2/uploadify.swf' , //指定swf文件
+            uploadScript      :  "<{:url('/admin/upload/image')}>" , //后台处理的url
+            width         : 120, //宽度
+            buttonText:  '上传图片' ,  //按钮显示的文字
+            fileTypeExts:   '*.jpg; *.png;*.jpeg' , //上传文件的类型,默认为所有文件,多个类型使用;分割'*.gif; *.jpg; *.png'
+            fileTypeDesc:  'Image Files' , //可选择文件的描述,在浏览窗口底部的文件类型下拉菜单中显示的文本
+            formData: { 'fileKey' : 'bs_shop' , 'from' :'bsgoods'}, //发送给后台的其他参数通过formData指定
+            auto:  true , //选择文件后自动上传
+            multi:  false , //设置为true将允许多文件上传
+            //buttonClass: 'xttblog' , //上传按钮的样式
+            buttonImage: '' , //按钮的图片路径
+            buttonCursor: 'hand' , //鼠标指针悬停在按钮上的样子
+            fileObjName: 'bs_shop' , //后台获取文件对象
+            fileSizeLimit: '2MB' , //允许文件上传的最大大小.这个值可以是数字或字符串.如果它是一个字符串,它接受一个单位(B,KB,MB,GB)
+            //默认单位为KB。您可以将此值设置为0,无限制
+            removeCompleted: true , //默认为true上传完成后是否删除上传队列
+            removeTimeout:2, //上传完成后,延迟3秒删除队列
+            requeueErrors: true , //默认为false,如果为true上传失败后将继续尝试再次上传
+            successTimeout:30, //文件上传成功后服务端应返回成功标志，此项设置返回结果的超时时间
+            uploadLimit:10, //最大上传文件数量，如果达到或超出此限制将会触发onUploadError事件
+            onInit: function (){ //首次初始化Uploadify结束时触发
+                //console.log('11111')
+            },
+
+            onCancel :  function (file) {
+                //移除文件时触发
+            },
+            onCheck: function (file){
+
+            },
+            onUploadStart: function (file){ //当文件即将开始上传时立即触发
+
+            },
+            onUploadFile: function (file){
+
+            },
+            onUploadComplete: function (file, res){
+                res = JSON.parse(res)
+                //console.log('res',res)
+                if (res.code==0){
+                    $(".show-thumb").children('img').attr('src',res.data.url)
+                    $("#thumb").val(res.data.url)
+                }else {
+                    return layer.msg(res.msg,{icon:5,time:1000});
+                }
+
+                //当文件上传成功时触发
+                //file文件对象
+                //data服务端输出返回的信息
+                //response有输出时为true,如果无响应为false，如果返回的是false,当超过successTimeout设置的时间后假定为true
+
+            }
+        });
+    })
+
+</script>
+
+</body>
+</html>

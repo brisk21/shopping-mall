@@ -1,0 +1,38 @@
+<!-- jQuery -->
+<script src="/static/adminlte/plugins/jquery/jquery.min.js"></script>
+<!-- Bootstrap 4 -->
+<script src="/static/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="/static/adminlte/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE App -->
+<script src="/static/adminlte/js/adminlte.min.js"></script>
+<!--引入layer.js-->
+<script src="/static/adminlte/plugins/layer/layer.js"></script>
+<!--引入自定义的js函数-->
+<script src="/static/adminlte/plugins/bs/common.js"></script>
+<!--jquery.form-->
+<script src="/static/adminlte/plugins/bs/jquery.form.js"></script>
+<!--和php同样的函数-->
+<script src="/static/adminlte/plugins/bs/php.js"></script>
+<script>
+
+    //选中菜单的颜色
+    $(document).ready(function() {
+        $(".logout").on('click',function () {
+            layer.confirm('确定要退出后台吗？',{title:0},function () {
+                location.href = "<{:url('/admin/account/logout')}>"
+            })
+        })
+
+        /** add active class and stay opened when selected */
+        var url = window.location;
+        // for sidebar menu entirely but not cover treeview
+        $('ul.nav-sidebar a').filter(function() {
+            return this.href == url;
+        }).addClass('active');
+        // for treeview
+        $('ul.nav-treeview a').filter(function() {
+            return this.href == url;
+        }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
+    })
+</script>

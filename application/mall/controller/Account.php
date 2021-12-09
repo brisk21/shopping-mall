@@ -6,6 +6,9 @@ namespace app\mall\controller;
 
 use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
+use app\service\ConfigService;
+use app\service\Mailer;
+use app\service\VerifyCode;
 use think\captcha\Captcha;
 use think\Request;
 
@@ -15,6 +18,7 @@ class Account extends Mall
         'mall/account/login',
         'mall/account/index',
         'mall/account/get_vcode',
+        'mall/account/get_dcode',
         'mall/account/reg',
         'mall/account/reg_action',
         'mall/account/do_login',
@@ -29,7 +33,7 @@ class Account extends Mall
 
     public function login()
     {
-        if ($this->uid){
+        if ($this->uid) {
             return redirect('/mall/home/index');
         }
         return $this->fetch();
@@ -46,6 +50,58 @@ class Account extends Mall
         return captcha_img();
     }
 
+    //动态码
+    public function get_dcode()
+    {
+        $conf = ConfigService::get('mobile_shop');
+        if (empty($conf['reg_type']) || $conf['reg_type'] == -1) {
+            data_return('系统已关闭注册', -1);
+        }
+        if (empty($this->param['vcode'])) {
+            data_return('请填写图形验证码', -1);
+        }
+        if (!captcha_check($this->param['vcode'], 'reg_vcode')) {
+            data_return('图形验证码不正确', -1);
+        }
+        if (empty($this->param['account'])) {
+            data_return('请填写账号', -1);
+        }
+        //1-仅手机，2-仅邮箱，3-手机或者邮箱，4-任意字符串，-1-关闭注册
+        $type = $conf['reg_type'];
+        if ($type == 4) {
+            data_return('词注册类型无需动态码', 500);
+        } elseif ($type == 1) {
+            if (!is_phone($this->param['account'])) {
+                data_return('目前仅支持手机号注册');
+            }
+            $res = VerifyCode::send($this->param['account']);
+            if ($res['code'] <> 0) {
+                data_return($res['msg'], -1);
+            }
+            data_return('发送成功,注意查收');
+        } elseif ($type == 2) {
+            if (!is_email($this->param['account'])) {
+                data_return('目前仅支持邮箱注册');
+            }
+            $res = VerifyCode::send($this->param['account']);
+            if ($res['code'] <> 0) {
+                data_return($res['msg'], -1);
+            }
+            data_return('发送成功,注意查收');
+        } elseif ($type == 3) {
+            if (!is_email($this->param['account']) && !is_phone($this->param['account'])) {
+                data_return('仅支持手机号或者邮箱注册', -1);
+            }
+            $res = VerifyCode::send($this->param['account']);
+            if ($res['code'] <> 0) {
+                data_return($res['msg'], -1);
+            }
+            data_return('发送成功,注意查收');
+        }
+
+        data_return('系统错误', 500, $type);
+    }
+
     public function reg()
     {
         return $this->fetch();
@@ -54,11 +110,14 @@ class Account extends Mall
     //注册操作
     public function reg_action()
     {
+        $conf = ConfigService::get('mobile_shop');
+        if (empty($conf['reg_type']) || $conf['reg_type'] == -1) {
+            data_return('系统已关闭注册', -1);
+        }
         $rule = [
             ['type' => 'length', 'key' => 'account', 'rule' => '2,16', 'msg' => '账号2~16字符',],
             ['type' => 'empty', 'key' => 'pwd1', 'rule' => '', 'msg' => '密码不能为空',],
             ['type' => 'empty', 'key' => 'pwd2', 'rule' => '', 'msg' => '确认密码不能为空',],
-            ['type' => 'empty', 'key' => 'vcode', 'rule' => '', 'msg' => '请输入图形验证码',],
         ];
         $check = check_param($this->param, $rule);
         if ($check['code'] <> 0) {
@@ -70,9 +129,41 @@ class Account extends Mall
         if (strlen($this->param['pwd1']) < 6) {
             data_return('密码不够安全', -1);
         }
-        if (!captcha_check($this->param['vcode'], 'reg_vcode')) {
-            data_return('验证码不正确', -1);
+        //1-仅手机，2-仅邮箱，3-手机或者邮箱，4-任意字符串，-1-关闭注册
+        $type = $conf['reg_type'];
+        if ($type == 1) {
+            if (!is_phone($this->param['account'])) {
+                data_return('目前仅支持手机号注册');
+            }
+        } elseif ($type == 2) {
+            if (!is_email($this->param['account'])) {
+                data_return('目前仅支持邮箱注册');
+            }
+            if (empty($this->param['dcode'])) {
+                data_return('请输入动态码', -1);
+            }
+            $res = VerifyCode::check_code($this->param['account'], $this->param['dcode']);
+            if ($res['code'] <> 0) {
+                data_return($res['msg'], -1);
+            }
+        } elseif ($type == 3) {
+            if (!is_email($this->param['account']) && !is_phone($this->param['account'])) {
+                data_return('仅支持手机号或者邮箱注册', -1);
+            }
+            if (empty($this->param['dcode'])) {
+                data_return('请输入动态码', -1);
+            }
+            $res = VerifyCode::check_code($this->param['account'], $this->param['dcode']);
+            if ($res['code'] <> 0) {
+                data_return($res['msg'], -1);
+            }
+        } elseif ($type == 4) {
+            if (!captcha_check($this->param['vcode'], 'reg_vcode')) {
+                data_return('验证码不正确', -1);
+            }
         }
+
+
         if ($this->param['pwd1'] !== $this->param['pwd2']) {
             data_return('两次密码不一样', -1);
         }
@@ -147,7 +238,7 @@ class Account extends Mall
         AppCommon::data_add('common_user_login_log', $loginData);
 
         //设置登录状态
-        session($this->key_cache_user,$data['uid'],$this->session_prefix);
+        session($this->key_cache_user, $data['uid'], $this->session_prefix);
 
         data_return('登录成功');
     }
@@ -165,7 +256,7 @@ class Account extends Mall
     //退出
     public function logout()
     {
-        session($this->key_cache_user,null,$this->session_prefix);
+        session($this->key_cache_user, null, $this->session_prefix);
         return redirect('/mall/account/login');
     }
 }

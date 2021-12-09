@@ -6,18 +6,43 @@ namespace app\mall\controller;
 
 use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
+use app\service\ConfigService;
+use app\service\DiyLog;
 
 class Home extends Mall
 {
     public $whiteList = [
         'mall/home/index',
         'mall/home/news_info',
+        'mall/home/config',
         'mall/home/news_list',
         'mall/home/get_banner',
         'mall/home/get_navs',
         'mall/home/get_article',
         'mall/home/get_article_info',
     ];
+
+    //商城配置
+    public function config()
+    {
+        $conf = ConfigService::get('mobile_shop');
+        if (!empty($conf)) {
+            data_return('ok', 0, $conf);
+        }
+        data_return('未配置', -1);
+    }
+
+    //微信授权缓存openid
+    public function wx_openid()
+    {
+        $openid = input('openid');
+        if (!empty($openid)) {
+            cookie('my_gzh_openid', $openid);
+            DiyLog::file(input(), 'my_gzh_openid');
+            return $this->redirect(url('index'));
+        }
+    }
+
     public function index()
     {
         return $this->fetch();
@@ -52,7 +77,7 @@ class Home extends Mall
     //获取导航图标
     public function get_navs()
     {
-        $data = AppCommon::data_list('navs', ['status' => 0, 's_time' => ['<=', time()], 'e_time' => ['>=', time()]], 1, 'id,title,url,img');
+        $data = AppCommon::data_list_nopage('navs', ['status' => 0, 's_time' => ['<=', time()], 'e_time' => ['>=', time()]],  'id,title,url,img');
         if (!empty($data)) {
             array_walk($data, function (&$v) {
                 if (stripos($v['img'], 'http') === false) {
@@ -68,8 +93,7 @@ class Home extends Mall
     //获取导航公告文章
     public function get_article()
     {
-        AppCommon::$db_order = 'id desc';
-        $data = AppCommon::data_list('article', ['status' => 1], 1, 'id,title');
+        $data = AppCommon::data_list('article', ['status' => 1], 1, 'id,title', 'id desc');
 
         data_return('ok', 0, [
             'article' => $data ? $data : null
@@ -77,14 +101,13 @@ class Home extends Mall
     }
 
     //获取导航公告文章-详情
-    public function get_article_info($id=0)
+    public function get_article_info($id = 0)
     {
-        AppCommon::$db_order = 'id desc';
-        $data = AppCommon::data_get('article', ['id'=>intval($id),'status' => 1],  '*');
+        $data = AppCommon::data_get('article', ['id' => intval($id), 'status' => 1], '*');
 
-        if ($data){
+        if ($data) {
             $data['content'] = htmlspecialchars_decode($data['content']);
-            $data['add_time'] = date('Y-m-d',$data['add_time']);
+            $data['add_time'] = date('Y-m-d', $data['add_time']);
         }
 
         data_return('ok', 0, [

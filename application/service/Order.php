@@ -64,8 +64,7 @@ class Order
         if ($order['status'] == 0) {
             AppCommon::data_del('order', ['order_sn' => $order_sn]);
             //锁库解锁
-            AppCommon::$db_pageSize = 50;
-            $allGoods = AppCommon::data_list('order_goods', ['order_sn' => $order_sn], 1, 'goods_id,count');
+            $allGoods = AppCommon::data_list('order_goods', ['order_sn' => $order_sn], '1,50', 'goods_id,count');
 
             if ($allGoods) {
                 foreach ($allGoods as $goods) {

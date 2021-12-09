@@ -6,6 +6,7 @@ namespace app\mall\controller;
 
 use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
+use app\service\DiyLog;
 use think\App;
 
 class Goods extends Mall
@@ -37,12 +38,11 @@ class Goods extends Mall
         } elseif ($sort == 'sale_desc') {
             $order = "sale desc,id desc";
         }
-        AppCommon::$db_order = $order;
+
 
         //详情的看了又看推荐 todo 根据用户搜索记录、购买记录推荐
         if ($from=='detail'){
-            AppCommon::$db_pageSize = 30;
-            AppCommon::$db_order = 'sale desc';
+            $order = 'sale desc';
         }
 
         $where = ['status' => 1];
@@ -61,7 +61,7 @@ class Goods extends Mall
             $where['title'] = ['like', '%' . trim(strip_tags($this->param['keyword'])) . '%'];
         }
 
-        $goods = AppCommon::data_list('goods', $where, $page, 'id,title,market_price,price,stock,sale,thumb');
+        $goods = AppCommon::data_list('goods', $where, $page, 'id,title,market_price,price,stock,sale,thumb',$order);
 
 
         data_return('ok', 0, [
@@ -70,15 +70,15 @@ class Goods extends Mall
     }
 
     //商品详情
-    public function goods_detail($id = 0)
+    public function goods_detail()
     {
-        $goods = AppCommon::data_get('goods', ['id' => intval($id)], '*');
-
+        $id = !empty($this->param['id'])?intval($this->param['id']):0;
+        $goods = AppCommon::data_get('goods', ['id' => $id,'status'=>1], '*');
         if ($goods) {
             if (!empty($goods['banners'])) {
                 $goods['banners'] = json_decode($goods['banners'], true);
             }
-            $goods['content'] = htmlspecialchars_decode($goods['content']);
+            $goods['content'] = htmlspecialchars_decode($goods['content'],ENT_QUOTES);
 
             $goods['has_favorite'] = AppCommon::data_get('goods_favorite', ['uid' => $this->uid, 'goods_id' => $goods['id']], 'id');
         }
@@ -118,7 +118,6 @@ class Goods extends Mall
             'a.uid' => $this->uid
         ];
         $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
-        AppCommon::$db_order = 'id desc';
 
         //关联查询
         $goods = AppCommon::db('goods_favorite a')
@@ -126,7 +125,7 @@ class Goods extends Mall
             ->where($where)
             ->page($page)
             //->fetchSql(1)
-            ->order(AppCommon::$db_order)
+            ->order('id desc')
             ->field('b.id,b.title,b.market_price,b.price,b.stock,b.sale,b.thumb,a.id as aid')
             ->select();
 
@@ -143,7 +142,6 @@ class Goods extends Mall
             'a.uid' => $this->uid
         ];
         $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
-        AppCommon::$db_order = 'id desc';
 
         //关联查询
         $goods = AppCommon::db('cart a')
@@ -151,8 +149,7 @@ class Goods extends Mall
             ->join('stores c', 'b.store_num = c.store_num')
             ->where($where)
             ->page($page)
-            //->fetchSql(1)
-            ->order(AppCommon::$db_order)
+            ->order('id desc')
             ->field('b.title,b.price,b.thumb,a.id,a.count,a.status,a.goods_id,c.store_name,c.store_name')
             ->select();
 

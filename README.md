@@ -1,9 +1,15 @@
 # thinkphp5购物商城
 
 #### 介绍
-用tp5开发一个购物商城，从简单到复杂，商品、搜索、购物车、订单、收藏、充值、交易记录等。
+用tp5开发一个购物商城，从简单到复杂，商品、搜索、购物车、订单、收藏、充值、交易记录等，  **用最简单的方式写商城，会点php和jq的都可以维护二开** 。
+
+后台功能：商品管理、分类管理、权限菜单、权限管理、管理员管理、角色管理、轮播管理、导航管理、订单管理等。
+
+这是一个适合个人和企业使用的中小型商城，可以自定义扩展和二开。
 
 ###### 在线体验(注册自动有1000体验余额): [http://demo.bs.shop.wei1.top/](http://demo.bs.shop.wei1.top/) 
+
+后台(部分功能)：http://demo.bs.shop.wei1.top/admin/
 
 
 ###### 运行效果
@@ -19,8 +25,12 @@
 ![alt 搜索列表](./public/test/pro-list.png "搜索列表")
 ![alt 地址列表](./public/test/address.png "地址列表")
 
+角色管理
+![alt 后台](./public/test/admin1.png "后台")
 
 
+商品管理
+![alt 后台](./public/test/admin2.png "后台")
 
 
 
@@ -41,9 +51,7 @@
 
 4. 创建数据库，导入sql（config下面的bs_shop.sql)数据
 
-5. 访问域名（xxxx.com）访问
-
-6.  伪静态设置（参考thinkphp）,下面是nginx配置：
+5.  伪静态设置（参考thinkphp）,下面是nginx配置：
 ```nginx
 location / { 
    if (!-e $request_filename) {
@@ -52,7 +60,7 @@ location / {
     }
  }
 ```
-
+6.访问域名（xxxx.com）访问（后台访问xxxx.com/admin/）
 
 
 #### 使用说明
@@ -65,6 +73,7 @@ location / {
 
 
 
+
 #### 特技
 
 1. 用简单的方式实现一个thinkphp
@@ -72,7 +81,7 @@ location / {
 
 #### 交流群
 群2（过期请加微信交流：wei1-top）：
-![微信交流群②](https://images.gitee.com/uploads/images/2021/1122/173006_82afd9c6_2065616.png "微信交流群②")
+![微信交流群②](./public/test/qr.png "微信交流群②")
 
 
 ###### 基于这个开发的一个返利版（建议在微信下直接授权登录）：[返利版demo](https://wx.wei1.top/union/store.user/index.html)

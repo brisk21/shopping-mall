@@ -25,7 +25,28 @@ class Mall extends Controller
         parent::__construct($request);
         $this->param = input();
         $this->uid = session($this->key_cache_user,'',$this->session_prefix);
+
         $this->check_login($request);
+
+    }
+
+    public function wx_env()
+    {
+        if (fromClient()<>'weixin'){
+            return ;
+        }
+
+        $openid = cookie('my_gzh_openid');
+        if (empty($openid) && !IS_AJAX){
+            $curl = URL_WEB.url('/mall/home/wx_openid');
+            $url = "https://wx.wei1.top/weixin/gzh/openid/akey/uqhmv7c6qc.html?my_redirect_uri=".urlencode($curl);
+            return $this->redirect($url);
+        }elseif (empty($openid)){
+            $curl = URL_WEB.url('/mall/home/wx_openid');
+            $url = "https://wx.wei1.top/weixin/gzh/openid/akey/uqhmv7c6qc.html?my_redirect_uri=".urlencode($curl);
+            data_return('微信环境检测，即将进入首页...',30002,$url);
+        }
+
     }
 
     //检查登录状态

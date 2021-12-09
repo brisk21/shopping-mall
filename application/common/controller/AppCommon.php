@@ -9,11 +9,7 @@ use think\Db;
 
 class AppCommon extends Controller
 {
-    public static $db_where = null;
-    public static $db_where_or = null;
     public static $fetch_sql = false;
-    public static $db_order = null;
-    public static $db_pageSize = 20;
 
 
     /**
@@ -27,28 +23,71 @@ class AppCommon extends Controller
         return Db::name($table)->fetchSql(self::$fetch_sql)->insertGetId($data);
     }
 
+    /**
+     * 新增数据-批量
+     * @param $table
+     * @param $data
+     * @return int|string
+     */
+    public static function data_add_array($table, $data)
+    {
+        return Db::name($table)->fetchSql(self::$fetch_sql)->insertAll($data);
+    }
+
     //更新数据
     public static function data_update($table, $where, $newData)
     {
-        return Db::name($table)->fetchSql(self::$fetch_sql)->where($where)->where(self::$db_where)->update($newData);
+        return Db::name($table)->fetchSql(self::$fetch_sql)->where($where)->update($newData);
     }
 
     //删除数据
     public static function data_del($table, $where)
     {
-        return Db::name($table)->fetchSql(self::$fetch_sql)->where($where)->where(self::$db_where)->delete();
+        return Db::name($table)->fetchSql(self::$fetch_sql)->where($where)->delete();
     }
 
     //单条查询
-    public static function data_get($table, $where = null,$field='*')
+    public static function data_get($table, $where = null, $field = '*', $order = null)
     {
-        return Db::name($table)->fetchSql(self::$fetch_sql)->where($where)->where(self::$db_where)->field($field)->find();
+        return Db::name($table)->fetchSql(self::$fetch_sql)->where($where)->order($order)->field($field)->find();
     }
 
-    //批量查询
-    public static function data_list($table, $where = null,$page=null,$field='*')
+    /**
+     * 批量查询
+     * @param $table
+     * @param null $where
+     * @param null $page 逗号分开代表分页大小，比如1,20
+     * @param string $field
+     * @param null $order
+     * @return bool|\PDOStatement|string|\think\Collection
+     */
+    public static function data_list($table, $where = null, $page = null, $field = '*', $order = null)
     {
-        return Db::name($table)->fetchSql(self::$fetch_sql)->where($where)->where(self::$db_where)->whereOr(self::$db_where_or)->order(self::$db_order)->page($page,self::$db_pageSize)->field($field)->select();
+        return Db::name($table)->fetchSql(self::$fetch_sql)->where($where)->order($order)->page($page)->field($field)->select();
+    }
+
+    //统计
+    public static function data_count($table, $where = null, $field = '*')
+    {
+        return Db::name($table)->where($where)->count($field);
+    }
+
+    //原生查询
+    public static function query($sql)
+    {
+        return Db::query($sql);
+    }
+
+    //execute用于更新和写入数据的sql操作，如果数据非法或者查询错误则返回false ，否则返回影响的记录数。
+    public static function execute($sql)
+    {
+        return Db::execute($sql);
+    }
+
+    //无需分页
+    public static function data_list_nopage($table, $where = null, $field = '*', $order = null)
+    {
+        return Db::name($table)->fetchSql(self::$fetch_sql)->where($where)->order($order)->field($field)->select();
     }
 
     public static function db($table)

@@ -6,7 +6,10 @@ namespace app\mall\controller;
 
 use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
+use app\service\ConfigService;
 use app\service\Credits;
+use app\service\DiyLog;
+use app\service\Pay;
 use think\Db;
 use app\service\Order as ServerOrder;
 
@@ -40,8 +43,7 @@ class Order extends Mall
 
             $address = json_decode($order['address'], true);
 
-            AppCommon::$db_pageSize = 50;
-            $goods = AppCommon::data_list('order_goods', ['order_sn' => $order['order_sn']]);
+            $goods = AppCommon::data_list('order_goods', ['order_sn' => $order['order_sn']], '1,50');
             data_return('ok', 0, [
                 'order' => $order,
                 'address' => $address,
@@ -69,8 +71,7 @@ class Order extends Mall
             $where['status'] = $status;
         }
         $where['is_del'] = 0;
-        AppCommon::$db_order = 'id desc';
-        $orders = AppCommon::data_list('order', $where, $page, 'order_sn,price,status,pay_time,pay_price,add_time');
+        $orders = AppCommon::data_list('order', $where, $page, 'order_sn,price,status,pay_time,pay_price,add_time', 'id desc');
 
         if (!empty($orders)) {
             foreach ($orders as &$order) {
@@ -324,27 +325,15 @@ class Order extends Mall
         Db::transaction(function () use ($order, $creditInfo, &$ret) {
 
             //扣除余额
-            $res1 = Credits::update($this->uid, 'credit', -$order['price']);
+            $res1 = Credits::update($this->uid, 'credit', -$order['price'], [
+                'remark' => '商品支付',
+                'type' => 1,
+            ]);
             if (!$res1) {
                 $ret = false;
                 return;
             }
 
-            //资金扣除流水记录
-            $log = [
-                'uid' => $this->uid,
-                'remark' => '购买商品支付',
-                'type' => 1,//1-购买商品，2-充值记录，3-提现记录,
-                'before_num' => $creditInfo['credit'],
-                'num' => -$order['price'],
-                'after_num' => $creditInfo['credit'] - $order['price']
-            ];
-            $res2 = Credits::log_add($log);
-
-            if (!$res2) {
-                $ret = false;
-                return;
-            }
 
             //更新订单
             $data = [
@@ -352,6 +341,7 @@ class Order extends Mall
                 'pay_time' => time(),
                 'up_time' => time(),
                 'status' => 1,
+                'pay_type' => $this->param['payType'],
             ];
             $up = ServerOrder::update($order['order_sn'], $data);
 
@@ -361,8 +351,7 @@ class Order extends Mall
             }
 
             //更新库存
-            AppCommon::$db_pageSize = 50;
-            $orderGoods = AppCommon::data_list('order_goods', ['order_sn' => $order['order_sn']], 1, 'goods_id,count');
+            $orderGoods = AppCommon::data_list('order_goods', ['order_sn' => $order['order_sn']], '1,50', 'goods_id,count');
             if (!empty($orderGoods)) {
                 foreach ($orderGoods as $v) {
                     //直接减少锁库的量即可
@@ -371,12 +360,19 @@ class Order extends Mall
                     AppCommon::db('goods')->where(['id' => $v['goods_id']])->setInc('sale', $v['count']);
                 }
             }
-
             $ret = true;
-
         });
 
         if ($ret) {
+            //赠送积分
+            $conf = ConfigService::get('mobile_shop');
+            if (!empty($conf['gift_order_point'])) {
+                //积分奖励
+                $num = $order['price'] >= 1 ? intval($order['price'] * $conf['gift_order_point']) : $conf['gift_order_point'];
+                $res = Credits::update($order['uid'], 'point', $num, [
+                    'remark' => '下单赠送',
+                ]);
+            }
             data_return('支付成功', 0, ['order_sn' => $order['order_sn']]);
         }
         data_return('系统忙碌，稍后再试', -1);
@@ -399,5 +395,25 @@ class Order extends Mall
         $res = ServerOrder::del($this->param['order_sn']);
 
         data_return($res ? '删除成功' : '系统正忙，请稍后重试', $res ? 0 : -1);
+    }
+
+    //微信支付参数
+    public function wx_param()
+    {
+        parent::wx_env();
+        $openid = cookie('my_gzh_openid');
+        if (empty($openid)) {
+            data_return('请在微信环境进行测试微信支付', -1);
+        }
+        if (empty($this->param['order_sn'])) {
+            data_return('订单号未找到', -1);
+        }
+        $order = ServerOrder::get($this->param['order_sn']);
+
+        $res = Pay::wx_pub($order);
+        if ($res['code'] <> 0) {
+            data_return($res['msg'], -1);
+        }
+        data_return('ok', 0, ['payParam' => $res['data']]);
     }
 }

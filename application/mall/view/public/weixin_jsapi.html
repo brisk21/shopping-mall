@@ -1,0 +1,47 @@
+<script type="text/javascript">
+
+    /**
+     *
+     * @param params = {
+                "appId":"wx2421b1c4370ec43b",     //公众号ID，由商户传入
+                "timeStamp":"1395712654",         //时间戳，自1970年以来的秒数
+                "nonceStr":"e61463f8efa94090b1f366cccfbbb444", //随机串
+                "package":"prepay_id=u802345jgfjsdfgsdg888",
+                "signType":"MD5",         //微信签名方式：
+                "paySign":"70EA570631E4BB79628FBCA90534C63FF7FADD89" //微信签名
+            }
+     */
+
+
+
+    //调用微信JS api 支付
+    function jsApiCall(params)
+    {
+        WeixinJSBridge.invoke(
+            'getBrandWCPayRequest',
+            params,
+            function(res){
+                WeixinJSBridge.log(res.err_msg);
+                if(res.err_msg == "get_brand_wcpay_request:ok" ) {
+                    location.href = "<{:url('/mall/order/all_orders',['status'=>'1'])}>"
+
+
+                }
+            }
+        );
+    }
+
+    function callpay(params)
+    {
+        if (typeof WeixinJSBridge == "undefined"){
+            if( document.addEventListener ){
+                document.addEventListener('WeixinJSBridgeReady', jsApiCall(params), false);
+            }else if (document.attachEvent){
+                document.attachEvent('WeixinJSBridgeReady', jsApiCall(params));
+                document.attachEvent('onWeixinJSBridgeReady', jsApiCall(params));
+            }
+        }else{
+            jsApiCall(params);
+        }
+    }
+</script>

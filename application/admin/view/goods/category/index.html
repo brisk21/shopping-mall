@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>后台管理</title>
+    <{include file="public/header"}>
+    <link rel="stylesheet" href="/static/adminlte/plugins/jsTree/style.min.css">
+    <style>
+
+        .jstree-default .jstree-anchor{
+            height: 50px;
+            line-height:50px;
+        }
+        .jstree-default .jstree-themeicon {
+
+            display: none;
+        }
+        .cimg{
+            width: 30px;
+        }
+    </style>
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<!-- Site wrapper -->
+<div class="wrapper">
+    <!-- 顶部导航 -->
+    <{include file="public/navbar"}>
+    <!--左侧菜单-->
+    <{include file="public/sidebar"}>
+
+    <div class="content-wrapper">
+        <!-- 面包屑导航 -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>商品分类管理</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="<{:url('/admin/index/index')}>">首页</a></li>
+                            <li class="breadcrumb-item">商品管理</li>
+                            <li class="breadcrumb-item active">商品分类</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 内容区-->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="card">
+                    <div class="card-header">
+                        <div class="form-group">
+                            <span class="btn btn-success add-data" title="新增"><i class="fas fa-plus"></i></span>
+                            <span class="btn btn-default bs-left-10  " onclick="location.reload()" title="刷新"><i class="fas fa-history"></i></span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="wrapper wrapper-content animated fadeInRight">
+                            <div class="row">
+                                <div class="col-lg-12">
+                                    <div class="ibox float-e-margins">
+                                        <div class="ibox-title">
+                                            <h5>商品分类 </h5>
+                                        </div>
+                                        <div class="ibox-content">
+                                            <div id="jstree" class="jstree jstree-1 jstree-default" role="tree" aria-multiselectable="true" tabindex="0" aria-activedescendant=" " aria-busy="false">
+
+                                                <{if !empty($data)}>
+                                                <{foreach $data as $one}>
+                                                <ul class="jstree-container-ul jstree-children" role="group">
+                                                    <li role="treeitem" data-jstree='{"icon" : "fas list-alt"}' aria-selected="false" aria-level="1" aria-labelledby="j1_21_anchor" aria-expanded="true"  class="jstree-node jstree-node jstree-node   jstree-last  jstree-open">
+                                                        <!--<i class="jstree-icon jstree-ocl" role="presentation"></i>-->
+                                                        <a class="jstree-anchor jstree-anchor jstree-anchor" href="#" tabindex="-1" id="">
+                                                            <i class="jstree-icon jstree-themeicon  jstree-themeicon-custom" role="presentation"></i>
+                                                            <img src="<{$one.img}>" class="cimg"  alt="">
+                                                            <input type="hidden" name="ids" value="<{$one.category_id}>">
+                                                            <{$one.name}>----<{if $one.status=='1'}><span class="bs-green" title="启用中"><i class="fas fa-check"></i></span><{else}><span class="bs-red" title="已禁用"><b>X</b></span><{/if}>------<span class="fas fa-edit bs-green edit-data" data-id="<{$one.category_id}>" title="编辑"></span>
+                                                            <span class="fas fa-trash-alt bs-red" onclick="del('<{$one.category_id}>',this)" title="删除" style="margin-left: 30px"></span>
+                                                        </a>
+                                                        <{if !empty($one['subcat'])}>
+                                                        <ul role="group" class="jstree-children">
+                                                            <{foreach $one['subcat'] as $two}>
+                                                            <li role="treeitem" data-jstree='{"icon" : "fa fa-trash-o"}' aria-selected="false" aria-level="2" aria-labelledby="j1_22_anchor" aria-expanded="true" class="jstree-node jstree-node jstree-node    jstree-open">
+                                                               <!-- <i class="jstree-icon jstree-ocl" role="presentation"></i>-->
+                                                                <a class="jstree-anchor jstree-anchor jstree-anchor" href="#"  tabindex="-1" >
+                                                                    <i class="jstree-icon jstree-themeicon  jstree-themeicon-custom"  role="presentation"></i>
+                                                                    <img src="<{$two.img}>" class="cimg"  alt="">
+                                                                    <input type="hidden" name="ids" value="<{$two.category_id}>">
+                                                                    <{$two.name}>----<{if $two.status=='1'}><span class="bs-green" title="启用中"><i class="fas fa-check"></i></span><{else}><span class="bs-red" title="已禁用"><b>X</b></span><{/if}>------<span  class="fas fa-edit bs-green edit-data" data-id="<{$two.category_id}>"  title="编辑"></span>
+                                                                    <span  class="fas fa-trash-alt bs-red" onclick="del('<{$two.category_id}>',this)" title="删除" style="margin-left: 30px"></span>
+                                                                </a>
+                                                                <{if !empty($two['subcat'])}>
+                                                                <ul role="group" class="jstree-children">
+                                                                    <{foreach $two['subcat'] as $three}>
+                                                                    <li role="treeitem" data-jstree='{"icon" : "fa fa-trash-o"}' aria-selected="false" aria-level="3" aria-labelledby="j1_23_anchor" class="jstree-node jstree-node  jstree-leaf jstree-last jstree-leaf jstree-last">
+                                                                        <!--<i class="jstree-icon jstree-ocl" role="presentation"></i>-->
+                                                                        <a class="jstree-anchor  jstree-anchor  jstree-anchor" href="#" tabindex="-1"  >
+                                                                            <i class="jstree-icon jstree-themeicon  jstree-themeicon-custom" role="presentation"></i>
+                                                                            <img src="<{$three.img}>" class="cimg" alt="">
+                                                                            <input class="ids" type="hidden" name="ids" value="<{$three.category_id}>">
+                                                                            <{$three.name}>----<{if $three.status=='1'}><span class="bs-green" title="启用中"><i class="fas fa-check"></i></span><{else}><span class="bs-red" title="已禁用"><b>X</b></span><{/if}>------
+                                                                            <span class="fas fa-edit   bs-green edit-data" data-id="<{$three.category_id}>" title="编辑"></span>
+                                                                            <span class="fas fa-trash-alt bs-red" onclick="del('<{$three.category_id}>',this)" title="删除" style="margin-left: 30px"></span>
+                                                                        </a>
+                                                                    </li>
+                                                                    <{/foreach}>
+                                                                </ul>
+                                                                <{/if}>
+                                                            </li>
+                                                            <{/foreach}>
+                                                        </ul>
+                                                        <{/if}>
+
+                                                    </li>
+                                                </ul>
+                                                <{/foreach}>
+                                                <{/if}>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+    <{include file="public/copyright"}>
+
+
+</div>
+<!-- ./wrapper -->
+
+<{include file="public/footer"}>
+<script src="/static/adminlte/plugins/jsTree/jstree.min.js"></script>
+<script>
+
+    $(function () {
+        $('#jstree').jstree();
+        $(".add-data").click(function () {
+            openPage("<{:url('/admin/goods.category/form')}>",'新增商品分类','90%','90%')
+        });
+        $(".edit-data").on('click',function () {
+            var id = $(this).data('id');
+            openPage("<{:url('/admin/goods.category/form')}>?id="+id,'编辑商品分类','90%','90%')
+        })
+    });
+    function del(id,obj) {
+        layer.confirm('确定删除吗',{title:0},function () {
+            sendData("<{:url('/admin/goods.category/action')}>",{id:id,ac:'del'},function (res) {
+                if (res.code == 0){
+                    $(obj).parent('a').parent('li').remove();
+                }
+            })
+        })
+    }
+</script>
+</body>
+</html>

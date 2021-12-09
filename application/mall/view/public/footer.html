@@ -17,6 +17,24 @@
        history.back();
     });
 
-
+    bs_request("<{:url('/mall/home/config')}>",{},function (res){
+        if (res.code==0){
+            if (res.data.shop_name){
+                var title = res.data.shop_name+'-'+$("title").text()
+                $('title').text(title)
+            }
+            if ($(".reg-div") && res.data.reg_type){
+                if (res.data.reg_type==-1){
+                    $(".reg-div").html('暂未开放注册')
+                }else if(res.data.reg_type==4){
+                    $(".reg-type1").remove();
+                    $(".reg-type4").show();
+                }else {
+                    $(".reg-type4").remove();
+                    $(".reg-type"+res.data.reg_type).show();
+                }
+            }
+        }
+    })
 </script>
 

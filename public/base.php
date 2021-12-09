@@ -4,7 +4,7 @@ if (!defined('BS_SHOP')){
 }
 //配置目录
 defined('ROOT_PATH') or define('ROOT_PATH',__DIR__.'/../');
-defined('PUBLIC_PATH') or define('PUBLIC_PATH',ROOT_PATH.'/../');
+defined('PUBLIC_PATH') or define('PUBLIC_PATH',ROOT_PATH.'public/');
 defined('EXTEND_PATH') or define('EXTEND_PATH', ROOT_PATH . 'extend' .'/');
 defined('VENDOR_PATH') or define('VENDOR_PATH', ROOT_PATH . 'vendor' .'/');
 defined('RUNTIME_PATH') or define('RUNTIME_PATH', ROOT_PATH . 'runtime'  .'/');

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>后台管理</title>
+    <{include file="public/header"}>
+    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
+    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<!-- Site wrapper -->
+<div class="wrapper">
+    <!-- Navbar -->
+    <{include file="public/navbar"}>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    <!--左侧菜单-->
+    <{include file="public/sidebar"}>
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    <div class="col-sm-6">
+                        <h1>商品管理</h1>
+                    </div>
+                    <div class="col-sm-6">
+                        <ol class="breadcrumb float-sm-right">
+                            <li class="breadcrumb-item"><a href="<{:url('/admin/index/index')}>">首页</a></li>
+                            <li class="breadcrumb-item"><a href="#">商品</a></li>
+                            <li class="breadcrumb-item active">商品列表</li>
+                        </ol>
+                    </div>
+                </div>
+            </div><!-- /.container-fluid -->
+        </section>
+
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+
+
+                <div class="card">
+                    <div class="card-header">
+                        <form action="<{:url()}>">
+                            <div class="form-row ">
+                                <div class="col-auto">
+
+                                    <select name="sort" class="form-control " >
+                                        <option value="">排序方式</option>
+                                        <option <{if !empty($Request.param.sort) && $Request.param.sort=='id_desc'}>selected<{/if}> value="id_desc">时间倒叙</option>
+                                        <option <{if !empty($Request.param.sort) && $Request.param.sort=='id_asc'}>selected<{/if}> value="id_asc">时间正序</option>
+                                        <option <{if !empty($Request.param.sort) && $Request.param.sort=='sale_asc'}>selected<{/if}> value="sale_asc">销量正序</option>
+                                        <option <{if !empty($Request.param.sort) && $Request.param.sort=='sale_desc'}>selected<{/if}> value="sale_desc">销量倒叙</option>
+                                        <option <{if !empty($Request.param.sort) && $Request.param.sort=='price_asc'}>selected<{/if}> value="price_asc">单价升序</option>
+                                        <option <{if !empty($Request.param.sort) && $Request.param.sort=='price_desc'}>selected<{/if}> value="price_desc">单价降序</option>
+                                        <option <{if !empty($Request.param.sort) && $Request.param.sort=='stock_asc'}>selected<{/if}> value="stock_asc">库存升序</option>
+                                        <option <{if !empty($Request.param.sort) && $Request.param.sort=='stock_desc'}>selected<{/if}> value="stock_desc">库存降序</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+                                    <select name="status" class="form-control " >
+                                        <option  value="">全部状态</option>
+                                        <option <{if null !== $Request.param.status &&$Request.param.status=='1'}>selected<{/if}>  value="1">出售中</option>
+                                        <option <{if null !== $Request.param.status &&$Request.param.status=='0'}>selected<{/if}> value="0">仓库中</option>
+                                        <option <{if null !== $Request.param.status &&$Request.param.status=='-1'}>selected<{/if}> value="-1">已售罄</option>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+
+                                    <select name="category_id" class="form-control" >
+                                        <option value="">全部分类</option>
+                                        <{if !empty($category)}>
+                                        <{foreach $category as $one}>
+                                        <optgroup label="<{$one.name}>">
+                                            <{if !empty($one.subcat)}>
+                                            <{foreach $one.subcat as $two}>
+                                            <option <{if !empty($Request.param.category_id)&&$Request.param.category_id==$two.category_id}>selected<{/if}>   value ="<{$two.category_id}>"><{$two.name}></option>
+                                            <{/foreach}>
+                                            <{/if}>
+                                        </optgroup>
+                                        <{/foreach}>
+                                        <{else}>
+                                        <optgroup label="未设置分类"></optgroup>
+                                        <{/if}>
+                                    </select>
+                                </div>
+                                <div class="col-auto">
+
+                                    <input name="keyword" type="text" class="form-control " placeholder="输入商品名称模糊搜索" value="">
+                                </div>
+
+                                <div class="col-auto">
+                                    <button type="submit" class="btn btn-primary mb-2 "><i class="fas fa-search"></i></button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body">
+                        <table id="my_table" class="table table-bordered table-striped">
+                            <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>商品名称</th>
+                                <th>状态</th>
+                                <th>价格</th>
+                                <th>数量</th>
+                                <th>封面图</th>
+                                <th>操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <{if !empty($goods)}>
+                            <{foreach $goods as $item}>
+                            <tr>
+                                <td><{$item.id}></td>
+                                <td> <a href="<{:url('/mall/goods/detail')}>?id=<{$item.id}>" target="_blank">
+                                    <{$item.title}>
+                                </a></td>
+                                <td>
+                                    <{if $item.status=='1'}>
+                                    <span class="alert-success">上架中</span>
+                                    <{else}>
+                                    <span class="alert-warning">已下架</span>
+                                    <{/if}>
+                                </td>
+                                <td>
+                                    市场价：￥<{$item.market_price}> <br>
+                                    销售价：￥<{$item.price}>
+                                </td>
+                                <td>
+                                    库存：<{if($item.stock>10)}><span style="color: green"><{$item.stock}></span><{else}><span style="color:red;"><{$item.stock}></span><{/if}> <br>
+                                    锁库：<{$item.stock_locked}> <br>
+                                    销量：<{$item.sale}>
+
+                                </td>
+                                <td><img src="<{$item.thumb}>" alt="" style="max-width: 50px;max-height: 50px"></td>
+                                <td>
+                                    <a class="btn btn-success btn-xs" href="<{:url('/admin/goods.index/form',['id'=>$item.id])}>" title="查看编辑"><i class="fas fa-edit"></i></a>
+                                    <span class="btn btn-danger btn-xs del-data bs-left-10" data-id="<{$item.id}>" title="删除"><i class="fas fa-trash"></i></span>
+                                </td>
+
+                            </tr>
+                            <{/foreach}>
+                            <{/if}>
+
+
+
+                            </tbody>
+                            <tfoot>
+                            <tr>
+                                <th>#</th>
+                                <th>商品名称</th>
+                                <th>状态</th>
+                                <th>价格</th>
+                                <th>数量</th>
+                                <th>封面图</th>
+                                <th>操作</th>
+                            </tr>
+
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div class="card-footer">
+                        <{$page?$page->render():''}>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+            </div>
+        </section>
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+
+    <{include file="public/copyright"}>
+
+
+</div>
+<!-- ./wrapper -->
+
+<{include file="public/footer"}>
+<!-- DataTables  & Plugins -->
+<script src="/static/adminlte/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="/static/adminlte/plugins/jszip/jszip.min.js"></script>
+<script src="/static/adminlte/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="/static/adminlte/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script>
+    $(function () {
+        $(".del-data").on('click',function () {
+            var id = $(this).data('id')
+            var obj = $(this);
+            layer.confirm('确定要删除吗，不可恢复哦',{title:0},function () {
+                sendData("<{:url('/admin/goods.index/action')}>",{id:id,ac:'del'},function (res) {
+                    if(res.code==0){
+                        $(obj).parent('td').parent('tr').remove();
+                    }
+                })
+            })
+        });
+        $("#my_table").DataTable({
+            "ordering": false,//禁用排序
+            "responsive": true,
+            "lengthChange": false,
+            "autoWidth": false,
+            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+           // "pageLength": 10,         //初始化显示几条数据
+            //serverSide: true, // use local process instead of server
+           // bFilter: true, // show top right search input box.
+            bPaginate: false,//是否开启分页
+            //iDisplayLength: 10, //默认显示的记录数
+            bInfo: false,//是否显示页脚信息，DataTables插件左下角显示记录数
+        }).buttons().container().appendTo('#my_table_wrapper .col-md-6:eq(0)');
+
+    });
+</script>
+</body>
+</html>
