@@ -16,13 +16,13 @@ return [
     // 服务器地址
     'hostname'        => Env::get('database.hostname', '127.0.0.1'),
     // 数据库名
-    'database'        => Env::get('database.database', 'demo_bs_shop'),
+    'database'        => Env::get('database.database', 'bs_shop'),
     // 用户名
-    'username'        => Env::get('database.username','demo_bs_shop'),
+    'username'        => Env::get('database.username','root'),
     // 密码
-    'password'        => Env::get('database.password','L6tay36hAGnTMn8W'),
+    'password'        => Env::get('database.password','root'),
     // 端口
-    'hostport'        => Env::get('database.hostport','3306'),
+    'hostport'        => Env::get('database.hostport',''),
     // 连接dsn
     'dsn'             => Env::get('database.dsn',''),
     // 数据库连接参数
