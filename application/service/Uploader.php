@@ -11,12 +11,13 @@ class Uploader
     /**
      * 执行上传
      * @param $fileKey :上传的文件的key
-     * @param $toPath :保存的路径，如/var/www/upload/
-     * @param $returnUrl :返回的链接资源地址,如http://abc.com/upload/
+     * @param string $toPath :保存的路径，如/var/www/upload/
+     * @param string $returnUrl :返回的链接资源地址,如http://abc.com/upload/
      * @param string $fileName 文件的名称
+     * @param int $userType 操作用户类型，1-后台，2-用户
      * @return array
      */
-    public static function start_upload($fileKey, $toPath = '', $returnUrl = '', $fileName = '')
+    public static function start_upload($fileKey, $toPath = '', $returnUrl = '', $fileName = '',$userType=1)
     {
         $conf = config('upload');
         if (empty($conf['method'])) {
@@ -58,6 +59,7 @@ class Uploader
                             'type' => $files['type'],
                             'upload_type' => 'local',
                             'path' => str_replace(PUBLIC_PATH,'',$toPath . $fileName),
+                            'userType'=>$userType
                         ]);
                         return ['code' => 0, 'msg' => '上传成功', 'data' => $returnUrl . $fileName, 'location' => $returnUrl . $fileName];
                     }
@@ -84,7 +86,8 @@ class Uploader
             'type' => !empty($arg['type']) ? trim($arg['type']) : '未知',
             'path' => !empty($arg['path']) ? trim($arg['path']) : '',
             'upload_type' => !empty($arg['upload_type']) ? trim($arg['upload_type']) : '',
-            'add_time' => time()
+            'add_time' => time(),
+            'user_type' => $arg['userType'],
         ];
         return AppCommon::data_add('upload_files_log', $data);
     }

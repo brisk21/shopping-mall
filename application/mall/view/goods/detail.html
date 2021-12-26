@@ -4,6 +4,11 @@
 <title>产品详情</title>
 
   <{include file="public/header" /}>
+  <style>
+    .comment-list{
+      height: 100%;
+    }
+  </style>
 </head>
 <body ontouchstart>
 <!--主体-->
@@ -13,6 +18,7 @@
     <div class="weui-navbar" style="position:fixed; top:0; left:0; right:0; height:44px;">
       <a class="weui-navbar__item proinfo-tab-tit weui-bar__item--on" href="#tab1">商品</a>
       <a class="weui-navbar__item proinfo-tab-tit" href="#tab2">详情</a>
+      <a class="weui-navbar__item proinfo-tab-tit" href="#tab3">评价</a>
     </div>
     <div class="weui-tab__bd proinfo-tab-con">
       <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
@@ -38,9 +44,9 @@
             <ul class="wy-pro-list clear"></ul>
           </div>
         </div>
-        <div class="to_top" style="display: none">
+        <!--<div class="to_top" style="display: none">
           <img src="/static/mall/images/icon_to_top.png" alt="返回顶部" style="max-width: 100%" >
-        </div>
+        </div>-->
 
 
       </div>
@@ -48,6 +54,20 @@
         <div class="pro-detail">
         </div>
       </div>
+      <div id="tab3" class="weui-tab__bd-item comment-box">
+        <!--评价-->
+        <div class="weui-panel__bd comment-list">
+        </div>
+
+        <a href="<{:url('comment_list')}>" class="weui-cell weui-cell_access weui-cell_link comment-list-more list-more">
+          <div class="weui-cell__bd">查看更多</div>
+          <span class="weui-cell__ft"></span>
+        </a>
+
+      </div>
+    </div>
+    <div class="to_top" style="display: none">
+      <img src="/static/mall/images/icon_to_top.png" alt="返回顶部" style="max-width: 100%" >
     </div>
   </div>  
 </div>
@@ -62,44 +82,43 @@
     <div class="weui-tabbar__icon promotion-foot-menu-collection "></div>
     <p class="weui-tabbar__label">收藏</p>
   </a>
-  <a href="<{:url('/mall/goods/cart')}>" class="promotion-foot-menu-items">
+  <a href="<{:url('/mall/goods/cart')}>" class="promotion-foot-menu-items nav-cart">
     <span class="weui-badge cart-num"  style="position: absolute;top: -.4em;right: 1em;"></span>
     <div class="weui-tabbar__icon promotion-foot-menu-cart"></div>
     <p class="weui-tabbar__label">购物车</p>
   </a>
-  <a href="javascript:;" class="weui-tabbar__item yellow-color open-popup add-cart" data-target="#join_cart">
+  <a href="javascript:;" class="weui-tabbar__item yellow-color open-popup add-cart" >
     <p class="promotion-foot-menu-label">加入购物车</p>
   </a>
   <a href="javascript:toPay()" class="weui-tabbar__item red-color buy-now" >
     <p class="promotion-foot-menu-label">立即购买</p>
   </a>
 </div>
-<div id="join_cart" class='weui-popup__container popup-bottom' style="z-index:600;">
-  <div class="weui-popup__overlay" style="opacity:1;"></div>
-  <div class="weui-popup__modal">
-    <div class="modal-content">
-      <div class="weui-msg" style="padding-top:0;">
-        <div class="weui-msg__icon-area"><i class="weui-icon-success weui-icon_msg"></i></div>
-        <div class="weui-msg__text-area">
-          <h2 class="weui-msg__title">成功加入购物车</h2>
-          <p class="weui-msg__desc">亲爱的用户，您的商品已成功加入购物车，为了保证您的商品快速送达，请您尽快到购物车结算。</p>
-        </div>
-        <div class="weui-msg__opr-area">
-          <p class="weui-btn-area">
-            <a href="<{:url('/mall/goods/cart')}>" class="weui-btn weui-btn_primary">去购物车结算</a>
-            <a href="javascript:;" class="weui-btn weui-btn_default close-popup">不，我再看看</a>
-          </p>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+
 
 <{include file="public/footer" /}>
 <script src="/static/mall/js/swiper.js"></script>
 
 
 <script>
+  function shop_config() {
+    var shop_config = JSON.parse(localStorage.getItem('config_shop'));
+    if (shop_config && shop_config.shop_type !== 'undefined'){
+      var shop_type=shop_config.shop_type;
+      if (shop_type==1){        //展示
+        $(".nav-cart,.add-cart,.buy-now").hide();
+        $(".wy-foot-menu").append('<a href="tel:'+shop_config.shop_tel+'" class="weui-tabbar__item yellow-color " >\n' +
+                '    <p class="promotion-foot-menu-label">联系店家'+shop_config.shop_tel+'</p>\n' +
+                '  </a>');
+      }else if(shop_type==2){
+        //自提
+      }else if(shop_type==3){
+        //虚拟
+      }
+    }
+  }
+  shop_config();
+
   var id = bs_get_param('id');
   function toPay(){
     location.href="<{:url('/mall/order/info')}>?id="+id;
@@ -139,6 +158,9 @@
     }
 
   });
+
+
+
   $(".to_top").on('click',function () {
     document.body.scrollTop = document.documentElement.scrollTop = 0;
     document.body.offsetHeight = document.documentElement.scrollHeight = 0;
@@ -182,12 +204,7 @@
 
     });
   });
-
-
-
-
-
-      $(document).on("click", "#favorite", function() {
+  $(document).on("click", "#favorite", function() {
         bs_request("<{:url('/mall/goods/favorite_action')}>",{id:id},function (res) {
           if (res.code != 0){
             return $.alert(res.msg);
@@ -206,36 +223,49 @@
 
 
       });
-      /*$(".buy-now").on('click',function () {
 
-        $.toast("购买", function() {
-          console.log('close');
-        });
-
-      });*/
       $(".add-cart").on('click',function (e){
         bs_request("<{:url('/mall/goods/my_cart_action')}>",{goods_id:id,count:1,dotype:'Increase'},function (res) {
-
+            if (res.code==0){
+              $.toast('已添加到购物车',1000)
+            }
         });
       })
-      bs_request("<{:url('/mall/goods/my_cart_total')}>",{form:'detail'},function (res){
-        if (res.code==0){
-          if (res.data.total>0){
-            $(".cart-num").text(res.data.total)
-            $(".cart-num").show()
-          }else{
-            $(".cart-num").hide()
-          }
 
-        }
-      })
-</script>
-<script>
-  $(document).on("open", ".weui-popup-modal", function () {
-    console.log("open popup");
-  }).on("close", ".weui-popup-modal", function () {
-    console.log("close popup");
-  });
+
+
+  bs_request("<{:url('get_comment')}>",{id:id},function (res) {
+    if (res.code==0&&res.data.comment){
+      for (var i=0;i<res.data.comment.length;i++){
+        var item = '<div class="weui-panel__bd">\n' +
+                '          <div class="wy-media-box weui-media-box_text">\n' +
+                '            <div class="weui-cell nopd weui-cell_access">\n' +
+                '              <div class="weui-cell__hd"><img src="'+res.data.comment[i].user.avatar+'" alt="" style="width:20px;margin-right:5px;display:block"></div>\n' +
+                '              <div class="weui-cell__bd weui-cell_primary"><p>'+res.data.comment[i].user.nickname+'</p></div>\n' +
+                '              <span class="weui-cell__time">'+res.data.comment[i].add_time+'</span>\n' +
+                '            </div>\n' +
+                '            <div class="comment-item-star"><span class="real-star comment-stars-width'+res.data.comment[i].star+'"></span></div>\n' +
+                '            <p class="weui-media-box__desc">'+res.data.comment[i].content+'</p>\n' +
+
+                '            <ul class="weui-uploader__files clear mg-com-img">\n' ;
+
+                if (res.data.comment[i].imgs.length>0){
+                  for (var j=0;j<res.data.comment[i].imgs.length;j++){
+                    item+='  <li class="weui-uploader__file" style="background-image:url('+res.data.comment[i].imgs[j]+')"></li>'
+                  }
+                }
+
+                item+=      '            </ul>' +
+                '          </div>\n' +
+                '        </div>';
+
+        $(".comment-list").append(item);
+      }
+      $(".comment-list-more").attr('href',$(".comment-list-more").attr('href')+'?id='+id)
+    }else {
+      $('.comment-box').empty()
+    }
+  })
 </script>
 
 </body>

@@ -1,0 +1,83 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>订单详情评价页面</title>
+  <{include file="public/header" /}>
+  <style>
+    .pay{
+      width: 45%;float: left;
+      margin-top:unset !important;
+      margin-left: 10px;
+    }
+    .mg10-0 {
+      margin: 10px 0;
+      overflow: hidden;
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">订单商品-评价</div>
+</header>
+<div class="weui-content">
+
+  <div class="wy-media-box weui-media-box_text">
+    <div class="weui-media-box__bd " id="pro-list">
+
+
+    </div>
+  </div>
+  <div class="wy-media-box weui-media-box_text">
+    <div class="mg10-0 ">
+      <a href="<{:url('/mall/order/all_orders')}>" class="weui-btn weui-btn_default weui-btn-area ">返回列表</a>
+    </div>
+  </div>
+</div>
+<{include file="public/footer" /}>
+<{include file="public/weixin_jsapi" /}>
+
+<script>
+  var order_sn = bs_get_param('order_sn')
+  getData();
+  function getData() {
+    bs_request("<{:url('/mall/order/detail')}>",{order_sn:order_sn,},function (res) {
+      if (res.code != 0){
+        return $.alert(res.msg);
+      }
+
+
+      var goods = res.data.goods_list;
+
+      for (var i=0;i<goods.length;i++){
+        var item = ' <div class="weui-media-box_appmsg ord-pro-list">\n' +
+                '        <div class="weui-media-box__hd"><a href="<{:url(\'/mall/goods/detail\')}>?id='+goods[i].goods_id+'"><img class="weui-media-box__thumb" src="'+goods[i].thumb+'" alt=""></a></div>\n' +
+                '        <div class="weui-media-box__bd">\n' +
+                '          <h1 class="weui-media-box__desc"><a href="<{:url(\'/mall/goods/detail\')}>?id='+goods[i].goods_id+'" class="ord-pro-link">'+goods[i].title+'</a></h1>\n' +
+                '          <!--<p class="weui-media-box__desc">规格：<span>红色</span>，<span>23</span></p>-->\n' +
+                '          <div class="clear mg-t-10">\n' +
+                '            <div class="wy-pro-pri fl">¥<em class="num font-15">'+goods[i].price+'</em></div>\n' +
+                '            <div class="pro-amount fr"><span class="font-13">数量×<em class="name">'+goods[i].count+'</em></span></div>\n' +
+                '          </div>\n' +
+                '        </div>' +
+                '         <div class="weui-media-box__hd"><a href="comment.html?ord_id='+goods[i].id+'" class="ords-btn-com" data-sn="">'+(goods[i].commented?'查看':'评价')+'</a></div>\n' +
+                '      </div>';
+
+
+        $("#pro-list").append(item)
+      }
+
+      if (res.data.order.status !=0){
+        $(".btn-div").hide()
+      }
+      $(".totalMoney").text(res.data.order.price);
+
+    });
+  }
+
+</script>
+</body>
+</html>

@@ -32,8 +32,10 @@
 商品管理
 ![alt 后台](./public/test/admin2.png "后台")
 
-
-
+#### 接口文档
+客户端（商城端）的接口文档在doc目录的html里面，直接打开即可。
+生成：用apidoc的@0.19.1生成，tpl为生成模板（已自定义样式）
+![alt apidoc](./public/test/doc1.png "apidoc")
 #### 软件架构
 基于thinkphp5开发，环境可以用lnmp或者lamp
 
@@ -49,10 +51,14 @@
 
 3. 虚拟域名指向public（宝塔需要将运行目录指向public）
 
-4. 创建数据库，导入sql（config下面的bs_shop.sql)数据
+4. 创建数据库，导入sql（install目录下面的bs_shop.sql有demo数据，另外一个仅结构)数据
 
 5.  伪静态设置（参考thinkphp）,下面是nginx配置：
 ```nginx
+location ~ /static/|upload/{
+    break;
+}
+
 location / { 
    if (!-e $request_filename) {
    rewrite  ^(.*)$  /index.php?s=/$1  last;

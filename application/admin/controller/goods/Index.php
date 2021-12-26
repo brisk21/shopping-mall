@@ -154,4 +154,74 @@ class Index extends Admin
             'res' => $res
         ]);
     }
+
+    //评价列表
+    public function comment()
+    {
+        $where = [];
+        $status = isset($this->param['status']) && is_numeric($this->param['status']) ? intval($this->param['status']) : '';
+        $orderBy = 'id desc';
+
+        if ($status) {
+            $where['status'] = $status;
+        }
+
+
+
+        $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
+        $pageSize = 10;
+        $total = AppCommon::data_count('goods_comment', $where);
+        $data = AppCommon::data_list('goods_comment', $where, $page . ',' . $pageSize, '*', $orderBy);
+
+        if ($data){
+            foreach ($data as &$v){
+                $v['add_time'] = date('Y-m-d H:i:s',$v['add_time']);
+                if (!empty($v['imgs'])){
+                    $v['imgs'] = explode(',',$v['imgs']);
+                }
+                $v['user']['avatar'] = URL_WEB.'/static/com/img/user-default.jpg';
+                $v['user'] = AppCommon::data_get('common_user', ['uid' => $v['uid']], 'account,nickname');
+                if (empty($v['user'])) {
+                    $v['user']['nickname'] = '已注销';
+                    $v['user']['account'] = '已注销';
+                }elseif($v['is_hide_user']==1){
+                    $v['user']['nickname'] = '匿名用户';
+                }
+                $v['goods'] = AppCommon::data_get('goods',['id'=>$v['goods_id']],'title,thumb');
+                if ($v['status']==0){
+                    $v['statusDesc'] = '<span class="bs-red">待审核</span>';
+                }else{
+                    $v['statusDesc'] = '<span class="bs-green">已通过</span>';
+                }
+            }
+            unset($v);
+        }
+
+
+        $this->assign('page', Page::set($data, $pageSize, $page, $total, $this->param, url()));
+        $this->assign('data', $data);
+        return $this->fetch();
+    }
+
+    //评价操作
+    public function comment_action()
+    {
+        $id = !empty($this->param['id']) ? intval($this->param['id']) : 0;
+        if (!empty($id)) {
+            $data = AppCommon::data_get('goods_comment', ['id' => intval($id)]);
+            if (empty($data)) {
+                data_return('记录不存在', -1);
+            }
+            //仅删除
+            if (!empty($this->param['ac']) && $this->param['ac'] == 'del') {
+                AppCommon::data_del('goods_comment', ['id' => $data['id']]);
+                parent::add_admin_log(['title' => '删除商品评价', 'content' => $data]);
+                data_return('删除成功');
+            }
+        }
+        $res = AppCommon::data_update('goods_comment', ['id' => intval($id)], ['status'=>1]);
+        data_return('已通过', 0, [
+            'res' => $res
+        ]);
+    }
 }

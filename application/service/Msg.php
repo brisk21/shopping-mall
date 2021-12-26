@@ -13,6 +13,12 @@ use app\common\controller\AppCommon;
  */
 class Msg
 {
+    /**
+     * 消息发送
+     * @param $uid string 用户标识
+     * @param $data array title-标题，content-内容，type-类型(0-普通消息，1-系统通知)
+     * @return int|string
+     */
     public static function add($uid, $data)
     {
         if (empty($data['content'])) {

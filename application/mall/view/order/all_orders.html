@@ -3,6 +3,15 @@
 <head>
 <title>全部订单</title>
   <{include file="public/header" /}>
+  <style>
+    .tihuo-address {
+      text-align: left;
+      padding: 5px;
+      color: #2196f3;
+      font-size: 12px;
+      margin-left: -20px;
+    }
+  </style>
 </head>
 <body ontouchstart>
 <header class="wy-header" style="position:fixed; top:0; left:0; right:0; z-index:200;">
@@ -19,12 +28,8 @@
       <a class="weui-navbar__item proinfo-tab-tit font-14" onclick="setStatus(2)" href="#tab4">待收货</a>
       <a class="weui-navbar__item proinfo-tab-tit font-14" onclick="setStatus(3)" href="#tab5">待评价</a>
     </div>
-    <div class="weui-tab__bd proinfo-tab-con" style="padding-top:87px;">
-      <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active">
-
-
-        
-      </div>
+    <div class="weui-tab__bd proinfo-tab-con orderlist" style="padding-top:87px;">
+      <div id="tab1" class="weui-tab__bd-item weui-tab__bd-item--active"></div>
       <div id="tab2" class="weui-tab__bd-item"></div>
       <div id="tab3" class="weui-tab__bd-item">
 
@@ -75,13 +80,25 @@
           if (orders[i].status=='0'){
             item+='待支付';
           }else if (orders[i].status=='1'){
-            item+='待发货';
+            if (orders[i].order_type==2){
+              item+='待提货';
+            }else {
+              item+='待发货';
+            }
           }else if (orders[i].status=='2'){
-            item+='待收货';
+            if (orders[i].order_type==3){
+              item+='待确认';
+            }else {
+              item+='待收货';
+            }
           }else if (orders[i].status=='3'){
             item+='待评价';
           }else if (orders[i].status=='4'){
             item+='已完成';
+          }else if (orders[i].status=='-1'){
+            item+='已取消';
+          }else if (orders[i].status=='-2'){
+            item+='已退款';
           }else {
             item+='待定';
           }
@@ -106,10 +123,6 @@
                   }
 
 
-
-
-
-
                  item+='          <div class="ord-statistics">\n' +
                   '            <span>共<em class="num">'+proCount+'</em>件商品，</span>\n' +
                   '            <span class="wy-pro-pri">总金额：¥<em class="num font-15">'+orders[i].price+'</em></span>\n' +
@@ -124,11 +137,33 @@
             item+='<a href="javascript:;" class="ords-btn-dele" data-sn="'+orders[i].order_sn+'">删除订单</a>' +
                     '<a href="<{:url(\'/mall/order/detail\')}>?order_sn='+orders[i].order_sn+'" class="ords-btn-com" data-sn="'+orders[i].order_sn+'">去付款</a>';
           }else if(orders[i].status==1){
-            item+='商品正在打包中，请您耐心等待....';
+
+            if (orders[i].order_type==2){
+              item+='<div class="tihuo-address" ><b>提货地址</b>：<span onclick="copy(this)">'+orders[i].tihuo_address+'</span></div>';
+              item+='提货码：<span onclick="copy(this,false,1500)" class="tihuo-code">'+orders[i].code_tihuo+'</span>';
+              item+='<a href="javascript:;" class="ords-btn-com receipt " data-sn="'+orders[i].order_sn+'">确认取货</a>';
+            }else {
+              item+='商品正在打包中，请您耐心等待....';
+            }
+            item+='<a href="javascript:;" class="ords-btn-com refund" data-sn="'+orders[i].order_sn+'">申请退款</a>';
           }else if(orders[i].status==2){
-            item+='<a href="javascript:;" class="ords-btn-com receipt" data-sn="'+orders[i].order_sn+'">确认收货</a>';
+            if (orders[i].order_type==3){
+              item+='<a href="<{:url(\'/mall/order/virtual\')}>?order_sn='+orders[i].order_sn+'" class="ords-btn-com " data-sn="'+orders[i].order_sn+'">查看发货</a>';
+              item+='<a href="javascript:;" class="ords-btn-com receipt" data-sn="'+orders[i].order_sn+'">确认收货</a>';
+            }else {
+              item+='<a href="javascript:;" class="ords-btn-com receipt" data-sn="'+orders[i].order_sn+'">确认收货</a>';
+            }
           }else if(orders[i].status==3){
-            item+=' <a href="comment.html" class="ords-btn-com" data-sn="'+orders[i].order_sn+'">评价</a>';
+            if (orders[i].order_type==3){
+              item+='<a href="<{:url(\'/mall/order/virtual\')}>?order_sn='+orders[i].order_sn+'" class="ords-btn-com " data-sn="'+orders[i].order_sn+'">查看发货</a>';
+            }
+            item+=' <a href="<{:url(\'/mall/order/detail2\')}>?order_sn='+orders[i].order_sn+'" class="ords-btn-com" data-sn="'+orders[i].order_sn+'">评价</a>';
+          }else if (orders[i].status=='-1'){
+            item+='<a href="javascript:;" class="ords-btn-dele" data-sn="'+orders[i].order_sn+'">删除订单</a>';
+          }else{
+            if (orders[i].order_type==3){
+              item+='<a href="<{:url(\'/mall/order/virtual\')}>?order_sn='+orders[i].order_sn+'" class="ords-btn-com " data-sn="'+orders[i].order_sn+'">查看发货</a>';
+            }
           }
           item+='</div> </div></div>';
           $("#"+idName).append(item)
@@ -139,6 +174,11 @@
     });
   }
 
+  $(".orderlist").on('click','.refund',function () {
+    var ordersn = $(this).data('sn')
+      location.href = "<{:url('/mall/order/refund')}>?order_sn="+ordersn
+      console.log(ordersn)
+  });
 
   $(document).on("click", ".ords-btn-dele", function() {
     var order_sn = $(this).data('sn');
@@ -146,20 +186,37 @@
 
       bs_request("<{:url('/mall/order/del')}>",{order_sn:order_sn},function (res) {
 
-        $.toast(res.msg,res.code==0?'success':'cancel');
+        $.toast(res.msg,res.code==0?'success':'cancel',1000);
         if (res.code==0){
-          $(".order-item-"+ordersn).remove()
+          $(".order-item-"+order_sn).remove()
         }
       })
-
-
     }, function() {
       //取消操作
     });
   });
+
   $(document).on("click", ".receipt", function() {
-    $.alert("五星好评送蓝豆哦，赶快去评价吧！", "收货完成！");
+    var order_sn = $(this).data('sn');
+    $.confirm("您已经收到货了吗", "是否已经收到货?", function() {
+
+      bs_request("<{:url('/mall/order/receive')}>",{order_sn:order_sn},function (res) {
+
+        //$.toast(res.msg,res.code==0?'success':'cancel');
+        if (res.code==0){
+          $.alert("好东西记得五星好评哦，赶快去评价吧！", "收货完成！",function (res) {
+              location.href = "<{:url('/mall/order/detail2')}>?order_sn="+order_sn
+          });
+        }else {
+          $.toast(res.msg,'cancel');
+        }
+      })
+    }, function() {
+      //取消操作
+    });
+
   });
+
 
   //改变状态
 

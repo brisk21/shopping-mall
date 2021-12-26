@@ -1,0 +1,201 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>售后申请</title>
+  <{include file="public/header" /}>
+  <style>
+
+    .mg10-0 {
+      margin: 10px 0;
+      overflow: hidden;
+      text-align: center;
+    }
+  .label{
+    font-size: 14px;
+    font-weight: bold;
+  }
+  </style>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">售后申请</div>
+</header>
+<div class="weui-content">
+  <div class="wy-media-box weui-media-box_text address-select">
+    <div class="weui-media-box_appmsg">
+      <div class="weui-media-box__hd proinfo-txt-l" style="width:20px;"><span class="promotion-label-tit">
+        <img src="/static/mall/images/icon_nav_city.png" /></span></div>
+      <div class="weui-media-box__bd">
+        <a href=""  class="weui-cell_access addr">
+          <h4 class="address-name"><span class="addr-username"></span><span class="addr-mobile"></span></h4>
+          <div class="address-txt addr-detail"></div>
+        </a>
+      </div>
+      <div class="weui-media-box__hd proinfo-txt-l" style="width:16px;"><div class="weui-cell_access"></div></div>
+    </div>
+  </div>
+  <div class="wy-media-box weui-media-box_text">
+    <div class="weui-media-box__bd " id="pro-list"></div>
+  </div>
+
+  <!--申请记录box-->
+  <div class="weui-panel log-box">
+    <div class="weui-panel__hd " style="color: red !important;">售后处理中，请耐心等待...</div>
+    <div class="weui-panel__bd">
+      <div role="link" aria-labelledby="js_p4m1_title js_a11y_comma js_p4m1_desc" aria-describedby="js_p4m1_source js_a11y_comma js_p4m1_time js_a11y_comma js_p4m1_extra" class="weui-media-box weui-media-box_text">
+        <p class="weui-media-box__desc" aria-hidden="true" id="apply_reason"></p>
+        <ul class="weui-media-box__info" aria-hidden="true">
+          <li class="weui-media-box__info__meta" aria-hidden="true" id="apply_type"></li>
+          <li class="weui-media-box__info__meta weui-media-box__info__meta_extra" aria-hidden="true" id="apply_money"></li>
+        </ul>
+      </div>
+    </div>
+    <div class="mg10-0 " style="padding: 10px">
+      <a href="javascript:void (0)" class="weui-btn weui-btn_default cancel-apply">撤销申请</a>
+    </div>
+
+  </div>
+
+<!--申请box-->
+  <div class="weui-cells weui-cells_form com-txt-area apply-box">
+    <div class="weui-cell">
+      <div class="weui-cell__bd">
+        <span class="label">售后方式：</span>
+        <select name="apply_type" class=" weui-cell_select">
+          <option value="1">仅退款</option>
+          <option value="2">退货退款</option>
+          <option value="3">仅退货</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="weui-cell">
+      <div class="weui-cell__bd">
+        <span class="label">申请理由：</span>
+        <textarea class="weui-textarea txt-area" name="apply_reason" placeholder="请填写退款原因" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="weui-cell">
+      <div class="weui-cell__bd">
+        <span class="label">申请金额：</span>
+        <input class="weui-prompt-input"  type="number" placeholder="申请金额" name="apply_money" value="0.00"  />
+      </div>
+    </div>
+    <div class="wy-media-box weui-media-box_text">
+      <div class="mg10-0 t-c">总金额：<span class="wy-pro-pri mg-tb-5">¥<em class="num font-20 totalMoney">0.00</em></span></div>
+      <div class="mg10-0 btn-div">
+        <a href="javascript:void (0)" class="weui-btn weui-btn_warn confirm">提交申请</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+<{include file="public/footer" /}>
+<{include file="public/weixin_jsapi" /}>
+
+<script>
+  var order_sn = bs_get_param('order_sn');
+  getData();
+  function getData() {
+    bs_request("<{:url('/mall/order/detail')}>",{order_sn:order_sn,},function (res) {
+      if (res.code != 0){
+        return $.alert(res.msg);
+      }
+      $(".addr").attr('href',"javascript:void(0)")
+      if (res.data.address){
+        $(".addr-username").html(res.data.address.username);
+        $(".addr-mobile").html(res.data.address.mobile);
+        $(".addr-detail").html(res.data.address.province+' '+res.data.address.city+' '+res.data.address.area+' '+res.data.address.address);
+      }else {
+        $(".address-select").remove();
+
+      }
+      var goods = res.data.goods_list;
+
+      for (var i=0;i<goods.length;i++){
+        var item = ' <div class="weui-media-box_appmsg ord-pro-list">\n' +
+                '        <div class="weui-media-box__hd"><a href="<{:url(\'/mall/goods/detail\')}>?id='+goods[i].goods_id+'"><img class="weui-media-box__thumb" src="'+goods[i].thumb+'" alt=""></a></div>\n' +
+                '        <div class="weui-media-box__bd">\n' +
+                '          <h1 class="weui-media-box__desc"><a href="<{:url(\'/mall/goods/detail\')}>?id='+goods[i].goods_id+'" class="ord-pro-link">'+goods[i].title+'</a></h1>\n' +
+                '          <!--<p class="weui-media-box__desc">规格：<span>红色</span>，<span>23</span></p>-->\n' +
+                '          <div class="clear mg-t-10">\n' +
+                '            <div class="wy-pro-pri fl">¥<em class="num font-15">'+goods[i].price+'</em></div>\n' +
+                '            <div class="pro-amount fr"><span class="font-13">数量×<em class="name">'+goods[i].count+'</em></span></div>\n' +
+                '          </div>\n' +
+                '        </div>\n' +
+                '      </div>';
+
+
+        $("#pro-list").append(item)
+      }
+
+      if (res.data.order.refund){
+        $(".apply-box").hide()
+        $(".log-box").show()
+
+        var type;
+        if (res.data.order.refund.apply_type==2){
+          type='退货退款';
+        }else if(res.data.order.refund.apply_type==3){
+          type='仅退货';
+        }else{
+          type = '仅退款';
+        }
+        $("#apply_reason").text(res.data.order.refund.apply_reason);
+        $("#apply_money").text('申请金额：¥ '+res.data.order.refund.apply_money);
+        $("#apply_type").text('售后方式：'+type);
+      }else {
+        $(".log-box").hide()
+        $(".apply-box").show();
+        if (!in_array(res.data.order.status,[1,3])){
+          $(".btn-div").hide()
+        }else {
+          $("input[name='apply_money']").val(res.data.order.pay_price)
+        }
+        $(".totalMoney").text(res.data.order.price);
+      }
+    });
+  }
+  
+  $(function () {
+    $(".confirm").on('click',function () {
+        $.confirm('确定要申请售后吗？',function () {
+          var money = $("input[name='apply_money']").val();
+          var reason = $("textarea[name='apply_reason']").val();
+          var type = $("select[name='apply_type'] option:selected").val();
+
+          if (!reason || money<=0){
+            return $.alert('请填写申请原因且金额不能为空');
+          }
+          bs_request("<{:url('refund_apply')}>",{order_sn:order_sn,type:type,reason:reason,money:money},function (res) {
+            if (res.code != 0){
+              return   $.toast(res.msg,'cancel')
+            }
+            return   $.toast(res.msg,'success',function () {
+              location.reload()
+            })
+          })
+
+        })
+    });
+    $(".cancel-apply").on('click',function () {
+        $.confirm('确定要取消吗？',function () {
+          bs_request("<{:url('refund_cancel')}>",{order_sn:order_sn},function (res) {
+            if (res.code != 0){
+              return   $.toast(res.msg,'cancel')
+            }
+            return   $.toast(res.msg,'success',function () {
+                location.reload()
+            })
+          })
+
+        })
+    })
+  })
+
+
+</script>
+</body>
+</html>

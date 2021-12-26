@@ -3,7 +3,24 @@
 <head>
 <title>会员中心</title>
   <{include file="public/header" /}>
+  <style>
+    .setting{
+      position: absolute;
+      top: 6px;
+      right: 12px;
+      width: 25px;
+    }
+    .setting>a{
+      width: 25px;
+    }
+    .setting>a>img{
+      max-width: 100%;
+    }
 
+    .clean{
+      clear: both;
+    }
+  </style>
 </head>
 <body ontouchstart>
 <!--主体-->
@@ -22,6 +39,10 @@
       <div class="weui-flex__item"><div class="xx-menu-list"><em class="my_point">0</em><p>我的积分</p></div></div>
       <div class="weui-flex__item my_goods_favorite" ><div class="xx-menu-list"><em class="my_goods">0</em><p>收藏商品</p></div></div>
     </div>
+    <div class="setting">
+      <a href="<{:url('setting')}>"><img src="/static/com/img/icon-setting-2.png" class="setting-icon" alt=""></a>
+    </div>
+    <div class="clean"></div>
   </div>
   <div class="weui-panel weui-panel_access">
     <div class="weui-panel__hd">
@@ -37,28 +58,28 @@
       <div class="weui-flex">
         <div class="weui-flex__item">
           <a href="<{:url('/mall/order/all_orders',['status'=>''])}>" class="center-ordersModule">
-            <span class="weui-badge order-count0" style="position: absolute;top:5px;right:10px; font-size:10px;"></span>
+            <span class="weui-badge order-count0" style="position: absolute;top:5px;right:10px; font-size:10px;display: none"></span>
             <div class="imgicon"><img src="/static/mall/images/center-icon-order-dfk.png" /></div>
             <div class="name">待付款</div>
           </a>
         </div>
         <div class="weui-flex__item">
           <a href="<{:url('/mall/order/all_orders',['status'=>''])}>" class="center-ordersModule">
-            <span class="weui-badge  order-count1" style="position: absolute;top:5px;right:10px; font-size:10px;"></span>
+            <span class="weui-badge  order-count1" style="position: absolute;top:5px;right:10px; font-size:10px;display: none"></span>
             <div class="imgicon"><img src="/static/mall/images/center-icon-order-dfh.png" /></div>
             <div class="name">待发货</div>
           </a>
         </div>
         <div class="weui-flex__item">
           <a href="<{:url('/mall/order/all_orders',['status'=>''])}>" class="center-ordersModule">
-            <span class="weui-badge  order-count2" style="position: absolute;top:5px;right:10px; font-size:10px;"></span>
+            <span class="weui-badge  order-count2" style="position: absolute;top:5px;right:10px; font-size:10px;display: none"></span>
             <div class="imgicon"><img src="/static/mall/images/center-icon-order-dsh.png" /></div>
             <div class="name">待收货</div>
           </a>
         </div>
         <div class="weui-flex__item">
-          <a href="orders.html" class="center-ordersModule">
-            <span class="weui-badge order-count3" style="position: absolute;top:5px;right:10px; font-size:10px;"></span>
+          <a href="<{:url('/mall/order/all_orders',['status'=>''])}>" class="center-ordersModule">
+            <span class="weui-badge order-count3" style="position: absolute;top:5px;right:10px; font-size:10px;display: none"></span>
             <div class="imgicon"><img src="/static/mall/images/center-icon-order-dpj.png" /></div>
             <div class="name">待评价</div>
           </a>
@@ -100,7 +121,7 @@
         <div class="weui-flex__item">
           <a href="myburse.html" class="center-ordersModule">
             <div class="center-money"><em>165</em></div>
-            <div class="name">蓝豆</div>
+            <div class="name">积分</div>
           </a>
         </div>
       </div>
@@ -112,7 +133,15 @@
         <div class="weui-panel__bd">
           <div class="weui-media-box weui-media-box_small-appmsg">
             <div class="weui-cells">
-              <a class="weui-cell weui-cell_access" href="record.html">
+              <a class="weui-cell weui-cell_access" href="<{:url('msg')}>">
+                <div class="weui-cell__hd"><img src="/static/com/img/icon-msg-2.png" alt="" class="center-list-icon"></div>
+                <div class="weui-cell__bd weui-cell_primary">
+
+                  <p class="center-list-txt">我的消息<span class="weui-badge msg-count" style="position: absolute;right: 28px;display: none"></span></p>
+                </div>
+                <span class="weui-cell__ft"></span>
+              </a>
+              <a class="weui-cell weui-cell_access" href="r<{:url('record')}>">
                 <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-jyjl.png" alt="" class="center-list-icon"></div>
                 <div class="weui-cell__bd weui-cell_primary">
                   <p class="center-list-txt">交易记录</p>
@@ -140,14 +169,14 @@
                 </div>
                 <span class="weui-cell__ft"></span>
               </a>-->
-              <a class="weui-cell weui-cell_access" href="javascript:alert('忘记开发了')">
+              <a class="weui-cell weui-cell_access" href="<{:url('/mall/account/pwd_change')}>">
                 <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-dlmm.png" alt="" class="center-list-icon"></div>
                 <div class="weui-cell__bd weui-cell_primary">
                   <p class="center-list-txt">密码修改</p>
                 </div>
                 <span class="weui-cell__ft"></span>
               </a>
-              <a class="weui-cell weui-cell_access" href="<{:url('/mall/account/logout')}>">
+              <a class="weui-cell weui-cell_access" href="javascript:logout()">
                 <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-out.png" alt="" class="center-list-icon"></div>
                 <div class="weui-cell__bd weui-cell_primary">
                   <p class="center-list-txt">退出账号</p>
@@ -168,60 +197,58 @@
 
 <{include file="public/footer" /}>
 <script>
-  bs_request("<{:url('/mall/goods/my_cart_total')}>",{from:'home'},function (res){
-    if (res.code==0){
-      if (res.data.total>0){
-        $(".cart-num").text(res.data.total)
-        $(".cart-num").show()
-      }else{
-        $(".cart-num").hide()
-      }
-    }else {
-      $(".cart-num").hide()
-    }
-  })
+  function logout(){
+    $.confirm('确定要退出吗','退出登录状态',function () {
+      localStorage.removeItem('user_token');
+      location.href  = "<{:url('/mall/account/logout')}>";
+    })
+  }
+
 </script>
 <script>
+
   $(function () {
     $(".my_goods_favorite").on('click',function () {
       location.href = "<{:url('/mall/goods/my_favorite')}>"
     }) ;
     $(".credit_record").on('click',function () {
-      location.href = "<{:url('/mall/user/record')}>"
+      location.href = "<{:url('/mall/user/balance')}>"
     })
   })
 
-  bs_request("<{:url('/mall/user/order_count')}>",{},function (res) {
-    if (res.code==0){
+  bs_request("<{:url('/mall/user/data_count')}>",{},function (res) {
+      if (res.code==0 && res.data.count){
         var count = res.data.count;
-        if (count.count0){
-          $(".order-count0").text(count.count0)
-        }else {
-          $(".order-count0").hide();
+        $(".my_credit").text(count.credit.credit)
+        $(".my_point").text(count.credit.point)
+        $(".my_goods").text(count.goods)
+        if (count.msg>0){
+          $(".msg-count").show().text(count.msg>=99?'99+':count.msg)
         }
-        if (count.count1){
-          $(".order-count1").text(count.count1)
-        }else {
-          $(".order-count1").hide();
-        }
-        if (count.count2){
-          $(".order-count2").text(count.count2)
-        }else {
-          $(".order-count2").hide();
-        }
-        if (count.count3){
-          $(".order-count3").text(count.count3)
-        }else {
-          $(".order-count3").hide();
-        }
-    }
-  })
 
-  bs_request("<{:url('/mall/user/my_credits')}>",{},function (res) {
-      if (res.code==0){
-          $(".my_credit").text(res.data.credits.credit);
-          $(".my_point").text(res.data.credits.point);
-          $(".my_goods").text(res.data.credits.goods);
+        if (count.order){
+          var count_order = count.order;
+          if (count_order.count0){
+            $(".order-count0").show().text(count_order.count0)
+          }else {
+            $(".order-count0").hide();
+          }
+          if (count_order.count1){
+            $(".order-count1").show().text(count_order.count1)
+          }else {
+            $(".order-count1").hide();
+          }
+          if (count_order.count2){
+            $(".order-count2").show().text(count_order.count2)
+          }else {
+            $(".order-count2").hide();
+          }
+          if (count_order.count3){
+            $(".order-count3").show().text(count_order.count3)
+          }else {
+            $(".order-count3").hide();
+          }
+        }
       }
   })
 </script>

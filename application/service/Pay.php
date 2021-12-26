@@ -6,8 +6,7 @@ namespace app\service;
 
 class Pay
 {
-    //微信公众号支付
-    public static function wx_pub($order)
+    public static function get_wx_config()
     {
         $conf = ConfigService::get('wxpay');
         if (empty($conf['app_id'])) {
@@ -38,11 +37,22 @@ class Pay
             file_put_contents($tmpDir . $conf['app_id'] . 'key_pem.pem', $conf['key_pem']);
             $wxConfig['app_key_pem'] = $tmpDir . $conf['app_id'] . 'key_pem.pem';
         }
+        $wxConfig['tmpDir'] = $tmpDir;
+        return $wxConfig;
+    }
+
+    //微信公众号支付
+    public static function wx_pub($order)
+    {
+        $wxConfig = self::get_wx_config();
+        if (isset($wxConfig['code'])) {
+            return $wxConfig;
+        }
 
         // 订单信息
         $payData = [
             'body' => '商品支付',
-            'subject' => 'bs_shop_数据',
+            'subject' => '购买商品支付',
             'trade_no' => $order['order_sn'],
             'time_expire' => $order['cancel_pay_time'], // 表示必须 600s 内付款
             'amount' => $order['price'],
@@ -61,13 +71,13 @@ class Pay
             $client = new \Payment\Client(\Payment\Client::WECHAT, $wxConfig);
             $res = $client->pay(\Payment\Client::WX_CHANNEL_PUB, $payData);
         } catch (\InvalidArgumentException $e) {
-            self::del_tmp_pem($tmpDir, $wxConfig);
+            self::del_tmp_pem($wxConfig);
             return ['code' => -1, 'msg' => $e->getMessage()];
         } catch (\Payment\Exceptions\GatewayException $e) {
-            self::del_tmp_pem($tmpDir, $wxConfig);
+            self::del_tmp_pem($wxConfig);
             return ['code' => -1, 'msg' => $e->getMessage()];
         } catch (\Payment\Exceptions\ClassNotFoundException $e) {
-            self::del_tmp_pem($tmpDir, $wxConfig);
+            self::del_tmp_pem($wxConfig);
             return ['code' => -1, 'msg' => $e->getMessage()];
         }
 
@@ -81,14 +91,74 @@ class Pay
         //二次签名
         $arr['paySign'] = self::getSign($arr, $wxConfig['md5_key']);
 
-        self::del_tmp_pem($tmpDir, $wxConfig);
+        self::del_tmp_pem($wxConfig);
 
         return ['code' => 0, 'msg' => 'ok', 'data' => $arr];
     }
 
-    private static function del_tmp_pem($tmpDir, $conf)
+    /**
+     * 充值订单参数
+     * @param $order
+     * @return array
+     */
+    public static function wx_recharge($order)
+    {
+        $wxConfig = self::get_wx_config();
+        if (isset($wxConfig['code'])) {
+            return $wxConfig;
+        }
+
+        // 订单信息
+        $payData = [
+            'body' => '余额充值',
+            'subject' => '账户余额充值',
+            'trade_no' => $order['order_sn'],
+            'time_expire' => $order['cancel_pay_time'], // 表示必须 600s 内付款
+            'amount' => $order['price'],
+            'return_param' => 'recharge',
+            'client_ip' => get_ip(),// 客户地址
+            'openid' => cookie('my_gzh_openid'),
+            'product_id' => '',
+            // 如果是服务商，请提供以下参数
+            'sub_appid' => '', //微信分配的子商户公众账号ID
+            'sub_mch_id' => '', // 微信支付分配的子商户号
+            'sub_openid' => '', // 用户在子商户appid下的唯一标识
+        ];
+
+        // 使用
+        try {
+            $client = new \Payment\Client(\Payment\Client::WECHAT, $wxConfig);
+            $res = $client->pay(\Payment\Client::WX_CHANNEL_PUB, $payData);
+        } catch (\InvalidArgumentException $e) {
+            self::del_tmp_pem($wxConfig);
+            return ['code' => -1, 'msg' => $e->getMessage()];
+        } catch (\Payment\Exceptions\GatewayException $e) {
+            self::del_tmp_pem($wxConfig);
+            return ['code' => -1, 'msg' => $e->getMessage()];
+        } catch (\Payment\Exceptions\ClassNotFoundException $e) {
+            self::del_tmp_pem($wxConfig);
+            return ['code' => -1, 'msg' => $e->getMessage()];
+        }
+
+        $arr = [
+            'appId' => $wxConfig['app_id'],
+            'timeStamp' => strval(time()),
+            'nonceStr' => $res['nonce_str'],
+            'package' => 'prepay_id=' . $res['prepay_id'],
+            'signType' => 'MD5',
+        ];
+        //二次签名
+        $arr['paySign'] = self::getSign($arr, $wxConfig['md5_key']);
+
+        self::del_tmp_pem($wxConfig);
+
+        return ['code' => 0, 'msg' => 'ok', 'data' => $arr];
+    }
+
+    private static function del_tmp_pem($conf)
     {
         //清理证书
+        $tmpDir = $conf['tmpDir'];
         if (file_exists($tmpDir . $conf['app_id'] . 'key_pem.pem')) {
             @unlink($tmpDir . $conf['app_id'] . 'key_pem.pem');
         }
@@ -137,5 +207,55 @@ class Pay
             $reqPar = substr($buff, 0, strlen($buff) - 1);
         }
         return $reqPar;
+    }
+
+
+    public static function refund_wechat($order_sn, $money)
+    {
+        $wxConfig = self::get_wx_config();
+        if (isset($wxConfig['code'])) {
+            return $wxConfig;
+        }
+        $order = Order::get($order_sn);
+        if (empty($order)) {
+            return ['code' => -1, 'msg' => '订单未找到'];
+        }
+
+        $refundNo = 'BSRE'.time().get_random(10,true);
+        $data = [
+            'trade_no' => $order_sn,
+            'transaction_id' => !empty($order['trans_id']) ? $order['trans_id'] : '',
+            'total_fee' => $order['pay_price'],
+            'refund_fee' => $money,
+            'refund_no' => $refundNo,
+
+            'refund_account' => 'REFUND_SOURCE_RECHARGE_FUNDS',
+        ];
+
+        // 使用
+        try {
+            $client = new \Payment\Client(\Payment\Client::WECHAT, $wxConfig);
+            $res = $client->refund($data);
+        } catch (\InvalidArgumentException $e) {
+            self::del_tmp_pem($wxConfig);
+            return ['code' => -1, 'msg' => $e->getMessage()];
+        } catch (\Payment\Exceptions\GatewayException $e) {
+            self::del_tmp_pem($wxConfig);
+            return ['code' => -1, 'msg' => $e->getMessage()];
+        } catch (\Payment\Exceptions\ClassNotFoundException $e) {
+            self::del_tmp_pem($wxConfig);
+            return ['code' => -1, 'msg' => $e->getMessage()];
+        }
+        //diylog
+        //DiyLog::file($res, 'wxrefund.log');
+
+
+        if ($res['return_code'] <> 'SUCCESS' || $res['result_code'] <> 'SUCCESS'){
+            return ['code' => -1, 'msg' => $res['return_msg']];
+        }
+        self::del_tmp_pem($wxConfig);
+
+
+        return ['code' => 0, 'msg' => 'ok', 'data' => $res];
     }
 }

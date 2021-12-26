@@ -3,9 +3,8 @@
 <head>
     <title>后台管理</title>
     <{include file="public/header"}>
-    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
-    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <{include file="public/data_tables_css"}>
+    <link rel="stylesheet" href="/static/adminlte/plugins/summernote/summernote-bs4.min.css">
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <!-- Site wrapper -->
@@ -89,10 +88,19 @@
                                 </td>
                                 <td>
                                     <p><b>单号：</b><{$data.order.order_sn}> </p>
-                                    <p><b>状态：</b><{$data.order.statusDesc}></p>
+
+                                    <p><b>状态：</b>
+                                        <{$data.order.statusDesc}>
+                                        <{if $data.order.refund_total>0}>
+                                        <span class="bs-red">（累计退款：<{$data.order.refund_total}>）</span>
+                                        <{/if}>
+                                    </p>
+                                    <{if !empty($data.order.address)}>
                                     <p><b>地址：</b><{$data.order.full_address}> </p>
                                     <p><b>收货人：</b><{$data.order.address.username}> </p>
                                     <p><b>收货号码：</b><{$data.order.address.mobile}> </p>
+                                    <{/if}>
+
                                 </td>
                             </tr>
 
@@ -100,6 +108,46 @@
                             </tbody>
 
                         </table>
+                        <{if !empty($data.order.refund)}>
+                        <div class="card  ">
+                            <div class="card-body ">
+                                <div class="alert alert-warning alert-dismissible">
+                                    <button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>
+                                    <h5><i class="icon fas fa-exclamation-triangle"></i> 注意!</h5>
+                                    订单有申请售后，请先处理售后。
+                                </div>
+                                <div class="card-body">
+                                    <strong><i class="fas fa-book mr-1"></i> 申请方式</strong>
+
+                                    <p class="text-muted">
+
+                                        <{if($data.order.refund.apply_type==1)}>
+                                        仅退款
+                                        <{elseif $data.order.refund.apply_type==2}>
+                                        退货退款
+                                        <{else}>
+                                        仅退货
+                                        <{/if}>
+                                    </p>
+                                    <hr>
+
+                                    <strong><i class="fas fa-money-bill mr-1"></i> 申请金额</strong>
+
+                                    <p class="text-muted">
+                                        ¥ <{$data.order.refund.apply_money}>
+                                    </p>
+
+                                    <hr>
+
+                                    <strong><i class="far fa-file-alt mr-1"></i> 申请原因</strong>
+
+                                    <p class="text-muted"><{$data.order.refund.apply_reason}></p>
+                                </div>
+                            </div>
+                        </div>
+                        <{/if}>
+
+
                     </div>
                     <div class="card-footer">
                         下单时间：<{$data.order.add_time|date="Y-m-d H:i:s",###}>
@@ -110,14 +158,38 @@
                         </p>
                         <{/if}>
                         <p class="bs-top-30">
+
+                            <{if !empty($data.order.refund)}>
+                            <span class="btn  btn-warning bs-left-20" data-toggle="modal" data-target="#modal-refund">处理售后</span>
+                            <{else}>
+
+                            <{if $data.order.order_type==2}>
+                            <{if $data.order.status==1}>
+                            <!--提货专属-->
+                            <span class="btn  btn-success tihuo-btn" >确认提货</span>
+                            <{/if}>
+                            <{else}>
+                            <{if $data.order.order_type==3}>
+                            <{if $data.order.status==1}>
+                            <span class="btn  btn-success" data-toggle="modal" data-target="#modal-virtual">去发货</span>
+                            <{elseif $data.order.status>=2}>
+                            <span class="btn  btn-warning" data-toggle="modal" data-target="#modal-virtual">修改发货信息</span>
+                            <{/if}>
+                            <{else}>
                             <{if $data.order.status==1}>
                             <span class="btn  btn-success" data-toggle="modal" data-target="#modal-default">去发货</span>
                             <{elseif $data.order.status==2}>
                             <span class="btn  btn-warning" data-toggle="modal" data-target="#modal-default">修改物流</span>
                             <{/if}>
+                            <{/if}>
 
 
-                            <!--<span class="btn  btn-warning bs-left-30" onclick="alert('暂无相关逻辑')">处理售后</span>-->
+                            <{/if}>
+
+
+
+                            <{/if}>
+
                             <a href="<{:url('index')}>" class="btn btn-outline-primary bs-left-30" >返回列表</a>
                         </p>
                     </div>
@@ -127,6 +199,54 @@
             </div>
 
             <div class="bs-model">
+                <{if !empty($data.order.refund)}>
+                <div class="modal fade" id="modal-refund">
+                    <div class="modal-dialog">
+                        <form action="<{:url('refund')}>" method="post" id="form-refund">
+                            <input type="hidden" name="order_sn" value="<{$data.order.order_sn}>">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">售后维权处理</h4>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+
+                                        <label for="dotype">操作方式</label>
+                                        <select name="dotype" id="dotype" class="form-control">
+                                            <option value="1">同意退款</option>
+                                            <option value="-1">驳回</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+
+                                        <label for="refund_type">退款方式</label>
+                                        <select name="refund_type" id="refund_type" class="form-control">
+                                            <option value="1">原路退回</option>
+                                            <option value="2">无需转账</option>
+                                            <option value="3">手动转账</option>
+                                        </select>
+                                        <span class="bs-red">驳回时可以忽略。</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="refuse_reason">驳回原因</label>
+                                        <textarea name="refuse_reason" id="refuse_reason" class="form-control" placeholder="驳回请填写原因" cols="10" rows="3"></textarea>
+                                        <span class="bs-red">驳回时必填。</span>
+                                    </div>
+                                </div>
+                                <div class="modal-footer justify-content-between">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                    <button type="button" onclick="refund()" class="btn btn-danger">提交处理</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <{/if}>
+
                 <div class="modal fade" id="modal-default">
                     <div class="modal-dialog">
                         <form action="<{:url('send')}>" method="post" id="check-form">
@@ -158,12 +278,38 @@
                                 </div>
                             </div>
                         </form>
-
-                        <!-- /.modal-content -->
                     </div>
-                    <!-- /.modal-dialog -->
                 </div>
-                <!-- /.modal -->
+
+                <{if $data.order.order_type==3}>
+                <div class="modal fade" id="modal-virtual">
+                    <div class="modal-dialog">
+                        <form action="<{:url('send_virtual')}>" method="post" id="virtual">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">订单发货</h4>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="form-group">
+                                        <label for="content_virtual">发货内容</label>
+                                        <textarea name="content_virtual" id="content_virtual"  class="form-control"><{$data.order.content_virtual}></textarea>
+                                        <input type="hidden" name="order_sn" value="<{$data?$data.order.order_sn:''}>">
+                                    </div>
+                                </div>
+                                <div class="modal-footer justify-content-between">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+                                    <button type="button" onclick="send('virtual')" class="btn btn-primary">保存</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <{/if}>
+
+
             </div>
 
         </section>
@@ -175,24 +321,107 @@
 
 
 </div>
-<!-- ./wrapper -->
+
 
 <{include file="public/footer"}>
-<!-- DataTables  & Plugins -->
-<script src="/static/adminlte/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-
+<script src="/static/adminlte/plugins/summernote/summernote-bs4.min.js"></script>
 <script>
+    var order_sn = '<{$data.order.order_sn}>';
+    //上传图片
+    function uploadFile($summernote, file) {
+        var data = new FormData();
+        data.append('fileKey','bs_shop')
+        data.append('from','order')
+        data.append("bs_shop", file);
+        $.ajax({
+            url:"<{:url('/admin/upload/image')}>",
+            data: data,
+            cache: false,
+            contentType: false,
+            processData: false,
+            type: 'POST',
+            success: function (res) {
+                res = JSON.parse(res)
+                if (res.code==0){
+                    console.log('xxx',res)
+                    $summernote.summernote('insertImage', res.data.url, function ($image) {
+                        $image.attr('src', res.data.url);
+                    });
+                    //$summernote.summernote('insertImage', res.data.url,'img');
+                }
 
-    function send(){
+            }
+        });
+    }
+    //删除图片
+    function removeFile(target){
+        var imgsrc = target[0].currentSrc;
+        console.log(imgsrc)
+        $.post('page/remove_img.php',{
+            imgSrc:imgsrc
+        },function(data){
+            console.log(data);
+        })
+
+    }
+    $(function () {
+        $(".tihuo-btn").on('click',function () {
+            layer.prompt({title: '请填写提货码', type: 1, value: ''}, function (value, index) {
+                sendData("<{:url('action_tihuo')}>",{order_sn:order_sn,code:value},function (res) {
+                   if (res.code==0){
+                       layer.close(index);
+                       location.reload();
+                   }
+                })
+
+            })
+        });
+
+        var $summernote = $('#content_virtual').summernote({
+            height:300,                 // set editor height
+            minHeight:null,             // set minimum height of editor
+            maxHeight:null,             // set maximum height of editor
+            focus:true      ,            //
+            callbacks: {
+                //上传时调用
+                onImageUpload: function (files) {
+                    uploadFile($summernote, files[0]);
+                },
+                //删除时调用
+                onMediaDelete: function (target) {
+                    removeFile(target);
+                }
+            }
+
+        });
+
+    })
+
+    function send(id){
         form_submit([],'',false,function(res) {
             if (res.code==0){
                 location.reload();
             }
+        },id)
+    }
+    
+    function refund(){
+        var dotype = $("select[name='dotype'] option:selected").val();
+        var refund_type = $("select[name='refund_type'] option:selected").val();
+        var refuse_reason = $("textarea[name='refuse_reason']").val();
+
+        layer.confirm('确定提交处理申请售后吗？',{title:0},function () {
+
+            if (dotype==-1 && !refuse_reason){
+               return layer.alert('驳回请填写驳回原因',{title:0})
+            }
+
+            form_submit([],false,false,function (res) {
+                if (res.code==0){
+                    location.reload();
+                }
+            },'form-refund')
+
         })
     }
 

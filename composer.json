@@ -23,7 +23,8 @@
         "riverslei/payment": "*",
         "phpmailer/phpmailer": "^6.5",
         "topthink/think-captcha": "1.*",
-        "alibabacloud/dysmsapi-20170525": "2.0.8"
+        "alibabacloud/dysmsapi-20170525": "2.0.8",
+      "ext-pdo": "*"
     },
     "autoload": {
         "psr-4": {

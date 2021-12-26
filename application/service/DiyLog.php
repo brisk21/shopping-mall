@@ -38,7 +38,7 @@ class DiyLog
         }
 
         if ($replace) {
-            file_put_contents(self::$save_path . $fileName.'_log.log', $log);
+            file_put_contents(self::$save_path . $fileName, $log);
         } else {
             file_put_contents(self::$save_path . $fileName, PHP_EOL . $log, FILE_APPEND);
         }

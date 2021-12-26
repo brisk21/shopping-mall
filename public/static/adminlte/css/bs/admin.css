@@ -20,6 +20,15 @@
 .bs-blue{
     color: blue;
 }
+.bs-yellow{
+    color:yellow;
+}
+.bs-orangered{
+    color: orangered;
+}
+.bs-blue-2{
+    color: #00aaaa;
+}
 
 .bs-left-10{
     margin-left: 10px;

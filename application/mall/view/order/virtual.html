@@ -1,0 +1,45 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+    <title>详情</title>
+    <{include file="public/header" /}>
+    <style>
+        .weui-content{
+            background: white;
+        }
+    </style>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+    <div class="wy-header-icon-back"><span></span></div>
+    <div class="wy-header-title">详情</div>
+</header>
+<div class="weui-content">
+    <article class="weui-article">
+        <h1 class="art-title">虚拟发货信息</h1>
+        <h3 class="wy-news-time art-time"></h3>
+        <section class="wy-news-info">
+
+        </section>
+    </article>
+
+</div>
+<{include file="public/footer" /}>
+<script>
+    var order_sn = bs_get_param('order_sn');
+    bs_request("<{:url('get_virtual_info')}>",{order_sn:order_sn},function (res) {
+
+        if (res.code==0 && res.data.order){
+
+            $(".art-time").html(res.data.order.send_time)
+
+            $(".wy-news-info").html(res.data.order.content_virtual)
+        }else {
+            $(".wy-news-info").html('暂无发货内容')
+        }
+
+    });
+</script>
+</body>
+</html>

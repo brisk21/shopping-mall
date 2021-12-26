@@ -28,7 +28,8 @@
 <{include file="public/footer" /}>
 <script>
   //公告
-  bs_request("<{:url('get_article_info')}>",{id:"<{$Request.param.id}>"},function (res) {
+  var id = bs_get_param('id')
+  bs_request("<{:url('get_article_info')}>",{id:id},function (res) {
 
     if (res.code==0 && res.data.article){
 

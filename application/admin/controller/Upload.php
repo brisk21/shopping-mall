@@ -26,8 +26,8 @@ class Upload extends Admin
 
         $toPath = config('upload')['defaultPath'] . trim($this->param['from']) . '/';
         //拼接全连接
-        $returnUrl = str_replace(PUBLIC_PATH, URL_WEB, config('upload')['defaultPath'] . trim($this->param['from']) . '/');
-        $res = Uploader::start_upload($this->param['fileKey'], $toPath, $returnUrl);
+        $returnUrl = str_replace(PUBLIC_PATH, URL_WEB, $toPath);
+        $res = Uploader::start_upload($this->param['fileKey'], $toPath, $returnUrl,'',1);
         if ($res['code'] == 0) {
             parent::add_admin_log(['title' => '上传文件', 'content' => $res['data']]);
         }

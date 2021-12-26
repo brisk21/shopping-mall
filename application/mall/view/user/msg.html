@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>消息中心</title>
+    <{include file="public/header" /}>
+    <style>
+        .box{
+            padding-left: 10px;
+        }
+        .status0{
+            width: 12px;
+            background: red;
+            height: 12px;
+            position: absolute;
+            top: 24px;
+            border-radius: 50%;
+            left: 0;
+        }
+    </style>
+</head>
+<body>
+<header class="wy-header">
+    <div class="wy-header-icon-back"><span></span></div>
+    <div class="wy-header-title">消息列表</div>
+</header>
+<div class="page__bd box">
+    <div class="weui-panel__bd msg-list"></div>
+</div>
+<{include file="public/footer" /}>
+<script>
+    var page = 1;
+    var loading = false;
+    var stop = false;
+    function load_data(){
+        if (stop){
+            return ;
+        }
+        bs_request("<{:url('/mall/user/msg_list')}>",{page:page},function (res) {
+            loading = false
+            if (res.code==0 && res.data.msg_list.length>0){
+                var msg_list = res.data.msg_list;
+                for (var i=0;i<msg_list.length;i++){
+                    var item = '<div role="option" class="weui-media-box weui-media-box_text msg-detail" data-id="'+msg_list[i].id+'">' +
+                        '<strong class="weui-media-box__title">'+msg_list[i].title;
+                        if (msg_list[i].status==0){
+                            item += '<span class="status0"></span>';
+                        }
+
+                      item+=  '</strong>' +
+                        '<p class="weui-media-box__desc">'+msg_list[i].content+'</p>' +
+                        '<ul class="weui-media-box__info" aria-hidden="true">' +
+                        '<li class="weui-media-box__info__meta" aria-hidden="true" id="js_p4m1_source">'+msg_list[i].typeDesc+'</li>' +
+                        '<li class="weui-media-box__info__meta" aria-hidden="true" id="js_p4m1_time">'+msg_list[i].add_time+'</li>' +
+                        ' </ul>' +
+                        '</div>';
+
+                    $('.msg-list').append(item)
+                }
+            }else {
+                stop =  true
+            }
+        });
+    }
+    load_data();
+    
+    $(window).scroll(function () {
+        var scrollTop = Number( $(this).scrollTop());
+        if (scrollTop>700){
+            $(".to_top").show()
+        }else {
+            $(".to_top").hide()
+        }
+
+        var scrollHeight = $(document).height();
+        var windowHeight = $(this).height();
+        if (scrollTop + windowHeight >= scrollHeight-50) {
+            if (loading===false){
+                loading = true;
+                page++;
+                load_data();
+            }
+
+        }
+    })
+    $(".msg-list").on('click','.msg-detail',function () {
+        var id = $(this).data('id');
+        if (id){
+            location.href = "<{:url('msg_detail')}>?id="+id
+        }
+    })
+</script>
+</body>
+</html>

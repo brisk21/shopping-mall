@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <title>设置中心</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=0">
+    <link rel="stylesheet" href="/static/com/css/weui/weui.css"/>
+    <link rel="stylesheet" href="/static/com/css/weui/weui2.css"/>
+    <link rel="stylesheet" href="/static/mall/css/style.css">
+</head>
+<body ontouchstart style="background-color: #f8f8f8;">
+
+<header class="wy-header">
+    <div class="wy-header-icon-back"><span></span></div>
+    <div class="wy-header-title">设置中心</div>
+</header>
+
+
+
+<div class="timeline">
+    <ul>
+        <li class="timeline-item">
+            <div class="timeline-item-head-first">
+                <i class="weui_icon weui_icon_success_no_circle timeline-item-checked"></i> </div> <div class="timeline-item-tail"></div>
+            <div class="timeline-item-content">
+                <h4 class="recent">bug随时修复中,若有问题请联系微信：wei1-top</h4>
+                <p class="recent">未来</p> </div>
+        </li>
+        <li class="timeline-item">
+            <div  class="timeline-item-head"> <i class="weui_icon weui_icon_success_no_circle timeline-item-checked hide" ></i> </div> <div class="timeline-item-tail" ></div>
+            <div class="timeline-item-content">
+                <h4>
+                    时支付订单自动取消；优化客户端订单列表；
+                </h4>
+                <p>2021-12-24</p>
+            </div>
+        </li>
+        <li class="timeline-item">
+            <div  class="timeline-item-head"> <i class="weui_icon weui_icon_success_no_circle timeline-item-checked hide" ></i> </div> <div class="timeline-item-tail" ></div>
+            <div class="timeline-item-content">
+            <h4> 新增用户消息中心，优化首页商品加载，优化个人中心数据统计。优化手机端显示操作后台某些快速按钮情况下无反应问题。</h4>
+                <p>2021-12-23</p>
+            </div>
+        </li>
+        <li class="timeline-item">
+            <div  class="timeline-item-head"> <i class="weui_icon weui_icon_success_no_circle timeline-item-checked hide" ></i> </div> <div class="timeline-item-tail" ></div>
+            <div class="timeline-item-content">
+            <h4>
+                店铺新增销售、虚拟、展示、自提类型订单，优化客户端。<br>
+                销售：商品->付款->发货->收货->完成；<br>
+                展示：商品->联系商家->完成；<br>
+                自提：商品->付款->到店提货->完成；<br>
+                虚拟：商品->支付->自动发货->完成。<br>
+            </h4>
+                <p>2021-12-22</p>
+            </div>
+        </li>
+        <li class="timeline-item">
+            <div  class="timeline-item-head">
+                <i class="weui_icon weui_icon_success_no_circle timeline-item-checked hide" ></i>
+            </div>
+            <div class="timeline-item-tail hide" ></div>
+            <div class="timeline-item-content">
+                <h4>
+                    新增商品订单评价，评价在后台审核，审核通过才可以在客户端显示。
+
+                </h4>
+                <p>2021-12-18</p>
+            </div>
+        </li>
+    </ul>
+</div>
+
+
+<section class="weui-menu">
+    <div class="weui-menu-inner">
+        <em></em>
+        <span >工具</span>
+        <ul class="nav-base-ul">
+            <em></em>
+            <li>留言</li>
+            <li>反馈</li>
+        </ul>
+    </div>
+    <div class="weui-menu-inner">
+        <em></em>
+        <span>账户</span>
+        <ul class="nav-base-ul">
+            <em></em>
+            <li onclick="logout()">退出登录</li>
+        </ul>
+    </div>
+    <div class="weui-menu-inner">
+        <em></em>
+        <span>站点地图</span>
+        <ul class="nav-base-ul">
+            <em></em>
+            <li><a href="<{:url('/mall/home/index')}>">首页</a></li>
+            <li><a href="<{:url('/mall/user/index')}>">个人中心</a></li>
+            <li><a href="<{:url('/mall/order/all_orders')}>">订单中心</a></li>
+        </ul>
+    </div>
+
+
+</section>
+<{include file="public/footer" /}>
+<!--<script src="/static/mall/lib/zepto.js"></script>-->
+<script>
+    function logout(){
+         var c = confirm('确定要退出吗','退出登录状态')
+         if (c){
+             localStorage.removeItem('user_token');
+             location.href  = "<{:url('/mall/account/logout')}>";
+         }
+    }
+
+</script>
+<script>
+
+    $(function(){
+        $('.weui-menu-inner').click(function () {
+            var $menu = $(this).find('ul'),
+                height = $menu.find('li').length * 40 + 15 ,
+                opacity = $menu.css('opacity');
+
+            $('.weui-menu-inner ul').css({
+                'top': '50px',
+                'opacity': '0'
+            });
+
+            if(opacity == 0) {
+                $menu.css({
+                    'top': '-' + height+'px',
+                    'opacity': 1
+                });
+            }else {
+                $menu.css({
+                    'top': '50px',
+                    'opacity': 0
+                });
+            }
+        });
+        //默认初始化给一个相对高度，防止触发第一个li
+        $('.nav-base-ul').css({
+            'top':'50px'
+        })
+        $(".wy-header-icon-back").on('click',function () {
+            history.back();
+        });
+    });
+
+</script>
+
+</body>
+</html>

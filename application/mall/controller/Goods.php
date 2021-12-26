@@ -19,6 +19,7 @@ class Goods extends Mall
         'mall/goods/classify',
         'mall/goods/detail',
         'mall/goods/my_cart_total',
+        'mall/goods/get_comment',
     ];
 
     //商品列表
@@ -39,46 +40,48 @@ class Goods extends Mall
             $order = "sale desc,id desc";
         }
 
-
-        //详情的看了又看推荐 todo 根据用户搜索记录、购买记录推荐
-        if ($from=='detail'){
-            $order = 'sale desc';
-        }
-
         $where = ['status' => 1];
-        if (!empty($this->param['is_top'])) {
+        //首页精选推荐
+        if ($from == 'home-jingxuan') {
             $where['is_top'] = 1;
+        } elseif ($from == 'home_list') {
+            //来自首页猜你喜欢
+            $where['is_top'] = 0;
+        } elseif ($from == 'hot_category') {
+            //首页推荐商品,todo 动态化后台
+            $where['category_id'] = '13';
+        } elseif ($from == 'detail') {
+            //详情的看了又看推荐 todo 根据用户搜索记录、购买记录推荐
+            $order = 'sale desc';
         }
 
         if (!empty($this->param['category_id'])) {
             $where['category_id'] = intval($this->param['category_id']);
         }
-        //来自首页猜你喜欢请求
-        if (!empty($this->param['home'])) {
-            $where['is_top'] = 0;
-        }
+
         if (!empty($this->param['keyword'])) {
             $where['title'] = ['like', '%' . trim(strip_tags($this->param['keyword'])) . '%'];
         }
 
-        $goods = AppCommon::data_list('goods', $where, $page, 'id,title,market_price,price,stock,sale,thumb',$order);
-
+        $goods = AppCommon::data_list('goods', $where, $page, 'id,title,market_price,price,stock,sale,thumb', $order);
+        $total = AppCommon::data_count('goods', $where);
 
         data_return('ok', 0, [
-            'goods' => $goods
+            'goods' => $goods,
+            'total' => $total
         ]);
     }
 
     //商品详情
     public function goods_detail()
     {
-        $id = !empty($this->param['id'])?intval($this->param['id']):0;
-        $goods = AppCommon::data_get('goods', ['id' => $id,'status'=>1], '*');
+        $id = !empty($this->param['id']) ? intval($this->param['id']) : 0;
+        $goods = AppCommon::data_get('goods', ['id' => $id, 'status' => 1], 'id,title,goods_desc,thumb,market_price,price,stock,sale,status,banners,content,category_id,store_num');
         if ($goods) {
             if (!empty($goods['banners'])) {
                 $goods['banners'] = json_decode($goods['banners'], true);
             }
-            $goods['content'] = htmlspecialchars_decode($goods['content'],ENT_QUOTES);
+            $goods['content'] = htmlspecialchars_decode($goods['content'], ENT_QUOTES);
 
             $goods['has_favorite'] = AppCommon::data_get('goods_favorite', ['uid' => $this->uid, 'goods_id' => $goods['id']], 'id');
         }
@@ -91,7 +94,6 @@ class Goods extends Mall
     //收藏操作
     public function favorite_action($id = 0)
     {
-        //todo 判断post请求
         $goods = AppCommon::data_get('goods', ['id' => intval($id)], 'id,status');
         if (!$goods || $goods['status'] <> 1) {
             data_return('商品已下线', -1);
@@ -108,7 +110,7 @@ class Goods extends Mall
             $status = 1;
         }
 
-        data_return($status == 1 ? '收藏成功' : '已取消收藏', 0, $status);
+        data_return($status == 1 ? '收藏成功' : '已取消收藏', 0, ['status' => $status]);
     }
 
     //我的收藏商品
@@ -231,6 +233,43 @@ class Goods extends Mall
         data_return();
     }
 
+    //商品评价
+    public function get_comment()
+    {
+        if (empty($this->param['id'])){
+            data_return('参数有误',-1);
+        }
+        $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
+        $data = AppCommon::data_list('goods_comment',['goods_id'=>intval($this->param['id']),'status'=>1],$page,'is_hide_user,content,imgs,status,add_time,uid,star','id desc');
+        if ($data){
+            foreach ($data as &$v){
+                $v['add_time'] = date('Y-m-d',$v['add_time']);
+                if (!empty($v['imgs'])){
+                    $v['imgs'] = explode(',',$v['imgs']);
+                }
+                $v['user']['avatar'] = URL_WEB.'/static/com/img/user-default.jpg';
+                if ($v['is_hide_user']==1){
+                    $v['user']['nickname'] = '匿名用户';
+                }else{
+                    $v['user'] = AppCommon::data_get('common_user', ['uid' => $v['uid']], 'account,nickname');
+                    if (empty($v['user']['nickname'])) {
+                        $v['user']['nickname'] = '匿名用户';
+                    }
+                }
+
+            }
+            unset($v);
+        }
+
+        data_return('ok',0,['comment'=>$data]);
+    }
+
+    //评价列表
+    public function comment_list()
+    {
+        return $this->fetch()
+;    }
+
     //我的购物车统计
     public function my_cart_total()
     {
@@ -241,7 +280,7 @@ class Goods extends Mall
             $where .= " and a.status=1 ";
         }
 
-        $goods = AppCommon::db('cart')->query("
+        $goods = AppCommon::query("
             select count(a.id) as total,sum(a.count*b.price) as totalMoney from " . $prefix . "cart as a 
             left join " . $prefix . "goods as b on a.goods_id = b.id
             

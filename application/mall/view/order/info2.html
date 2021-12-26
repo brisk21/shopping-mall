@@ -5,9 +5,12 @@
   <{include file="public/header" /}>
   <style>
     .pay{
-      width: 45%;float: left;
+
       margin-top:unset !important;
       margin-left: 10px;
+    }
+    .btn-2{
+      width: 45%;float: left;
     }
     .mg10-0 {
       margin: 10px 0;
@@ -21,7 +24,7 @@
 <!--主体-->
 <header class="wy-header">
   <div class="wy-header-icon-back"><span></span></div>
-  <div class="wy-header-title">订单详情</div>
+  <div class="wy-header-title">订单</div>
 </header>
 <div class="weui-content">
   <div class="wy-media-box weui-media-box_text address-select">
@@ -53,14 +56,102 @@
       </div>-->
     </div>
   </div>
-  <div class="wy-media-box weui-media-box_text">
+  <div class="weui-panel">
+    <div class="weui-panel__bd">
+      <div class="weui-media-box weui-media-box_small-appmsg">
+        <div class="weui-cells">
+          <div class="weui-cell weui-cell_access">
+
+            <div class="weui-cell__bd weui-cell_primary">
+              <p class="font-14"><span class="mg-r-10">配送方式</span><span class="fr send-type">快递</span></p>
+            </div>
+
+          </div>
+          <div class="weui-cell weui-cell_access tihuo_box" style="display: none">
+
+            <div class="weui-cell__bd weui-cell_primary">
+              <p class="font-14"><span class="mg-r-10">提货地址</span><span class="fr tihuo_address">快递</span></p>
+            </div>
+
+          </div>
+          <a class="weui-cell weui-cell_access" href="javascript:void(0)">
+            <div class="weui-cell__bd weui-cell_primary">
+              <p class="font-14"><span class="mg-r-10">优惠券</span><span class="sitem-tip"><em class="num">0</em>张可用</span></p>
+            </div>
+            <span class="weui-cell__ft"></span>
+          </a>
+          <!--<div class="weui-cell weui-cell_access" href="javascript:;">
+            <div class="weui-cell__bd weui-cell_primary">
+              <p class="font-14"><span class="mg-r-10">运费</span><span class="fr txt-color-red">￥<em class="num">10.00</em></span></p>
+            </div>
+          </div>
+          <a class="weui-cell weui-cell_access" href="money.html">
+            <div class="weui-cell__bd weui-cell_primary">
+              <p class="font-14"><span class="mg-r-10">可用积分</span><span class="sitem-tip"><em class="num">1235</em>个</span></p>
+            </div>
+            <span class="weui-cell__ft"></span>
+          </a>
+          -->
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="wy-media-box weui-media-box_text btn-group-bb">
     <div class="mg10-0 t-c">总金额：<span class="wy-pro-pri mg-tb-5">¥<em class="num font-20 totalMoney">0.00</em></span></div>
-    <div class="mg10-0"><a href="javascript:create('wechat')" class="weui-btn weui-btn_primary pay">微信付款</a> <a href="javascript:create('credit')" class="weui-btn weui-btn_default pay pay_credit">余额支付</a></div>
+    <div class="mg10-0">
+      <a href="javascript:create('wechat')" class="weui-btn weui-btn_primary pay pay-wechat" style="display: none">微信付款</a>
+      <a href="javascript:create('credit')" class="weui-btn weui-btn_default pay pay-credit"  style="display: none">余额支付</a>
+    </div>
+  </div>
+  <div class="wy-media-box weui-media-box_text btn-group-cc " style="display: none">
+    <div class="mg10-0 t-c">总金额：<span class="wy-pro-pri mg-tb-5">¥<em class="num font-20 totalMoney">0.00</em></span></div>
+    <div class="mg10-0">
+      <a href="javascript:void(0) " class="weui-btn weui-btn-area weui-btn_default shop_tel">联系店家</a>
+    </div>
   </div>
 </div>
 <{include file="public/footer" /}>
 <{include file="public/weixin_jsapi" /}>
 <script>
+  var shoptype = 0;
+  function shop_config() {
+    var shop_config = JSON.parse(localStorage.getItem('config_shop'));
+    if (shop_config && shop_config.shop_type !== 'undefined'){
+      var shop_type=shop_config.shop_type;
+      shoptype = shop_type;
+      if (shop_type==1){        //展示
+        $(".send-type").html('仅展示，不发货');
+        $(".btn-group-bb,.address-select").hide();
+        $(".btn-group-cc").show();
+        $(".shop_tel").attr('href','tel:'+shop_config.shop_tel);
+      }else if(shop_type==2){
+        //自提
+        $(".send-type").html('自提');
+        $(".tihuo_box").show();
+        $(".tihuo_address").html(shop_config.shop_address_tihuo);
+
+        $(".wy-header-title").text('自提'+$('.wy-header-title').text())
+        $(".address-select").hide();
+      }else if(shop_type==3){
+        //虚拟
+        $(".send-type").html('虚拟商品发货');
+        $(".wy-header-title").text('虚拟商品'+$('.wy-header-title').text())
+        $(".address-select").hide();
+      }
+
+      if (shop_config.pay_wechat===1){
+        $(".pay-wechat").show();
+      }
+      if (shop_config.pay_credit===1){
+        $(".pay-credit").show();
+      }
+      if (shop_config.pay_wechat===1 && shop_config.pay_credit===1){
+        $(".pay").addClass('btn-2')
+      }
+    }
+  }
+  shop_config();
+
   var addr_id = bs_get_param('addr_id')
   getData();
   function getData() {
@@ -69,16 +160,21 @@
         return $.alert(res.msg);
       }
 
-      if (res.data.address){
-        $(".addr-username").html(res.data.address.username);
-        $(".addr-mobile").html(res.data.address.mobile);
-        $(".addr-detail").html(res.data.address.province+' '+res.data.address.city+' '+res.data.address.area+' '+res.data.address.address);
-        $(".addr").attr('href',"<{:url('/mall/user/address_list')}>?from=info2")
-        addr_id = res.data.address.id;
+      if (!in_array(shoptype,[2,3])){
+          if (res.data.address){
+            $(".addr-username").html(res.data.address.username);
+            $(".addr-mobile").html(res.data.address.mobile);
+            $(".addr-detail").html(res.data.address.province+' '+res.data.address.city+' '+res.data.address.area+' '+res.data.address.address);
+            $(".addr").attr('href',"<{:url('/mall/user/address_list')}>?from=info2")
+            addr_id = res.data.address.id;
+          }else {
+            $(".addr-username").html('<div style="    color: red;margin-top: 20px;font-size: 18px;line-height: 20px;">请先添加地址</div>');
+            $(".addr").attr('href',"<{:url('/mall/user/address_list')}>?from=info2")
+          }
       }else {
-        $(".addr-username").html('<div style="    color: red;margin-top: 20px;font-size: 18px;line-height: 20px;">请先添加地址</div>');
-        $(".addr").attr('href',"<{:url('/mall/user/address_list')}>?from=info2")
+        $(".address-select").hide();
       }
+
       var goods = res.data.goods_list;
 
       for (var i=0;i<goods.length;i++){

@@ -90,6 +90,9 @@ function check_param(&$data, $rules)
                 if (empty($value['rule'])) {
                     return ['code' => -500, 'msg' => '内部错误'];
                 }
+                if (!isset($data[$value['key']])) {
+                    return ['code' => -500, 'msg' => '内部错误:' . $value['key'] . '未设置'];
+                }
                 $rule = explode(',', $value['rule']);
                 $length = mb_strlen($data[$value['key']]);
                 if (count($rule) == 1) {
@@ -247,11 +250,11 @@ function view_data($data, $hide = false)
 //浏览器控制台调试
 function view_data_console($data)
 {
-    if (is_object($data)||is_array($data)){
-        $data = json_encode($data,JSON_UNESCAPED_UNICODE);
+    if (is_object($data) || is_array($data)) {
+        $data = json_encode($data, JSON_UNESCAPED_UNICODE);
     }
 
-    $js ='<script >console.log('.$data.')</script>';
+    $js = '<script >console.log(' . $data . ')</script>';
     echo $js;
 }
 
@@ -328,7 +331,7 @@ function str_cut($str, $length, $start = 0)
 function get_device_type()
 {
     //全部变成小写字母
-    $agent =isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']):'';
+    $agent = isset($_SERVER['HTTP_USER_AGENT']) ? strtolower($_SERVER['HTTP_USER_AGENT']) : '';
     $type = 'other';
     //分别进行判断
     if (strpos($agent, 'iphone') || strpos($agent, 'ipad')) {
@@ -355,9 +358,11 @@ function is_phone($mobile)
 }
 
 
-
-
-//判断是否属于uid
+/**
+ * 判断是否属于uid
+ * @param $str
+ * @return bool
+ */
 function is_uid($str)
 {
     if (stripos($str, 'bs') !== false && mb_strlen($str) === 34) {
@@ -366,6 +371,11 @@ function is_uid($str)
     return false;
 }
 
+/**
+ * 是否为邮箱
+ * @param $email
+ * @return bool
+ */
 function is_email($email)
 {
     $chars = "/^([a-z0-9+_]|\\-|\\.)+@(([a-z0-9_]|\\-)+\\.)+[a-z]{2,6}\$/i";
@@ -379,4 +389,28 @@ function is_email($email)
         return false;
     }
 
+}
+
+/**
+ * 删除目录
+ * @param $dirName
+ */
+function del_dir($dirName)
+{
+    if (is_dir($dirName)) {
+        $dir = opendir($dirName);
+        while ($fileName = readdir($dir)) {
+            if ($fileName != "." && $fileName != "..") {
+                $file = $dirName . "/" . $fileName;
+                if (is_dir($file)) {
+                    del_dir($file);
+                } else {
+                    @unlink($file);
+                }
+            }
+        }
+        closedir($dir);
+        //删除目录
+        rmdir($dirName);
+    }
 }

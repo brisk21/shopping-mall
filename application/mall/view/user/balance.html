@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<title>我在账户</title>
+  <{include file="public/header" /}>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">账户中心</div>
+</header>
+<div class="weui-content">
+  <div class="weui-panel">
+    <div class="weui-panel__hd">账户余额</div>
+    <div class="weui-panel__bd">
+      <div class="weui-media-box weui-media-box_text">
+        <h4 class="weui-media-box__title">¥ <em class="num my_credit">00.0</em></h4>
+        <p class="weui-media-box__desc">账户余额由银行卡或者微信、支付宝充值，可以购买商品和提现。</p>
+        <ul class="weui-media-box__info">
+          <li class="weui-media-box__info__meta">可提现金额：¥ <em class="num my_credit">00.0</em></li>
+          <li class="weui-media-box__info__meta weui-media-box__info__meta_extra">当前积分：<em class="num my_point">0</em></li>
+        </ul>
+      </div>
+    </div>
+    <div class="weui-panel__ft">
+      <a href="<{:url('record')}>" class="weui-cell weui-cell_access weui-cell_link">
+        <div class="weui-cell__bd">交易记录</div>
+        <span class="weui-cell__ft"></span>
+      </a>    
+    </div>
+    <div class="weui-panel__ft">
+      <a href="<{:url('recharge')}>" class="weui-cell weui-cell_access weui-cell_link">
+        <div class="weui-cell__bd">余额充值</div>
+        <span class="weui-cell__ft"></span>
+      </a>
+    </div>
+    <div class="weui-panel__ft">
+      <a href="javascript:$.alert('暂未开启')" class="weui-cell weui-cell_access weui-cell_link">
+        <div class="weui-cell__bd">余额提现</div>
+        <span class="weui-cell__ft"></span>
+      </a>    
+    </div>
+  </div>
+
+
+  
+</div>
+
+<!--底部导航-->
+<{include file="public/footer_nav" /}>
+
+<{include file="public/footer" /}>
+<script>
+  bs_request("<{:url('/mall/user/my_credits')}>",{},function (res) {
+    if (res.code==0){
+      $(".my_credit").text(res.data.credits.credit);
+      $(".my_point").text(res.data.credits.point);
+    }
+  })
+</script>
+</body>
+</html>

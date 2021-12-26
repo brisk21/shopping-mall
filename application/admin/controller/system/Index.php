@@ -7,7 +7,10 @@ namespace app\admin\controller\system;
 use app\admin\controller\com\Admin;
 use app\common\controller\AppCommon;
 use app\service\ConfigService;
+use app\service\DiyLog;
 use app\service\Mailer;
+use think\Cache;
+use think\Log;
 
 /**
  * 根据key区分不同的设置，谨慎操作
@@ -160,7 +163,7 @@ class Index extends Admin
             data_return('操作厂商有误', -1);
         }
         $key = 'sms';
-        $conf = ConfigService::get($key,true);
+        $conf = ConfigService::get($key, true);
         $from = trim($this->param['from']);
         if ($from == 'yunpian') {
             $rule = [
@@ -204,4 +207,75 @@ class Index extends Admin
         }
 
     }
+
+    //缓存配置
+    public function cache_set()
+    {
+        $data = [
+            'opcache' => [
+                'name' => 'opcache',
+                'status' => true,
+            ],
+            'memcached' => [
+                'name' => 'opcache',
+                'status' => false,
+            ],
+            'redis' => [
+                'name' => 'redis',
+                'status' => false,
+            ]
+        ];
+        if (extension_loaded('Zend OPcache')) {
+            $data['opcache']['status'] = true;
+        }
+        if (extension_loaded('redis')) {
+            $data['redis']['status'] = true;
+        }
+        if (extension_loaded('memcached')) {
+            $data['memcached']['status'] = true;
+        }
+
+
+        $this->assign('data', $data);
+
+        return $this->fetch();
+    }
+
+    //模板缓存清理
+    public function del_cache_tpl()
+    {
+        //模板缓存清理
+        $tempPath = glob(TEMP_PATH . '*.php');
+        array_map('unlink', $tempPath);
+        data_return('清理完成');
+    }
+
+    //仅清理日志
+    public function del_cache_log()
+    {
+        //内存中的
+        Log::clear();
+        //本地文件的
+        del_dir(LOG_PATH);
+        data_return('清理完成');
+    }
+
+    //数据缓存
+    public function del_cache_data()
+    {
+        //缓存清理
+        Cache::clear();
+        data_return('清理完成');
+    }
+
+
+    //opcache
+    public function del_cache_opcache()
+    {
+        if (extension_loaded('Zend OPcache') && function_exists('opcache_reset')) {
+            opcache_reset();
+        }
+        data_return('清理完成');
+    }
+
 }

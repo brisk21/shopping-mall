@@ -1,0 +1,238 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>发表评价</title>
+  <{include file="public/header" /}>
+  <style>
+    .weui-uploader__file>img{
+      width: 79px;
+      height: 79px;
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .upload_box,.com-button,.num,.img-count{
+      display: none;
+    }
+  </style>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">发表评价</div>
+</header>
+<div class="weui-content clear">
+  <div class="order-list-Below clear">
+    <h1>商品评价</h1>
+    <ul class="star-list">
+      <li class=""></li>
+      <li class=""></li>
+      <li class=""></li>
+      <li class=""></li>
+      <li class=""></li>
+    </ul>
+  </div>
+  <div class="weui-cells weui-cells_form com-txt-area">
+    <div class="weui-cell">
+      <div class="weui-cell__bd">
+        <textarea class="weui-textarea txt-area" name="content" placeholder="这个商品满足你的期待吗？说说你的使用心得，分享给想买的他们吧" rows="3"></textarea>
+        <div class="weui-textarea-counter font-12 num"><span>0</span>/200</div>
+      </div>
+    </div>
+  </div>
+  <div class="weui-cells weui-cells_checkbox commg">
+    <label class="weui-cell weui-check__label" for="hidden">
+      <div class="weui-cell__hd">
+        <input type="checkbox" class="weui-check" name="hidden" id="hidden" checked="checked">
+        <i class="weui-icon-checked"></i>
+      </div>
+      <div class="weui-cell__bd"><p>匿名评价</p></div>
+    </label>
+  </div>
+  <div class="weui-cells weui-cells_form">
+      <div class="weui-cell">
+        <div class="weui-cell__bd">
+          <div class="weui-uploader">
+            <div class="weui-uploader__hd">
+              <p class="weui-uploader__title font-14">评价图片</p>
+              <div class="weui-uploader__info font-12 img-count">0/3</div>
+            </div>
+            <div class="weui-uploader__bd">
+              <ul class="weui-uploader__files" id="uploaderFiles">
+
+              </ul>
+              <div class="weui-uploader__input-box upload_box">
+                <input id="uploaderInput" class="weui-uploader__input" type="file" accept="image/*" multiple="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+  <div class="com-button"><a href="javascript:sub();">发表评价</a></div>
+</div>
+
+<{include file="public/footer" /}>
+<script type="text/javascript" src="/static/mall/js/jquery.Spinner.js"></script>
+<script type="text/javascript" src="/static/com/easyuploader/easyuploader.min.js"></script>
+
+<script type="text/javascript">
+$(".order-list-Below ul li").click(
+    function(){
+      if (done){
+        return ;
+      }
+        var num = $(this).index()+1;
+        var len = $(this).index();
+        var thats = $(this).parent(".order-list-Below ul").find("li");
+        if($(thats).eq(len).attr("class")=="on"){
+            if($(thats).eq(num).attr("class")=="on"){
+                $(thats).removeClass();
+                for (var i=0 ; i<num; i++) {
+                    $(thats).eq(i).addClass("on");
+                }
+            }else{
+                $(thats).removeClass();
+                for (var k=0 ; k<len; k++) {
+                    $(thats).eq(k).addClass("on");
+                }
+            }
+        }else{
+            $(thats).removeClass();
+            for (var j=0 ; j<num; j++) {
+                $(thats).eq(j).addClass("on");
+            }
+        }
+    }
+);
+</script>
+<script>
+  var imgCount = 0;
+  var ord_id = bs_get_param('ord_id');
+  var done = false;
+
+
+  bs_request("<{:url('/mall/order/comment')}>",{ord_id:ord_id,from:'get'},function (res) {
+
+    if (res.code==0 && res.data.comment){
+      done = true;
+      $("textarea[name='content']").val(res.data.comment.content);
+      if (!res.data.comment.is_hide_user){
+        $("#hidden").prop('checked',false)
+      }
+        //星星点灯
+        var li = $('.star-list').find("li").removeClass();
+        for (var i=0;i<li.length;i++){
+          for (var j=0 ; j<res.data.comment.star; j++) {
+            $(li[j]).addClass("on");
+          }
+        }
+
+        if (res.data.comment.imgs.length>0){
+          for (var t=0;t<res.data.comment.imgs.length;t++){
+            var item = '<li class="weui-uploader__file" ><img class="comment-img" src="'+res.data.comment.imgs[t]+'" alt=""></li>';
+            $("#uploaderFiles").append(item);
+          }
+
+        }
+
+    }else {
+      $(".upload_box ,.com-button,.num,.img-count").show();
+    }
+  });
+
+
+  function sub() {
+    if (done) {
+      return;
+    }
+    //星星
+    var liDom = $(".order-list-Below ul").find("li");
+    var star = 0;
+    for (var i = 0; i < liDom.length; i++) {
+      if ($(liDom[i]).hasClass('on')) {
+        star++;
+      }
+    }
+    //图片
+    var imgs = [];
+    var imgDom = $(".comment-img");
+    if (imgDom.length > 0) {
+      for (var j = 0; j < imgDom.length; j++) {
+        imgs.push($(imgDom[j]).attr('src'))
+      }
+    }
+
+    var isHidden = $("#hidden").get(0).checked ? 1 : 0;
+    var content = $("textarea[name='content']").val();
+
+    if (!content || content.length < 3) {
+      return $.alert('评价内容太少了吧')
+    }
+
+    bs_request("<{:url('comment_action')}>", {
+              ord_id: ord_id,
+              isHidden: isHidden,
+              imgs: imgs,
+              star: star,
+              content: content,
+              from: 'add'
+            },
+            function (res) {
+              $.toast(res.msg, res.code == 0 ? 'ok' : 'cancel', function () {
+                if (res.code == 0) {
+                  history.back()
+                }
+              })
+            })
+  }
+</script>
+
+
+
+<script>
+  $(".upload_box").on('click',function () {
+    if (imgCount>=2){
+      $(this).hide();
+      //return $.alert('仅支持最多三张图片');
+    }
+  });
+
+  var eu = new EasyUploader({
+    'file': '#uploaderInput',
+    'url': "<{:url('/mall/com/uploader')}>?from=comment&ord_id="+ord_id,
+    'autoUpload': true,
+    'language': 'cn',
+    'compress': true,
+    'resize': {
+      'maxWidth': 1000,
+      'maxHeight': 1000
+    },
+    'compressQuality': 0.9,
+    'maxFileSize': '2M',
+    'name': "file",
+    onUploadProgress: function (e) {
+      console.log('the progress:' + ((e.loaded / e.total) * 100).toFixed(2) + '%');
+    },
+    onUploadStart: function (e) {
+
+      console.log('the file will upload');
+    },
+    onUploadComplete: function (res) {
+      if (res.code !==0){
+        return $.toast(res.msg,'cancel')
+      }
+      imgCount++;
+      $(".img-count").text(imgCount+'/3')
+      var item = '<li class="weui-uploader__file" >\n' +
+              '                  <img class="comment-img" src="'+res.data.url+'" alt="">\n' +
+              '                </li>';
+      $("#uploaderFiles").append(item);
+    },
+    onUploadError: function (statusCode) {
+      console.log(statusCode);
+    }
+  });
+</script>
+</body>
+</html>

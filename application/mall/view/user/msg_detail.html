@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>消息详情</title>
+    <{include file="public/header" /}>
+</head>
+<body>
+<header class="wy-header">
+    <div class="wy-header-icon-back"><span></span></div>
+    <div class="wy-header-title">消息详情</div>
+</header>
+<div class="page article js_show" tabindex="-1">
+    <article class="weui-article">
+        <h1  id="title"></h1>
+        <section id="content">暂无消息</section>
+
+    </article>
+
+
+</div>
+<{include file="public/footer" /}>
+<script>
+    var id = bs_get_param('id');
+    bs_request("<{:url('/mall/user/msg_detail')}>",{id:id},function (res) {
+        if (res.code!==0){
+            $.toast(res.msg,'cancel',function () {
+                history.back();
+            })
+        }
+        $("#title").empty().html(res.data.msg.title);
+        $("#content").empty().html(res.data.msg.content);
+
+
+    })
+</script>
+</body>
+</html>

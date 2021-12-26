@@ -6,9 +6,10 @@ namespace app\admin\controller\com;
 
 use app\common\controller\AppCommon;
 use app\service\DiyLog;
+use app\service\ErrorService;
 use think\Controller;
 use think\Request;
-
+//ErrorService::catch_error();
 class Admin extends Controller
 {
     public $param = null;

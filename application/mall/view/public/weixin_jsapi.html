@@ -10,38 +10,40 @@
                 "signType":"MD5",         //微信签名方式：
                 "paySign":"70EA570631E4BB79628FBCA90534C63FF7FADD89" //微信签名
             }
+     * @param from 来源，recharge-充值
      */
 
 
 
     //调用微信JS api 支付
-    function jsApiCall(params)
-    {
+    function jsApiCall(params,from){
         WeixinJSBridge.invoke(
             'getBrandWCPayRequest',
             params,
             function(res){
-                WeixinJSBridge.log(res.err_msg);
+                //WeixinJSBridge.log(res.err_msg);
                 if(res.err_msg == "get_brand_wcpay_request:ok" ) {
-                    location.href = "<{:url('/mall/order/all_orders',['status'=>'1'])}>"
-
+                    if (from=='recharge'){
+                        location.href = "<{:url('/mall/user/balance')}>"
+                    }else {
+                        location.href = "<{:url('/mall/order/all_orders',['status'=>'1'])}>"
+                    }
 
                 }
             }
         );
     }
 
-    function callpay(params)
-    {
+    function callpay(params,from){
         if (typeof WeixinJSBridge == "undefined"){
             if( document.addEventListener ){
-                document.addEventListener('WeixinJSBridgeReady', jsApiCall(params), false);
+                document.addEventListener('WeixinJSBridgeReady', jsApiCall(params,from), false);
             }else if (document.attachEvent){
-                document.attachEvent('WeixinJSBridgeReady', jsApiCall(params));
-                document.attachEvent('onWeixinJSBridgeReady', jsApiCall(params));
+                document.attachEvent('WeixinJSBridgeReady', jsApiCall(params,from));
+                document.attachEvent('onWeixinJSBridgeReady', jsApiCall(params,from));
             }
         }else{
-            jsApiCall(params);
+            jsApiCall(params,from);
         }
     }
 </script>

@@ -1,0 +1,65 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>余额充值</title>
+  <{include file="public/header" /}>
+  <style>
+    .weui-content{
+      background: white !important;
+    }
+  </style>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">余额充值</div>
+</header>
+<div class="weui-content">
+  <div class="weui-cells weui-cells_form">
+    <div class="weui-cell">
+      <div class="weui-cell__hd"><label class="weui-label">充值金额</label></div>
+      <div class="weui-cell__bd"><input class="weui-input" name="money" max="500" min="0.01" step="0.01" type="number" placeholder="请输入金额"></div>
+      <span style="color: red;font-size: 12px;display: block;">目前最大支持500元</span>
+    </div>
+  </div>
+  <div class="weui-btn-area">
+    <a class="weui-btn weui-btn_primary" href="javascript:recharge()" >微信支付</a>
+  </div>
+  
+</div>
+
+<!--底部导航-->
+<{include file="public/footer_nav" /}>
+
+<{include file="public/footer" /}>
+<{include file="public/weixin_jsapi" /}>
+<!--<script src="/static/com/eruda/eruda.min.js"></script>-->
+<script>
+  function recharge() {
+    var money = $("input[name='money']").val();
+    if (money<=0){
+      return $.alert('请输入要充值的金额');
+    }
+    bs_request("<{:url('/mall/order/recharge')}>",{money:money,payType:'wechat'},function (ret) {
+      if (ret.code ==-1){
+        return $.toast(ret.msg,'cancel')
+      }
+      if (ret.code !=0){
+        if (ret.code==30002){
+          $.confirm(ret.msg,function () {
+            return location.href = ret.data
+          })
+
+        }else {
+          return $.alert(ret.msg);
+        }
+
+      }else {
+        callpay(ret.data.payParam,'recharge')
+      }
+    })
+  }
+</script>
+</body>
+</html>

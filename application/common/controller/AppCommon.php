@@ -72,6 +72,12 @@ class AppCommon extends Controller
         return Db::name($table)->where($where)->count($field);
     }
 
+    //求和
+    public static function data_sum($table, $where = null, $field = '*')
+    {
+        return Db::name($table)->where($where)->sum($field);
+    }
+
     //原生查询
     public static function query($sql)
     {

@@ -28,7 +28,7 @@
         <div class="weui-cell weui-cell_vcode">
             <div class="weui-cell__hd"><label class="weui-label wy-lab">验证码</label></div>
             <div class="weui-cell__bd"><input class="weui-input"  name="vcode" type="text" placeholder="请输入验证码"></div>
-            <div class="weui-cell__ft" id="vcode"><img class="weui-vcode-img" src="<{:captcha_src('reg_vcode')}>"></div>
+            <div class="weui-cell__ft" ><img class="weui-vcode-img" src="<{:url('get_vcode')}>"></div>
         </div>
     </div>
 
@@ -37,7 +37,7 @@
           <div class="weui-cell weui-cell_vcode">
               <div class="weui-cell__hd"><label class="weui-label wy-lab">验证码</label></div>
               <div class="weui-cell__bd"><input class="weui-input"  name="vcode" type="text" placeholder="请输入验证码"></div>
-              <div class="weui-cell__ft" id="vcode"><img class="weui-vcode-img" src="<{:captcha_src('reg_vcode')}>"></div>
+              <div class="weui-cell__ft"  ><img class="weui-vcode-img" src="<{:url('get_vcode')}>"></div>
           </div>
           <div class="weui-cell weui-cell_vcode">
               <div class="weui-cell__hd"><label class="weui-label wy-lab">账号</label></div>
@@ -76,7 +76,7 @@
 
 <script>
   $(function () {
-    $("#vcode").on('click',function () {
+    $(".weui-vcode-img").on('click',function () {
       resetVcode()
     });
     $(".weui-vcode-btn").on('click',function () {
@@ -99,7 +99,7 @@
     })
   })
   function resetVcode(){
-    $(".weui-vcode-img").attr('src',"<{:captcha_src('reg_vcode')}>")
+    $(".weui-vcode-img").attr('src',"<{:url('get_vcode')}>")
   }
 
   function submit(){
@@ -134,7 +134,12 @@
       }
       if (res.code==0){
         //跳转登录页面
-        location.href = "<{:url('login')}>"
+          if (res.data.token){
+              localStorage.setItem('user_token',res.data.token);
+              location.href = "<{:url('index')}>"
+          }else {
+              location.href = "<{:url('login')}>"
+          }
       }else {
         $.alert(res.msg)
       }

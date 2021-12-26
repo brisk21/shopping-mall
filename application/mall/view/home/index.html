@@ -34,6 +34,7 @@
       flex-shrink: 1;
       flex-basis: 52px;
       align-self: flex-end;
+      color: black;
     }
     .nav-item-flex-grow{
       display: inline-flex;
@@ -47,7 +48,14 @@
     p.n-p{
       font-size: 11px;
     }
-
+   /*.goods-list{
+      height: 700px;
+      overflow-y: scroll;
+    }*/
+    .weui-content{
+    /*  height: 700px;*/
+      overflow-y: scroll;
+    }
   </style>
 </head>
 <body ontouchstart>
@@ -130,22 +138,12 @@
 <{include file="public/footer_nav" /}>
 
 <{include file="public/footer" /}>
-<script>
-  bs_request("<{:url('/mall/goods/my_cart_total')}>",{from:'home'},function (res){
-    if (res.code==0){
-      if (res.data.total>0){
-        $(".cart-num").text(res.data.total)
-        $(".cart-num").show()
-      }else{
-        $(".cart-num").hide()
-      }
-    }else {
-      $(".cart-num").hide()
-    }
-  })
-</script>
+
+
 <script src="/static/mall/js/swiper.js"></script>
 <script>
+  //const vConsole = new VConsole();
+  var loading = false;
   $(function () {
     //轮播
     bs_request("<{:url('/mall/home/get_banner')}>",{},function (res) {
@@ -198,7 +196,7 @@
     });
 
     //精选推荐
-    bs_request("<{:url('/mall/goods/goods_list')}>",{is_top:1,page:1},function (res) {
+    bs_request("<{:url('/mall/goods/goods_list')}>",{from:'home-jingxuan',page:1},function (res) {
 
       if (res.code==0 && res.data.goods.length>0){
         $(".jingxuan-tuijian").show();
@@ -218,7 +216,7 @@
       
     });
     //热门推荐
-    bs_request("<{:url('/mall/goods/goods_list')}>",{category_id:1,page:1},function (res) {
+    bs_request("<{:url('/mall/goods/goods_list')}>",{form:'hot_category',page:1},function (res) {
 
       if (res.code==0 && res.data.goods.length>0){
         $(".hot-tuijian").show();
@@ -243,7 +241,7 @@
     var cpage = 1;
     function load_data(){
 
-      bs_request("<{:url('/mall/goods/goods_list')}>",{page:cpage,from:'home'},function (res) {
+      bs_request("<{:url('/mall/goods/goods_list')}>",{page:cpage,from:'home_list'},function (res) {
 
         $.showLoading()
         if (res.code==0 && res.data.goods.length>0) {
@@ -262,24 +260,31 @@
         }else {
           $(".morelinks").show()
         }
+        loading = false;
         $.hideLoading()
       });
     }
 
-
     // 滚动加载
+
     $(window).scroll(function() {
-      var scrollTop = $(this).scrollTop();
+
+      var scrollTop = Number( $(this).scrollTop());
       if (scrollTop>700){
         $(".to_top").show()
       }else {
         $(".to_top").hide()
       }
+
       var scrollHeight = $(document).height();
       var windowHeight = $(this).height();
-      if (scrollTop + windowHeight == scrollHeight) {
-        cpage++;
-        load_data();
+      if (scrollTop + windowHeight >= scrollHeight-50) {
+        if (loading===false){
+          loading = true;
+          cpage++;
+          load_data();
+        }
+
       }
     });
 

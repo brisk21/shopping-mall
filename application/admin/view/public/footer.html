@@ -1,5 +1,7 @@
 <!-- jQuery -->
 <script src="/static/adminlte/plugins/jquery/jquery.min.js"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="/static/adminlte/plugins/jquery-ui/jquery-ui.min.js"></script>
 <!-- Bootstrap 4 -->
 <script src="/static/adminlte/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <!-- overlayScrollbars -->
@@ -34,5 +36,21 @@
         $('ul.nav-treeview a').filter(function() {
             return this.href == url;
         }).parentsUntil(".nav-sidebar > .nav-treeview").addClass('menu-open').prev('a').addClass('active');
+        /*切换框架模式*/
+        if ($(".change-frame").length>0){
+            $(".change-frame").on('click',function () {
+               url = "<{:url('/admin/index/index')}>";
+               sendData(url,{from:'change-frame'},function (res) {
+                   if (res.code==0){
+                       if (res.data.type=='single_page'){
+                            self.location = res.data.url
+                       }else {
+                           self.location = res.data.url
+                       }
+                   }
+               },true,true)
+            });
+        }
     })
+
 </script>

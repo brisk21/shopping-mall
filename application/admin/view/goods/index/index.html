@@ -3,9 +3,7 @@
 <head>
     <title>后台管理</title>
     <{include file="public/header"}>
-    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
-    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
-    <link rel="stylesheet" href="/static/adminlte/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
+    <{include file="public/data_tables_css"}>
 
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
@@ -99,18 +97,22 @@
                                 </div>
                             </div>
                         </form>
+                        <a href="<{:url('form')}>" class="btn btn-success">新增商品</a>
                     </div>
-                    <!-- /.card-header -->
+
+
                     <div class="card-body">
+
                         <table id="my_table" class="table table-bordered table-striped">
                             <thead>
                             <tr>
                                 <th>#</th>
+                                <th>封面图</th>
                                 <th>商品名称</th>
                                 <th>状态</th>
                                 <th>价格</th>
                                 <th>数量</th>
-                                <th>封面图</th>
+
                                 <th>操作</th>
                             </tr>
                             </thead>
@@ -119,9 +121,11 @@
                             <{foreach $goods as $item}>
                             <tr>
                                 <td><{$item.id}></td>
+                                <td><img src="<{$item.thumb}>" alt="" style="max-width: 50px;max-height: 50px"></td>
                                 <td> <a href="<{:url('/mall/goods/detail')}>?id=<{$item.id}>" target="_blank">
                                     <{$item.title}>
-                                </a></td>
+                                </a>
+                                </td>
                                 <td>
                                     <{if $item.status=='1'}>
                                     <span class="alert-success">上架中</span>
@@ -139,10 +143,10 @@
                                     销量：<{$item.sale}>
 
                                 </td>
-                                <td><img src="<{$item.thumb}>" alt="" style="max-width: 50px;max-height: 50px"></td>
+
                                 <td>
                                     <a class="btn btn-success btn-xs" href="<{:url('/admin/goods.index/form',['id'=>$item.id])}>" title="查看编辑"><i class="fas fa-edit"></i></a>
-                                    <span class="btn btn-danger btn-xs del-data bs-left-10" data-id="<{$item.id}>" title="删除"><i class="fas fa-trash"></i></span>
+                                    <span class="btn btn-danger btn-xs del-data bs-left-10" onclick="del(this)" data-id="<{$item.id}>" title="删除"><i class="fas fa-trash"></i></span>
                                 </td>
 
                             </tr>
@@ -185,31 +189,21 @@
 
 <{include file="public/footer"}>
 <!-- DataTables  & Plugins -->
-<script src="/static/adminlte/plugins/datatables/jquery.dataTables.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-<script src="/static/adminlte/plugins/jszip/jszip.min.js"></script>
-<script src="/static/adminlte/plugins/pdfmake/pdfmake.min.js"></script>
-<script src="/static/adminlte/plugins/pdfmake/vfs_fonts.js"></script>
-<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-<script src="/static/adminlte/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<{include file="public/data_tables"}>
 <script>
-    $(function () {
-        $(".del-data").on('click',function () {
-            var id = $(this).data('id')
-            var obj = $(this);
-            layer.confirm('确定要删除吗，不可恢复哦',{title:0},function () {
-                sendData("<{:url('/admin/goods.index/action')}>",{id:id,ac:'del'},function (res) {
-                    if(res.code==0){
-                        $(obj).parent('td').parent('tr').remove();
-                    }
-                })
+    function del(obj){
+        var id = $(obj).data('id')
+
+        layer.confirm('确定要删除吗，不可恢复哦',{title:0},function () {
+            sendData("<{:url('/admin/goods.index/action')}>",{id:id,ac:'del'},function (res) {
+                if(res.code==0){
+                    $(obj).parent('td').parent('tr').remove();
+                }
             })
-        });
+        })
+    }
+    $(function () {
+
         $("#my_table").DataTable({
             "ordering": false,//禁用排序
             "responsive": true,

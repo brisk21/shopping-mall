@@ -6,6 +6,7 @@ namespace app\mall\controller;
 
 use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
+use app\service\CommonUser;
 use app\service\Credits;
 use think\Request;
 
@@ -38,10 +39,18 @@ class User extends Mall
         return $this->fetch();
     }
 
+    //用户信息
+    public function info()
+    {
+        $data = CommonUser::get($this->uid, 'account,uid,status');
+
+        data_return('ok', 0, ['user_info' => $data]);
+    }
+
     //我的地址
     public function my_address()
     {
-        $data = AppCommon::data_list('common_user_address', ['uid' => $this->uid], 1,'*','is_default desc,id asc');
+        $data = AppCommon::data_list('common_user_address', ['uid' => $this->uid], 1, '*', 'is_default desc,id asc');
 
         data_return('ok', 0, [
             'address' => $data
@@ -117,7 +126,7 @@ class User extends Mall
     }
 
     //订单统计
-    public function order_count()
+    public function order_count($getData = false)
     {
         $prefix = config('database')['prefix'];
         $table = $prefix . 'order';
@@ -132,6 +141,9 @@ class User extends Mall
         !empty($data['count1']) || $data['count1'] = 0;
         !empty($data['count2']) || $data['count2'] = 0;
         !empty($data['count3']) || $data['count3'] = 0;
+        if ($getData) {
+            return $data;
+        }
 
         data_return('ok', 0, [
             'count' => $data
@@ -139,31 +151,50 @@ class User extends Mall
     }
 
     //我的账户余额
-    public function my_credits()
+    public function my_credits($getData = false)
     {
-        $data = Credits::get($this->uid,'point,credit');
+        $data = Credits::get($this->uid, 'point,credit');
         //我收藏的商品数量
-        $data['goods'] = AppCommon::db('goods_favorite')->where(['uid'=>$this->uid])->count('*') ;
-        data_return('ok',0,[
-            'credits'=>$data
+        $data['goods'] = AppCommon::db('goods_favorite')->where(['uid' => $this->uid])->count('*');
+        if ($getData) {
+            return $data;
+        }
+        data_return('ok', 0, [
+            'credits' => $data
+        ]);
+    }
+
+    //数量统计
+    public function data_count()
+    {
+        $data['order'] = $this->order_count(true);
+
+        $data['credit'] = Credits::get($this->uid, 'point,credit');
+
+        $data['goods'] = AppCommon::db('goods_favorite')->where(['uid' => $this->uid])->count('*');
+        //未读消息
+        $data['msg'] = AppCommon::db('common_user_msg')->where(['uid' => $this->uid, 'read_time' => 0])->count('*');
+
+        data_return('ok', 0, [
+            'count' => $data
         ]);
     }
 
     //我的交易记录
     public function my_records()
     {
-        $type = !empty($this->param['type'])?intval($this->param['type']):1;
-        $where = ['uid'=>$this->uid,'type'=>$type];
-        $page = !empty($this->param['page'])?intval($this->param['page']):1;
+        $type = !empty($this->param['type']) ? intval($this->param['type']) : 1;
+        $where = ['uid' => $this->uid, 'type' => $type];
+        $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
 
-        $data = AppCommon::data_list('common_user_credit_log',$where,$page,'add_time,remark,num,type');
+        $data = AppCommon::data_list('common_user_credit_log', $where, $page, 'add_time,remark,num,type', 'id desc');
 
-        if (!empty($data)){
-            foreach ($data as &$value){
-                $value['add_time'] = date('Y-m-d H:i:s',$value['add_time']);
-                if ($value['num']>0){
+        if (!empty($data)) {
+            foreach ($data as &$value) {
+                $value['add_time'] = date('Y-m-d H:i:s', $value['add_time']);
+                if ($value['num'] > 0) {
                     $value['ctype'] = '+';
-                }else{
+                } else {
                     $value['num'] = abs($value['num']);
                     $value['ctype'] = '-';
                 }
@@ -171,8 +202,76 @@ class User extends Mall
             unset($value);
         }
 
-        data_return('ok',0,[
-            'records'=>$data
+        data_return('ok', 0, [
+            'records' => $data
         ]);
+    }
+
+    public function recharge()
+    {
+        return $this->fetch();
+    }
+
+    public function balance()
+    {
+        return $this->fetch();
+    }
+
+    public function msg()
+    {
+        return $this->fetch();
+    }
+
+    public function msg_detail()
+    {
+        if (IS_AJAX || IS_POST) {
+            if (!empty($this->param['id'])) {
+                $data = AppCommon::data_get('common_user_msg', ['uid' => $this->uid, 'id' => intval($this->param['id'])], '*');
+                if (empty($data)) {
+                    data_return('消息不存在', -1);
+                }
+                $data['add_time'] = date('Y年m月d日', $data['add_time']);
+                $data['typeDesc'] = $data['type'] == 0 ? '普通消息' : '系统通知';
+                if (empty($data['read_time'])) {
+                    AppCommon::data_update('common_user_msg', ['id' => $data['id']], ['read_time' => time()]);
+                }
+                unset($data['read_time']);
+
+                data_return('ok', 0, [
+                    'msg' => $data
+                ]);
+            }
+        }
+        return $this->fetch();
+    }
+
+    public function msg_list()
+    {
+        $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
+        $data = AppCommon::data_list('common_user_msg', ['uid' => $this->uid], $page, 'id,title,content,type,add_time,read_time', 'id desc');
+        if ($data) {
+            foreach ($data as &$v) {
+                $v['add_time'] = date('Y年m月d日', $v['add_time']);
+                $v['content'] = mb_substr($v['content'], 0, 15, 'utf-8') . '......';
+                $v['typeDesc'] = $v['type'] == 1 ? '普通消息' : '系统通知';
+                if ($v['read_time']>0){
+                    $v['status'] = 1;
+                }else{
+                    $v['status'] = 0;
+                }
+                unset($v['read_time']);
+            }
+            unset($v);
+        }
+        data_return('ok', 0, [
+            'msg_list' => $data
+        ]);
+    }
+
+
+    //测试
+    public function setting()
+    {
+        return $this->fetch();
     }
 }

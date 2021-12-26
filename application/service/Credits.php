@@ -50,6 +50,19 @@ class Credits
      * @param $arg array 扩展参数，remark-备注，type-类型
      * @return false|int|string
      */
+    public static function set($uid, $field, $num, $arg)
+    {
+        return self::update($uid, $field, $num, $arg);
+    }
+
+    /**
+     * 更新账户余额
+     * @param $uid string 用户uid
+     * @param $field string 字段,credit-余额，point-积分
+     * @param $num float 大于零是增加，否则减少
+     * @param $arg array 扩展参数，remark-备注，type-类型
+     * @return false|int|string
+     */
     public static function update($uid, $field, $num, $arg)
     {
         $account = self::get($uid, $field);

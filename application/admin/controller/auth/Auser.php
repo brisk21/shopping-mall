@@ -264,6 +264,8 @@ class Auser extends Admin
             ];
         }
         AppCommon::data_add_array('admin_role_auth', $array);
+        //更新菜单缓冲,针对tag清理全部
+        cache(null, 'admin_menu');
         data_return('操作成功');
     }
 

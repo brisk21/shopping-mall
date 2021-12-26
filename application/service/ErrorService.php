@@ -28,9 +28,16 @@ class ErrorService extends Exception
         register_shutdown_function([__CLASS__, 'appShutdown']);
     }
 
-    //开始捕获
-    public static function catch_error()
+    /**
+     * 捕获异常
+     * @param bool $catch
+     * @return false|void
+     */
+    public static function catch_error($catch = true)
     {
+        if (!$catch) {
+            return false;
+        }
         ini_set('display_errors', 'on');
         error_reporting(E_ALL);
         set_error_handler([__CLASS__, 'appError']);
@@ -79,7 +86,7 @@ class ErrorService extends Exception
             'message' => self::getErrMessage($e),
             'code' => self::getErrCode($e),
         ];
-        self::debug_log( $data);
+        self::debug_log($data);
     }
 
     /**
@@ -151,13 +158,17 @@ class ErrorService extends Exception
      */
     public static function debug_log($content)
     {
-       $content = empty($content) ? '' : is_array($content)?json_encode($content,JSON_UNESCAPED_UNICODE):$content;
-       if (empty($content)){
-           return false;
-       }
+        $content = empty($content) ? '' : is_array($content) ? json_encode($content, JSON_UNESCAPED_UNICODE) : $content;
+        if (empty($content)) {
+            return false;
+        }
+        //过滤
+        if (stripos($content,'模块不存在')){
+            return false;
+        }
         $data = [
-            'add_time'=>time(),
-            'content'=>mb_substr($content,0,65535),
+            'add_time' => time(),
+            'content' => mb_substr($content, 0, 65535),
         ];
         return AppCommon::data_add('error_log', $data);
     }
@@ -168,7 +179,7 @@ class ErrorService extends Exception
      * @param string $logName
      * @param false $replace
      */
-    public static function file_log($content = '',$logName = '', $replace = false )
+    public static function file_log($content = '', $logName = '', $replace = false)
     {
 
         $time = date('Y-m-d H:i:s');

@@ -1,0 +1,114 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>商品评价</title>
+
+  <{include file="public/header" /}>
+  <style>
+    .comment-list{
+      height: 100%;
+    }
+  </style>
+</head>
+<body ontouchstart>
+<!--主体-->
+<div class="weui-content">
+  <!--产品详情-->
+  <div class="weui-tab">
+    <div class="weui-navbar" style="position:fixed; top:0; left:0; right:0; height:44px;">
+      <a class="weui-navbar__item proinfo-tab-tit weui-bar__item--on" href="#tab3">评价
+      </a>
+    </div>
+    <div class="weui-tab__bd proinfo-tab-con">
+
+      <div id="tab3" class="weui-tab__bd-item comment-box weui-tab__bd-item--active">
+        <!--评价-->
+        <div class="weui-panel__bd comment-list">
+
+        </div>
+
+
+      </div>
+
+    </div>
+    <div class="to_top" style="display: none">
+      <img src="/static/mall/images/icon_to_top.png" alt="返回顶部" style="max-width: 100%" >
+    </div>
+  </div>  
+</div>
+
+
+
+
+<{include file="public/footer" /}>
+
+
+<script>
+  var id = bs_get_param('id');
+  var page = 1;
+  var load = true;
+  load_data();
+  // 滚动加载
+  $(window).scroll(function() {
+    var scrollTop = $(this).scrollTop();
+    if (scrollTop>700){
+      $(".to_top").show()
+    }else {
+      $(".to_top").hide()
+    }
+    var scrollHeight = $(document).height();
+    var windowHeight = $(this).height();
+    if (scrollTop + windowHeight == scrollHeight) {
+      if (load===true){
+        page++;
+        load_data();
+      }
+
+    }
+  });
+
+  $(".to_top").on('click',function () {
+    document.body.scrollTop = document.documentElement.scrollTop = 0;
+    document.body.offsetHeight = document.documentElement.scrollHeight = 0;
+  })
+
+  function load_data(){
+
+    bs_request("<{:url('get_comment')}>",{id:id,page:page},function (res) {
+      if (res.code==0&&res.data.comment.length>0){
+        for (var i=0;i<res.data.comment.length;i++){
+          var item = '<div class="weui-panel__bd">\n' +
+                  '          <div class="wy-media-box weui-media-box_text">\n' +
+                  '            <div class="weui-cell nopd weui-cell_access">\n' +
+                  '              <div class="weui-cell__hd"><img src="'+res.data.comment[i].user.avatar+'" alt="" style="width:20px;margin-right:5px;display:block"></div>\n' +
+                  '              <div class="weui-cell__bd weui-cell_primary"><p>'+res.data.comment[i].user.nickname+'</p></div>\n' +
+                  '              <span class="weui-cell__time">'+res.data.comment[i].add_time+'</span>\n' +
+                  '            </div>\n' +
+                  '            <div class="comment-item-star"><span class="real-star comment-stars-width'+res.data.comment[i].star+'"></span></div>\n' +
+                  '            <p class="weui-media-box__desc">'+res.data.comment[i].content+'</p>\n' +
+
+                  '            <ul class="weui-uploader__files clear mg-com-img">\n' ;
+
+          if (res.data.comment[i].imgs.length>0){
+            for (var j=0;j<res.data.comment[i].imgs.length;j++){
+              item+='  <li class="weui-uploader__file" style="background-image:url('+res.data.comment[i].imgs[j]+')"></li>'
+            }
+          }
+
+          item+=      '            </ul>' +
+                  '          </div>\n' +
+                  '        </div>';
+
+          $(".comment-list").append(item);
+        }
+      }else {
+        load = false;
+
+      }
+    })
+  }
+
+</script>
+
+</body>
+</html>

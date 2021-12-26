@@ -9,27 +9,28 @@
 // | Author: liu21st <liu21st@gmail.com>
 // +----------------------------------------------------------------------
 
+use think\Env;
 return [
     // 数据库类型
-    'type'            => 'mysql',
+    'type'            => Env::get('database.type', 'mysql'),
     // 服务器地址
-    'hostname'        => '127.0.0.1',
+    'hostname'        => Env::get('database.hostname', '127.0.0.1'),
     // 数据库名
-    'database'        => 'bs_shop',
+    'database'        => Env::get('database.database', 'demo_bs_shop'),
     // 用户名
-    'username'        => 'root',
+    'username'        => Env::get('database.username','demo_bs_shop'),
     // 密码
-    'password'        => 'root',
+    'password'        => Env::get('database.password','L6tay36hAGnTMn8W'),
     // 端口
-    'hostport'        => '',
+    'hostport'        => Env::get('database.hostport','3306'),
     // 连接dsn
-    'dsn'             => '',
+    'dsn'             => Env::get('database.dsn',''),
     // 数据库连接参数
     'params'          => [],
     // 数据库编码默认采用utf8
-    'charset'         => 'utf8',
+    'charset'         => Env::get('database.charset','utf8mb4'),
     // 数据库表前缀
-    'prefix'          => 'bs_',
+    'prefix'          => Env::get('database.prefix','bs_'),
     // 数据库调试模式
     'debug'           => true,
     // 数据库部署方式:0 集中式(单一服务器),1 分布式(主从服务器)
