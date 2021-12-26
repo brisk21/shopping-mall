@@ -14,28 +14,28 @@
 
 ###### 运行效果
 
-![alt 用户中心](./public/test/user.png "用户中心")
-![alt 购物车](./public/test/cart.png "购物车")
+![ 用户中心](./public/test/user.png "用户中心")
+![ 购物车](./public/test/cart.png "购物车")
 
-![alt 订单确认](./public/test/order_ready1.png "订单确认")
-![alt 订单确认](./public/test/order_ready2.png "订单确认")
-![alt 订单](./public/test/orders.png "订单")
+![ 订单确认](./public/test/order_ready1.png "订单确认")
+![ 订单确认](./public/test/order_ready2.png "订单确认")
+![ 订单](./public/test/orders.png "订单")
 
-![alt 首页](./public/test/home1.png "首页")
-![alt 搜索列表](./public/test/pro-list.png "搜索列表")
-![alt 地址列表](./public/test/address.png "地址列表")
+![ 首页](./public/test/home1.png "首页")
+![ 搜索列表](./public/test/pro-list.png "搜索列表")
+![ 地址列表](./public/test/address.png "地址列表")
 
 角色管理
-![alt 后台](./public/test/admin1.png "后台")
+![ 后台](./public/test/admin1.png "后台")
 
 
 商品管理
-![alt 后台](./public/test/admin2.png "后台")
+![ 后台](./public/test/admin2.png "后台")
 
 #### 接口文档
 客户端（商城端）的接口文档在doc目录的html里面，直接打开即可。
 生成：用apidoc的@0.19.1生成，tpl为生成模板（已自定义样式）
-![alt apidoc](./public/test/doc1.png "apidoc")
+![ apidoc](./public/test/doc1.png "apidoc")
 #### 软件架构
 基于thinkphp5开发，环境可以用lnmp或者lamp
 
@@ -55,9 +55,7 @@
 
 5.  伪静态设置（参考thinkphp）,下面是nginx配置：
 ```nginx
-location ~ /static/|upload/{
-    break;
-}
+
 
 location / { 
    if (!-e $request_filename) {
