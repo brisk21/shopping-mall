@@ -332,7 +332,7 @@ class Account extends Mall
             'loginCount' => 1,
         ];
 
-        AppCommon::data_add('common_user', $data);
+        CommonUser::add($data);
 
         //登录记录
         AppCommon::data_add('common_user_login_log', [
@@ -393,7 +393,7 @@ class Account extends Mall
             'remark' => '游客临时用户',
         ];
 
-        AppCommon::data_add('common_user', $data);
+        CommonUser::add($data);
 
         //登录记录
         AppCommon::data_add('common_user_login_log', [

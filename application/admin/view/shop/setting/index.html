@@ -76,9 +76,10 @@
 
                                     <div class="form-group">
                                         <label for="gift_order_point">订单支付积分奖励</label>
-                                        <input name="gift_order_point" autocomplete="off" value="<{:isset($data.gift_order_point)?$data.gift_order_point:'0'}>" type="text" class="form-control" id="gift_order_point" placeholder="订单支付后赠送的积分">
+                                        <input name="gift_order_point" autocomplete="off" value="<{:isset($data.gift_order_point)?$data.gift_order_point:'0'}>" type="number" class="form-control" id="gift_order_point" placeholder="订单支付后赠送的积分">
                                         <span class="bs-red">订单支付后赠送的积分=付款金额取整x这里的数值；0代表不赠送。注意这是支付完成立即赠送的积分。如设置2，是实付金额为10.05元时，到账20个积分。</span>
                                     </div>
+
                                     <div class="form-group">
                                         <label for="auto_receive_order_time">订单自动确认收货(天)</label>
                                         <input name="auto_receive_order_time" autocomplete="off" value="<{:isset($data.auto_receive_order_time)?$data.auto_receive_order_time:'15'}>" type="number" class="form-control" id="auto_receive_order_time" placeholder="订单发货后x天自动确认收货">
@@ -120,7 +121,11 @@
                                             <option <{if !empty($data.reg_type)&&$data.reg_type=='-1'}>selected<{/if}>  value="-1">不开放注册</option>
                                         </select>
                                     </div>
-
+                                    <div class="form-group">
+                                        <label for="reg_gift_credit">注册赠送余额(元)</label>
+                                        <input name="reg_gift_credit" autocomplete="off" value="<{:isset($data.reg_gift_credit)?$data.reg_gift_credit:'0'}>" type="number" min="0" class="form-control" id="reg_gift_credit" placeholder="注册赠送余额">
+                                        <span class="bs-red">注册赠送的余额和用户自己充值的余额一样，都可以用于消费，比如测试阶段可以设置一定数量进行测试支付。</span>
+                                    </div>
                                     <div class="form-group">
                                         <label for="login_tmp_user">是否开启游客登录</label>
                                         <div class="form-group clearfix">

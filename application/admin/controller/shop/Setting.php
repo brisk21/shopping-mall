@@ -11,7 +11,7 @@ class Setting extends Admin
 {
     public function index()
     {
-        $conf = ConfigService::get('mobile_shop',1);
+        $conf = ConfigService::get('mobile_shop', 1);
         if (!empty($conf)) {
             $this->assign('data', $conf);
         }
@@ -40,8 +40,10 @@ class Setting extends Admin
             'pay_wechat' => !empty($this->param['pay_wechat']) ? 1 : 0,
             //是否支持游客登录
             'login_tmp_user' => !empty($this->param['login_tmp_user']) ? 1 : 0,
-            'gift_order_point' => intval($this->param['gift_order_point']),
-            'auto_receive_order_time' => intval($this->param['auto_receive_order_time']),
+            'gift_order_point' => max(0, intval($this->param['gift_order_point'])),
+            'auto_receive_order_time' => max(0,intval($this->param['auto_receive_order_time'])),
+            //注册赠送金额
+            'reg_gift_credit' => max(0, intval($this->param['reg_gift_credit'])),
         ];
 
         if ($data['shop_type'] == 2 && empty($data['shop_address_tihuo'])) {
