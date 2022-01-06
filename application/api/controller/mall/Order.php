@@ -13,7 +13,7 @@ class Order
 {
     private $config_shop = null;
 
-    protected function __construct()
+    public function __construct()
     {
         $this->config_shop = ConfigService::get('mobile_shop');
     }
@@ -27,7 +27,7 @@ class Order
         }
         cache($key, 1, 600);
 
-        $data = AppCommon::data_list('order', ['status' => 0, 'cancel_pay_time' => ['<', time()]], '1,20', 'order_sn');
+        $data = AppCommon::data_list('order', ['status' => 0, 'cancel_pay_time' => ['<', time()]], '1,100', 'order_sn');
         if (empty($data)) {
             data_return('暂无订单需要关闭', -1);
         }

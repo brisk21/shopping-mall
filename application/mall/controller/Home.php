@@ -20,6 +20,7 @@ class Home extends Mall
         'mall/home/get_navs',
         'mall/home/get_article',
         'mall/home/get_article_info',
+        'mall/home/get_xieyi_info',
     ];
 
     //商城配置
@@ -108,10 +109,33 @@ class Home extends Mall
         if ($data) {
             $data['content'] = htmlspecialchars_decode($data['content']);
             $data['add_time'] = date('Y-m-d', $data['add_time']);
+            AppCommon::db('article')->where(['id'=>$data['id']])->setInc('count_view',1,5);
         }
+
+
 
         data_return('ok', 0, [
             'article' => $data ? $data : null
+        ]);
+    }
+
+    //获取导航公告文章-详情
+    public function get_xieyi_info()
+    {
+        $data = null;
+        $gtype = !empty($this->param['gtype'])?trim($this->param['gtype']):'reg';
+        if ($gtype=='reg'){
+            $data = AppCommon::data_get('article_sys', ['id' => 1, 'status' => 1], '*');
+        }
+
+        if (!empty($data)) {
+            $data['content'] = htmlspecialchars_decode($data['content']);
+            $data['add_time'] = date('Y-m-d', $data['add_time']);
+            AppCommon::db('article')->where(['id'=>$data['id']])->setInc('count_view',1,5);
+        }
+
+        data_return('ok', 0, [
+            'article' => $data
         ]);
     }
 }

@@ -108,7 +108,7 @@
                                     <span class="alert-warning">已禁用</span>
                                     <{/if}>
                                 </td>
-                                <td><{$item.loginCount}></td>
+                                <td><a title="查看登录记录" href="<{:url('login_log',['keyword'=>$item.uid])}>"><{$item.loginCount}></a></td>
                                 <td>
                                     添加：<{$item.add_time|date="Y-m-d H:i:s",###}> <br>
                                     更新：<{$item.up_time|date="Y-m-d H:i:s",###}>

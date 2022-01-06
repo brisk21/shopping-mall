@@ -163,4 +163,33 @@ class Index extends Admin
         data_return('充值成功');
     }
 
+    public function login_log()
+    {
+        $where = [];
+        $keyword = !empty($this->param['keyword']) ? trim($this->param['keyword']) : '';
+        $orderBy = 'id desc';
+        $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
+        $pageSize = 10;
+        if (!empty($keyword)) {
+            $where['uid'] = $keyword;
+        }
+        $total = AppCommon::data_count('common_user_login_log', $where);
+        $data = AppCommon::data_list('common_user_login_log', $where, $page . ',' . $pageSize, '*', $orderBy);
+
+
+        if ($total){
+            foreach ($data as &$v){
+                $v['add_time'] = date('Y-m-d H:i:s',$v['add_time']);
+                $v['user'] = AppCommon::data_get('common_user',['uid'=>$v['uid']],'uid,account,nickname');
+            }
+            unset($v);
+        }
+
+
+
+        $this->assign('page', Page::set($data, $pageSize, $page, $total, $this->param, url()));
+        $this->assign('data', $data);
+
+        return $this->fetch();
+    }
 }

@@ -59,7 +59,7 @@ class Account extends Controller
         $loginData = [
             'uid' => $data['uid'],
             'add_time' => time(),
-            'ip' => ip2long(get_ip()),
+            'ip' => get_ip()
         ];
         AppCommon::data_add('admin_login_log', $loginData);
 

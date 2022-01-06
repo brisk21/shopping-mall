@@ -17,6 +17,7 @@ class Index extends Admin
 
     public function default_index()
     {
+        $this->assign('data', $this->index(true));
         return $this->fetch();
     }
 
@@ -65,7 +66,6 @@ class Index extends Admin
         if ($type <> 'iframe') {
             return $this->redirect(url('/admin/index/index'));
         }
-        $this->assign('data', $this->index(true));
         return $this->fetch();
     }
 

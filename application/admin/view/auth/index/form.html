@@ -28,11 +28,11 @@
                                     <option data-url="" value="0">顶级</option>
                                     <{if !empty($menus)}>
                                     <{foreach $menus as $one}>
-                                    <option data-url="<{$one.url}>" <{if !empty($data['fid'])&&$data['fid']==$one.id}>selected<{/if}> value="<{$one.id}>"><{$one.name}></option>
+                                    <option data-cname="<{$one.class_name}>" data-url="<{$one.url}>" <{if !empty($data['fid'])&&$data['fid']==$one.id}>selected<{/if}> value="<{$one.id}>"><{$one.name}></option>
 
                                     <{if !empty($one.subcat)}>
                                     <{foreach $one.subcat as $two}>
-                                    <option data-url="<{$two.url}>" <{if !empty($data['fid'])&&$data['fid']==$two.id}>selected<{/if}>   value ="<{$two.id}>" >|______<{$two.name}></option>
+                                    <option data-cname="<{$two.class_name}>" data-url="<{$two.url}>" <{if !empty($data['fid'])&&$data['fid']==$two.id}>selected<{/if}>   value ="<{$two.id}>" >|______<{$two.name}></option>
                                     <{/foreach}>
                                     <{/if}>
 
@@ -121,14 +121,18 @@
 <!-- ./wrapper -->
 
 <{include file="public/footer"}>
+<{if empty($data)}>
 <script>
     $(function () {
         $("select[name='fid']").on('change',function () {
             var obj = $("select[name='fid'] option:selected");
-            $("input[name='url']").val(obj.data('url'))
-        })
+            $("input[name='url']").val(obj.data('url'));
+            $("input[name='class_name']").val(obj.data('cname'));
+        });
     })
 </script>
+<{/if}>
+
 
 </body>
 </html>

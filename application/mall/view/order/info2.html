@@ -199,46 +199,68 @@
 
     });
   }
+  var order_sn = null;
+  function pay_credit(data){
+    //发起支付
+    return $.confirm("确定用余额支付吗？",function () {
+      bs_request("<{:url('/mall/order/pay')}>",data,function (ret){
+
+        if (ret.code==0){
+          $.toast(ret.msg,function () {
+            location.href = "<{:url('/mall/order/all_orders',['status'=>'1'])}>"
+          })
+        }else {
+          return $.alert(ret.msg);
+        }
+      })
+    })
+  }
+
+  function pay_wechat(data){
+    bs_request("<{:url('/mall/order/wx_param')}>",data,function (ret){
+      if (ret.code !=0){
+        if (ret.code==30002){
+          $.confirm(ret.msg,function () {
+            return location.href = ret.data
+          })
+
+        }else {
+          return $.alert(ret.msg);
+        }
+
+      }else {
+        callpay(ret.data.payParam)
+      }
+    })
+  }
 
   function create(type){
     if (type=='credit'){
-      return $.confirm("确定用余额支付吗？",function () {
+      if (!order_sn){
         bs_request("<{:url('/mall/order/create')}>",{addr_id:addr_id},function (res) {
           if (res.code!==0){
             return $.alert(res.msg);
           }
+          order_sn = res.data.order_sn;
           //发起支付
-          bs_request("<{:url('/mall/order/pay')}>",{order_sn:res.data.order_sn,payType:'credit'},function (ret){
-            if (ret.code==0){
-              $.toast(ret.msg,function () {
-                 location.href = "<{:url('/mall/order/all_orders',['status'=>'1'])}>"
-              })
-            }else {
-              return $.alert(ret.msg);
-            }
-          })
+          pay_credit({order_sn:res.data.order_sn,payType:'credit'})
         });
-      })
+      }else {
+        pay_credit({order_sn:order_sn,payType:'credit'})
+      }
     }else {
-      bs_request("<{:url('/mall/order/create')}>",{addr_id:addr_id},function (res) {
-        if (res.code!==0){
-          return $.alert(res.msg);
-        }
-        bs_request("<{:url('/mall/order/wx_param')}>",{order_sn:res.data.order_sn,payType:'wechat'},function (ret){
-          if (ret.code !=0){
-            if (ret.code==30002){
-              $.confirm(ret.msg,function () {
-                return location.href = ret.data
-              })
-
-            }else {
-              return $.alert(ret.msg);
-            }
-          }else {
-            callpay(ret.data.payParam)
+      if (!order_sn){
+        bs_request("<{:url('/mall/order/create')}>",{addr_id:addr_id},function (res) {
+          if (res.code!==0){
+            return $.alert(res.msg);
           }
-        })
-      });
+          order_sn = res.data.order_sn;
+          pay_wechat({order_sn:res.data.order_sn,payType:'wechat'})
+        });
+      }else {
+        pay_wechat({order_sn:order_sn,payType:'wechat'})
+      }
+
     }
 
 

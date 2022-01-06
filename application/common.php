@@ -53,7 +53,7 @@ function get_random($length, $numeric = FALSE)
  */
 function get_ip()
 {
-    $ip = $_SERVER['REMOTE_ADDR'];
+    $ip = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '';
     if (isset($_SERVER['HTTP_CDN_SRC_IP'])) {
         $ip = $_SERVER['HTTP_CDN_SRC_IP'];
     } elseif (isset($_SERVER['HTTP_CLIENT_IP']) && preg_match('/^([0-9]{1,3}\.){3}[0-9]{1,3}$/', $_SERVER['HTTP_CLIENT_IP'])) {
@@ -412,5 +412,20 @@ function del_dir($dirName)
         closedir($dir);
         //删除目录
         rmdir($dirName);
+    }
+}
+
+
+/**
+ * 判断IP输入是否合法
+ * @param string $ip IP地址
+ * @return bool
+ */
+function is_ip($ip)
+{
+    if (preg_match('/^((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1 -9]?\d))))$/', $ip)) {
+        return true;
+    } else {
+        return false;
     }
 }

@@ -64,6 +64,27 @@
                                         </select>
                                         <span class="bs-red">要配置短信后才能发送， <a class="btn btn-xs btn-success" href="<{:url('/admin/system.index/sms')}>">去配置</a> </span>
                                     </div>
+
+                                    <div class="form-group">
+                                        <label for="upload_type">文件上传方式</label>
+                                        <select name="upload_type" class="form-control" id="upload_type">
+                                            <option <{if !empty($data.upload_type)&&$data.upload_type=='local'}>selected<{/if}>  value="local">本地</option>
+                                            <option <{if !empty($data.upload_type)&&$data.upload_type=='qiniu'}>selected<{/if}> value="qiniu">七牛</option>
+                                            <option <{if !empty($data.upload_type)&&$data.upload_type=='oss'}>selected<{/if}> value="oss">阿里OSS</option>
+                                        </select>
+                                        <span class="bs-red">文件上传位置，默认本地保存。 <a class="btn btn-outline-success btn-xs" href="<{:url('upload')}>">去配置相关参数</a> </span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="upload_fileSizeLimit">文件上传限制</label>
+                                        <input type="number" value="<{:isset($data.upload_fileSizeLimit)?$data.upload_fileSizeLimit:'2'}>"   min="0" name="upload_fileSizeLimit" id="upload_fileSizeLimit" class="form-control">
+                                        <span class="bs-red">限制上传大小，单位b，如1048576代表1M</span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="upload_enable_type">文件上传允许类型</label>
+                                        <input type="text" value="<{:isset($data.upload_enable_type)?$data.upload_enable_type:'jpg;png;jpeg'}>"  name="upload_enable_type" id="upload_enable_type" class="form-control">
+                                        <span class="bs-red">允许上传的文件类型后缀名，多个用分号隔开，如jpg;png;jpeg;zip</span>
+                                    </div>
+
                                 </div>
                                 <div class="card-footer">
                                     <button type="button" onclick="layer.confirm('确定提交保存吗',{title:0},function() {

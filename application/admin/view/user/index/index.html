@@ -100,9 +100,9 @@
                                     余额：<a href="<{:url('/admin/caiwu.index/credit',['keyword'=>$item.uid])}>"><{:isset($item.balance)?$item.balance.credit:'0.00'}></a> <br>
                                     积分：<{:isset($item.balance)?$item.balance.point:'0.00'}>
                                 </td>
-                                <td>
-                                    <{$item.loginCount}>
-                                </td>
+
+                                <td><a title="查看登录记录" href="<{:url('login_log',['keyword'=>$item.uid])}>"><{$item.loginCount}></a></td>
+
 
                                 <td><{$item.statusDesc}></td>
                                 <td class="remark<{$item.uid}>"><{$item.remark}></td>
@@ -266,15 +266,21 @@
            $("input[name='credit_num']").val(0);
         });
 
+
+    });
+</script>
+<script>
+
+    $(function () {
         $("#my_table").DataTable({
             "ordering": false,//禁用排序
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
             //"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
-           // "pageLength": 10,         //初始化显示几条数据
+            // "pageLength": 10,         //初始化显示几条数据
             //serverSide: true, // use local process instead of server
-           // bFilter: true, // show top right search input box.
+            // bFilter: true, // show top right search input box.
             bPaginate: false,//是否开启分页
             //iDisplayLength: 10, //默认显示的记录数
             bInfo: false,//是否显示页脚信息，DataTables插件左下角显示记录数

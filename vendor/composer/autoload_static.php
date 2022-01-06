@@ -15,6 +15,7 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
         'f598d06aa772fa33d905e87be6398fb1' => __DIR__ . '/..' . '/symfony/polyfill-intl-idn/bootstrap.php',
         '37a3dc5111fe8f707ab4c132ef1dbc62' => __DIR__ . '/..' . '/guzzlehttp/guzzle/src/functions_include.php',
         'd767e4fc2dc52fe66584ab8c6684783e' => __DIR__ . '/..' . '/adbario/php-dot-notation/src/helpers.php',
+        '841780ea2e1d6545ea3a253239d59c05' => __DIR__ . '/..' . '/qiniu/php-sdk/src/Qiniu/functions.php',
         '1cfd2761b63b0a29ed23657ea394cb2d' => __DIR__ . '/..' . '/topthink/think-captcha/src/helper.php',
     );
 
@@ -39,6 +40,10 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
             'Symfony\\Polyfill\\Intl\\Normalizer\\' => 33,
             'Symfony\\Polyfill\\Intl\\Idn\\' => 26,
         ),
+        'Q' => 
+        array (
+            'Qiniu\\' => 6,
+        ),
         'P' => 
         array (
             'Psr\\Http\\Message\\' => 17,
@@ -48,6 +53,7 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
         'O' => 
         array (
             'OneSm\\' => 6,
+            'OSS\\' => 4,
         ),
         'G' => 
         array (
@@ -104,6 +110,10 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
         array (
             0 => __DIR__ . '/..' . '/symfony/polyfill-intl-idn',
         ),
+        'Qiniu\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/qiniu/php-sdk/src/Qiniu',
+        ),
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
@@ -119,6 +129,10 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
         'OneSm\\' => 
         array (
             0 => __DIR__ . '/..' . '/lizhichao/one-sm/src',
+        ),
+        'OSS\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/aliyuncs/oss-sdk-php/src/OSS',
         ),
         'GuzzleHttp\\Psr7\\' => 
         array (
@@ -167,7 +181,6 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
     );
 
     public static $classMap = array (
-        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'Normalizer' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/Resources/stubs/Normalizer.php',
     );
 

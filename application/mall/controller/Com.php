@@ -16,7 +16,7 @@ class Com extends Mall
         $from = !empty($this->param['from']) ? $this->param['from'] : '';
         if (!$from) {
             data_return('非法上传', -1);
-        } elseif (!in_array($this->param['from'], ['comment'])) {
+        } elseif (!in_array($this->param['from'], ['comment','feedback'])) {
             data_return('非法操作', -1);
         }
         $cacheKey = $from . md5(__FILE__ . __FUNCTION__);
@@ -27,6 +27,8 @@ class Com extends Mall
 
         } elseif ($from == 'comment' && cache($cacheKey) >= 3) {
             data_return('评价目前最多支持3只图片哦', -1);
+        }elseif ($from == 'feedback' && cache($cacheKey) >= 3) {
+            data_return('反馈目前最多支持3只图片哦', -1);
         }
 
 

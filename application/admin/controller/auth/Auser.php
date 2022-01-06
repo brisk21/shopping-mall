@@ -45,7 +45,12 @@ class Auser extends Admin
             $where['role_id'] = $roleId;
         }
         if (!empty($keyword)) {
-            $where['account'] = $keyword;
+            if (is_uid($keyword)){
+                $where['uid'] = $keyword;
+            }else{
+                $where['account'] = $keyword;
+            }
+
         }
         $data = AppCommon::data_list('admin', $where, $page . ',' . $pageSize, '*', $orderBy);
 
@@ -270,4 +275,35 @@ class Auser extends Admin
     }
 
 
+
+    //登录记录
+    public function login_log()
+    {
+        $where = [];
+        $keyword = !empty($this->param['keyword']) ? trim($this->param['keyword']) : '';
+        $orderBy = 'id desc';
+        $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
+        $pageSize = 10;
+        if (!empty($keyword)) {
+            $where['uid'] = $keyword;
+        }
+        $total = AppCommon::data_count('admin_login_log', $where);
+        $data = AppCommon::data_list('admin_login_log', $where, $page . ',' . $pageSize, '*', $orderBy);
+
+
+        if ($total){
+            foreach ($data as &$v){
+                $v['add_time'] = date('Y-m-d H:i:s',$v['add_time']);
+                $v['user'] = AppCommon::data_get('admin',['uid'=>$v['uid']],'uid,account,user_name');
+            }
+            unset($v);
+        }
+
+
+
+        $this->assign('page', Page::set($data, $pageSize, $page, $total, $this->param, url()));
+        $this->assign('data', $data);
+
+        return $this->fetch();
+    }
 }

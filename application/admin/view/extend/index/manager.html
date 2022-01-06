@@ -1,0 +1,105 @@
+
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <title>后台管理</title>
+    <{include file="public/header"}>
+
+</head>
+<body class="hold-transition sidebar-mini layout-fixed">
+<!-- Site wrapper -->
+<div class="wrapper">
+    <!-- 顶部导航 -->
+    <{include file="public/navbar"}>
+    <!--左侧菜单-->
+    <{include file="public/sidebar"}>
+
+    <div class="content-wrapper">
+        <!-- 面包屑导航 -->
+        <section class="content-header">
+            <div class="container-fluid">
+                <div class="row mb-2">
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 内容区-->
+        <section class="content">
+            <div class="container-fluid">
+                <div class="btn-group" style="margin: 10px">
+                    <a href="javascript:layer.alert('无权操作',{title:0})" class="btn btn-success ">上传 <i class="fa fa-upload"></i></a>
+                </div>
+                <div class="row">
+                    <div class="col-md-3 col-sm-6 col-12">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-info"><i class="far fa-envelope"></i></span>
+
+                            <div class="info-box-content">
+                                <span class="info-box-text">消息推送</span>
+                                <span class="info-box-number">v1.0</span>
+                            </div>
+                            <div class="">
+                                <span class="btn btn-success btn-xs" onclick="layer.alert('无权操作',{title:0})"><i class="fa fa-check-circle"></i></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 col-12">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-success"><i class="far fa-flag"></i></span>
+                            <div class="info-box-content">
+                                <span class="info-box-text">需求中心</span>
+                                <span class="info-box-number">v1.0</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 col-12">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-warning"><i class="fa fa-database"></i></span>
+
+                            <div class="info-box-content">
+                                <span class="info-box-text">数据备份</span>
+                                <span class="info-box-number">v1.0</span>
+                            </div>
+                            <div class="">
+                                <span class="btn btn-success btn-xs" onclick="layer.alert('无权操作',{title:0})"><i class="fa fa-check-circle"></i></span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="col-md-3 col-sm-6 col-12">
+                        <div class="info-box">
+                            <span class="info-box-icon bg-danger"><i class="fa fa-store-alt"></i></span>
+
+                            <div class="info-box-content">
+                                <span class="info-box-text">多商户</span>
+                                <span class="info-box-number">68</span>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </section>
+    </div>
+
+    <{include file="public/copyright"}>
+
+
+</div>
+<!-- ./wrapper -->
+
+<{include file="public/footer"}>
+
+
+
+
+
+</body>
+</html>

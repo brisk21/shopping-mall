@@ -8,6 +8,7 @@ use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
 use app\service\CommonUser;
 use app\service\Credits;
+use app\service\FeedBackService;
 use think\Request;
 
 class User extends Mall
@@ -254,9 +255,9 @@ class User extends Mall
                 $v['add_time'] = date('Y年m月d日', $v['add_time']);
                 $v['content'] = mb_substr($v['content'], 0, 15, 'utf-8') . '......';
                 $v['typeDesc'] = $v['type'] == 1 ? '普通消息' : '系统通知';
-                if ($v['read_time']>0){
+                if ($v['read_time'] > 0) {
                     $v['status'] = 1;
-                }else{
+                } else {
                     $v['status'] = 0;
                 }
                 unset($v['read_time']);
@@ -269,9 +270,46 @@ class User extends Mall
     }
 
 
-    //测试
+    //设置中心
     public function setting()
     {
         return $this->fetch();
     }
+
+    //留言反馈
+    public function feedback()
+    {
+        if (IS_AJAX || IS_POST) {
+            if (empty($this->param['category']) || empty($this->param['content'])) {
+                data_return('请填写选择分类填写内容', -1);
+            }
+
+            if (!empty($this->param['imgs'])) {
+                if (!is_array($this->param['imgs'])) {
+                    $this->param['imgs'] = array_filter(explode(',', str_replace('，', ',', $this->param['imgs'])));
+                }
+            }
+            if (!empty($this->param['imgs']) && count($this->param['imgs']) > 3) {
+                data_return('图片不能超过3张', -1);
+            }
+
+            if (AppCommon::data_count('feedback', ['uid' => $this->uid, 'add_time' => ['>=', strtotime('today')]]) >= 5) {
+                data_return('今天您已提交多次，请明天继续哦', -1);
+            }
+
+            $res = FeedBackService::add([
+                'uid' => $this->uid,
+                'category' => $this->param['category'],
+                'content' => $this->param['content'],
+                'imgs' => !empty($this->param['imgs']) ? join(',', $this->param['imgs']) : '',
+            ]);
+
+            data_return('感谢您的留言/反馈');
+
+
+        }
+
+        return $this->fetch();
+    }
+
 }

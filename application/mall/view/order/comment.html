@@ -35,8 +35,8 @@
   <div class="weui-cells weui-cells_form com-txt-area">
     <div class="weui-cell">
       <div class="weui-cell__bd">
-        <textarea class="weui-textarea txt-area" name="content" placeholder="这个商品满足你的期待吗？说说你的使用心得，分享给想买的他们吧" rows="3"></textarea>
-        <div class="weui-textarea-counter font-12 num"><span>0</span>/200</div>
+        <textarea class="weui-textarea txt-area" name="content" placeholder="这个商品满足你的期待吗？说说你的使用心得，分享给想买的他们吧"  rows="5" maxlength="200"></textarea>
+        <div class="weui-textarea-counter font-12 num"><span  class="content-num">0</span>/200</div>
       </div>
     </div>
   </div>
@@ -77,6 +77,10 @@
 <script type="text/javascript" src="/static/com/easyuploader/easyuploader.min.js"></script>
 
 <script type="text/javascript">
+  $("textarea[name='content']").bind('input propertychange',function () {
+    var length = $(this).val().length;
+    $(".content-num").text(length)
+  })
 $(".order-list-Below ul li").click(
     function(){
       if (done){
@@ -194,7 +198,7 @@ $(".order-list-Below ul li").click(
   $(".upload_box").on('click',function () {
     if (imgCount>=2){
       $(this).hide();
-      //return $.alert('仅支持最多三张图片');
+      return ;
     }
   });
 

@@ -338,7 +338,7 @@ class Account extends Mall
         AppCommon::data_add('common_user_login_log', [
             'uid' => $data['uid'],
             'add_time' => time(),
-            'ip' => ip2long(get_ip()),
+            'ip' => get_ip(),
         ]);
 
         //登录状态
@@ -399,7 +399,7 @@ class Account extends Mall
         AppCommon::data_add('common_user_login_log', [
             'uid' => $data['uid'],
             'add_time' => time(),
-            'ip' => ip2long(get_ip()),
+            'ip' => get_ip(),
         ]);
 
         //登录状态
@@ -455,7 +455,7 @@ class Account extends Mall
         $loginData = [
             'uid' => $data['uid'],
             'add_time' => time(),
-            'ip' => ip2long(get_ip()),
+            'ip' => get_ip(),
         ];
         AppCommon::data_add('common_user_login_log', $loginData);
 

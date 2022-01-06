@@ -1,0 +1,188 @@
+<!DOCTYPE html >
+<html lang="zh">
+<head>
+<title>留言反馈</title>
+  <{include file="public/header" /}>
+  <style>
+    .weui-uploader__file>img{
+      width: 79px;
+      height: 79px;
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .upload_box,.com-button,.num,.img-count{
+      display: block;
+    }
+    .category{
+      padding: 10px;
+    }
+    .category>li {
+      display: inline-block;
+      padding: 5px;
+      background: #e1e1e1;
+      margin: 5px;
+      border-radius: 1px;
+    }
+    .category>li.active {
+      background: #03a9f4;
+      color: white;
+    }
+  </style>
+</head>
+<body ontouchstart>
+<!--主体-->
+<header class="wy-header">
+  <div class="wy-header-icon-back"><span></span></div>
+  <div class="wy-header-title">留言反馈</div>
+</header>
+<div class="weui-content clear">
+  <div class="">
+    <ul class="category">
+      <li class="active">需求留言</li>
+      <li class="">异常反馈</li>
+      <li class="">订单问题</li>
+      <li class="">商品问题</li>
+      <li class="">充值问题</li>
+      <li class="">其他问题</li>
+    </ul>
+  </div>
+
+  <div class="weui-cells weui-cells_form com-txt-area">
+    <div class="weui-cell">
+      <div class="weui-cell__bd">
+        <textarea class="weui-textarea txt-area" name="content" placeholder="请填写您的留言/反馈内容" rows="5" maxlength="200"></textarea>
+        <div class="weui-textarea-counter font-12 num"><span class="content-num">0</span>/200</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="weui-cells weui-cells_form">
+      <div class="weui-cell">
+        <div class="weui-cell__bd">
+          <div class="weui-uploader">
+            <div class="weui-uploader__hd">
+              <p class="weui-uploader__title font-14">截图</p>
+              <div class="weui-uploader__info font-12 img-count">0/3</div>
+            </div>
+            <div class="weui-uploader__bd">
+              <ul class="weui-uploader__files" id="uploaderFiles">
+
+              </ul>
+              <div class="weui-uploader__input-box upload_box">
+                <input id="uploaderInput" class="weui-uploader__input" type="file" accept="image/*" multiple="">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+  <div class="com-button"><a href="javascript:sub();">提交保存</a></div>
+</div>
+
+<{include file="public/footer" /}>
+<script type="text/javascript" src="/static/mall/js/jquery.Spinner.js"></script>
+<script type="text/javascript" src="/static/com/easyuploader/easyuploader.min.js"></script>
+
+
+<script>
+  var imgCount = 0;
+  var from = bs_get_param('from');
+  var done = false;
+
+  $(".category>li").on('click',function () {
+    $(".category>li").removeClass('active');
+    $(this).addClass('active');
+  });
+  $("textarea[name='content']").bind('input propertychange',function () {
+    var length = $(this).val().length;
+    $(".content-num").text(length)
+  })
+
+  function sub() {
+    if (done) {
+      return;
+    }
+    //星星
+
+    //图片
+    var imgs = [];
+    var imgDom = $(".comment-img");
+    if (imgDom.length > 0) {
+      for (var j = 0; j < imgDom.length; j++) {
+        imgs.push($(imgDom[j]).attr('src'))
+      }
+    }
+
+    var li = $(".category>li.active")[0];
+    var category = $(li).text();
+    if (!category){
+      return $.alert('请选择分类')
+    }
+    var content = $("textarea[name='content']").val();
+
+    if (!content || content.length < 3) {
+      return $.alert('内容太少了吧')
+    }
+
+    bs_request("<{:url('feedback')}>", {
+              imgs: imgs,
+              category: category,
+              content: content,
+              from:  from
+            },
+            function (res) {
+              $.toast(res.msg, res.code == 0 ? '' : 'cancel', function () {
+                if (res.code == 0) {
+                  history.back()
+                }
+              })
+            })
+  }
+</script>
+
+
+
+<script>
+  $(".upload_box").on('click',function () {
+    if (imgCount>=2){
+      $(this).hide();
+      return ;
+    }
+  });
+
+  var eu = new EasyUploader({
+    'file': '#uploaderInput',
+    'url': "<{:url('/mall/com/uploader')}>?from=feedback",
+    'autoUpload': true,
+    'language': 'cn',
+    'compress': true,
+    'resize': {
+      'maxWidth': 1000,
+      'maxHeight': 1000
+    },
+    'compressQuality': 0.9,
+    'maxFileSize': '2M',
+    'name': "file",
+    onUploadProgress: function (e) {
+      console.log('the progress:' + ((e.loaded / e.total) * 100).toFixed(2) + '%');
+    },
+    onUploadStart: function (e) {
+
+      console.log('the file will upload');
+    },
+    onUploadComplete: function (res) {
+      if (res.code !==0){
+        return $.toast(res.msg,'cancel')
+      }
+      imgCount++;
+      $(".img-count").text(imgCount+'/3')
+      var item = '<li class="weui-uploader__file" ><img class="comment-img" src="'+res.data.url+'" alt=""></li>';
+      $("#uploaderFiles").append(item);
+    },
+    onUploadError: function (statusCode) {
+      console.log(statusCode);
+    }
+  });
+</script>
+</body>
+</html>

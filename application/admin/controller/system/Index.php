@@ -103,6 +103,9 @@ class Index extends Admin
             'enable_reg' => intval($this->param['enable_reg']),
             'title' => trim($this->param['title']),
             'sms_type' => trim($this->param['sms_type']),
+            'upload_type' => !empty($this->param['upload_type']) ? trim($this->param['upload_type']) : 'local',
+            'upload_fileSizeLimit' => !empty($this->param['upload_fileSizeLimit']) ? floatval($this->param['upload_fileSizeLimit']) : '4096',
+            'upload_enable_type' => !empty($this->param['upload_enable_type']) ? str_replace(['，', ';', '；'], ',', strtolower($this->param['upload_enable_type'])) : '',
         ];
         $key = 'web';
         ConfigService::action($key, $data);
@@ -214,10 +217,10 @@ class Index extends Admin
         $data = [
             'opcache' => [
                 'name' => 'opcache',
-                'status' => true,
+                'status' => false,
             ],
             'memcached' => [
-                'name' => 'opcache',
+                'name' => 'memcached',
                 'status' => false,
             ],
             'redis' => [
@@ -278,4 +281,171 @@ class Index extends Admin
         data_return('清理完成');
     }
 
+    //IP黑名单
+    public function ip_blacklist()
+    {
+        $conf = ConfigService::get('ip_blacklist', 1);
+        if (!empty($conf)) {
+            $this->assign('data', $conf);
+        }
+        $limit_ips = ConfigService::get('request_limit_ips', 1);
+        if (!empty($limit_ips)) {
+            $this->assign('limitData', $limit_ips);
+        }
+
+        return $this->fetch();
+    }
+
+    //操作IP黑名单
+    public function ip_blacklist_action()
+    {
+        $ac = !empty($this->param['ac']) ? trim($this->param['ac']) : '';
+        if (empty($ac) || !in_array($ac, ['add', 'del'])) {
+            data_return('暂不支持的操作', -1);
+        }
+        $ip = !empty($this->param['ip']) ? $this->param['ip'] : '';
+        $conf = ConfigService::get('ip_blacklist');
+        if ($ac == 'del') {
+            if (!empty($conf)) {
+                $conf = array_flip($conf);
+                if (isset($conf[$ip])) {
+                    unset($conf[$ip]);
+                }
+                $conf = array_flip($conf);
+            }
+        } else {
+            if (!is_ip($ip)) {
+                data_return('IP格式不合法' . $ip, -1);
+            }
+            if (!empty($conf)) {
+                $conf = array_unique(array_merge($conf, [$ip]));
+            } else {
+                $conf = [$ip];
+            }
+
+            //来自可疑名单更新
+            if (!empty($this->param['f']) && $this->param['f'] === 'limit_list' && (!empty($this->param['type']) && $this->param['type'] == 'remove')) {
+                $limit_ips = ConfigService::get('request_limit_ips');
+                if (!empty($limit_ips)) {
+                    $limit_ips = array_flip($limit_ips);
+                    if (isset($limit_ips[$ip])) {
+                        unset($limit_ips[$ip]);
+                    }
+                    $limit_ips = array_flip($limit_ips);
+                    ConfigService::action('request_limit_ips', $limit_ips);
+                }
+                data_return('ok');
+            }
+
+
+        }
+        $data = $conf;
+        $key = 'ip_blacklist';
+        ConfigService::action($key, $data);
+        //来自可疑名单更新
+        if (!empty($this->param['f']) && $this->param['f'] === 'limit_list') {
+            $limit_ips = ConfigService::get('request_limit_ips');
+            if (!empty($limit_ips)) {
+                $limit_ips = array_flip($limit_ips);
+                if (isset($limit_ips[$ip])) {
+                    unset($limit_ips[$ip]);
+                }
+                $limit_ips = array_flip($limit_ips);
+                ConfigService::action('request_limit_ips', $limit_ips);
+            }
+        }
+
+        parent::add_admin_log(['title' => '操作IP黑名单', 'content' => $this->param]);
+        data_return('ok');
+    }
+
+    //安全设置
+    function safe()
+    {
+        $conf = ConfigService::get('web_safe', 1);
+        if (!empty($conf)) {
+            $this->assign('data', $conf);
+        }
+        return $this->fetch();
+    }
+
+    //保存安全配置
+    public function safe_action()
+    {
+        $count = !empty($this->param['api_limit_set_second']) ? max(0, $this->param['api_limit_set_second']) : 0;
+        $sensitive_words = !empty($this->param['sensitive_words']) ? 1 : 0;
+        $data = [
+            'api_limit_set_second' => $count,
+            'sensitive_words' => $sensitive_words,
+        ];
+        $key = 'web_safe';
+        ConfigService::action($key, $data);
+        parent::add_admin_log(['title' => '操作安全配置', 'content' => $data]);
+        data_return('操作成功');
+    }
+
+    //上传配置
+    public function upload()
+    {
+        $conf = ConfigService::get('upload', 1);
+        if (!empty($conf)) {
+            $this->assign('data', $conf);
+        }
+        return $this->fetch();
+    }
+
+    public function upload_action()
+    {
+        if (empty($this->param['from'])) {
+            data_return('操作厂商有误', -1);
+        }
+        $key = 'upload';
+        $conf = ConfigService::get($key, true);
+        $from = trim($this->param['from']);
+        if ($from == 'qiniu') {
+            $rule = [
+                ['type' => 'empty', 'key' => 'accessKey', 'rule' => '2,80', 'msg' => 'accessKey必填',],
+                ['type' => 'empty', 'key' => 'secretKey', 'rule' => '2,80', 'msg' => 'secretKey必填',],
+                ['type' => 'empty', 'key' => 'bucket', 'rule' => '2,80', 'msg' => 'bucket必填',],
+                ['type' => 'empty', 'key' => 'domain', 'rule' => '2,80', 'msg' => '域名必填',],
+            ];
+            $check = check_param($this->param, $rule);
+            if ($check['code'] <> 0) {
+                data_return($check['msg'], $check['code']);
+            }
+            $conf['qiniu'] = [
+                'accessKey' => trim($this->param['accessKey']),
+                'secretKey' => trim($this->param['secretKey']),
+                'bucket' => trim($this->param['bucket']),
+                'domain' => trim($this->param['domain']),
+            ];
+            ConfigService::action($key, $conf);
+            parent::add_admin_log(['title' => '操作七牛云配置', 'content' => $this->param]);
+            data_return('七牛云操作-保存成功');
+        } elseif ($from == 'oss') {
+            $rule = [
+                ['type' => 'empty', 'key' => 'accessKeyId', 'rule' => '2,80', 'msg' => 'accessKeyId未填写内容',],
+                ['type' => 'empty', 'key' => 'accessKeySecret', 'rule' => '2,80', 'msg' => 'accessKeySecret未填写内容',],
+                ['type' => 'empty', 'key' => 'endpoint', 'rule' => '2,80', 'msg' => 'endpoint未填写内容',],
+                ['type' => 'empty', 'key' => 'domain', 'rule' => '2,80', 'msg' => '域名未设置',],
+            ];
+            $check = check_param($this->param, $rule);
+            if ($check['code'] <> 0) {
+                data_return($check['msg'], $check['code']);
+            }
+            $conf['oss'] = [
+                'accessKeyId' => trim($this->param['accessKeyId']),
+                'accessKeySecret' => trim($this->param['accessKeySecret']),
+                'endpoint' => trim($this->param['endpoint']),
+                'domain' => trim($this->param['domain']),
+                'bucket' => trim($this->param['bucket']),
+            ];
+            ConfigService::action($key, $conf);
+            parent::add_admin_log(['title' => '操作阿里云OSS配置', 'content' => $this->param]);
+            data_return('阿里云OSS操作-保存成功');
+        } else {
+            //todo 兼容其他类型
+            data_return('暂不支持的商户类型', -1);
+        }
+    }
 }

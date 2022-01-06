@@ -12,6 +12,7 @@ use app\service\DiyLog;
 use app\service\ErrorService;
 use app\service\Msg;
 use app\service\Pay;
+use app\service\SafeService;
 use think\Db;
 use app\service\Order as ServerOrder;
 use think\Request;
@@ -192,10 +193,10 @@ class Order extends Mall
             data_return('商品未选择', -1);
         }
         foreach ($goods as $item) {
-            if (empty($item['bid']) || ($item['stock'] - $item['stock_locked'] <= 0) || $item['status'] <> 1) {
+            if (empty($item['bid']) || ($item['stock'] <= 0) || $item['status'] <> 1) {
                 data_return('存在已下架或已售罄商品', -1);
             }
-            if (($item['stock'] - $item['stock_locked']) < $item['count']) {
+            if ($item['stock'] < $item['count']) {
                 data_return($item['title'] . '库存不足', -1);
             }
         }
@@ -206,30 +207,40 @@ class Order extends Mall
     //创建订单
     public function create()
     {
+        $ckey = 'order_create'.md5($this->uid.__FILE__.__FUNCTION__.'ABC');
+        if (cache($ckey)){
+            data_return('操作过于频繁，请稍后...',-1);
+        }
+        cache($ckey,1,10);
+
         $shop_type = empty($this->config_shop['shop_type']) ? 0 : intval($this->config_shop['shop_type']);
         if (!empty($this->param['id'])) {
             //立即购买
             $goods = AppCommon::data_get('goods', ['id' => intval($this->param['id'])], 'id,thumb,title,price,status,stock,stock_locked,store_num');
-            if (empty($goods) || $goods['status'] <> 1 || ($goods['stock'] - $goods['stock_locked']) <= 0) {
+            if (empty($goods) || $goods['status'] <> 1 || ($goods['stock']) <= 0) {
+                cache($ckey,null);
                 data_return('商品已售罄', -1);
             }
 
             //默认销售，0-销售，1-展示，2-自提，3-虚拟销售
             if ($shop_type == 0) {
                 if (empty($this->param['addr_id'])) {
+                    cache($ckey,null);
                     data_return('请选则地址', -1);
                 }
                 $whereAddr = ['uid' => $this->uid,];
                 $whereAddr['id'] = intval($this->param['addr_id']);
                 $address = AppCommon::data_get('common_user_address', $whereAddr);
                 if (empty($address)) {
+                    cache($ckey,null);
                     data_return('地址不存在', -1);
                 }
             }
 
 
             $goods['count'] = !empty($this->param['count']) ? intval($this->param['count']) : 1;
-            if (($goods['stock'] - $goods['stock_locked']) < $goods['count']) {
+            if ($goods['stock'] < $goods['count']) {
+                cache($ckey,null);
                 data_return('库存不足', -1);
             }
 
@@ -247,6 +258,7 @@ class Order extends Mall
             $res = ServerOrder::add($arg);
 
             if ($res['code'] <> 0) {
+                cache($ckey,null);
                 data_return('服务正忙，请稍后', -1);
             }
 
@@ -262,6 +274,7 @@ class Order extends Mall
             if (!$resGoods) {
                 //删除无效订单
                 AppCommon::data_del('order', ['order_sn' => $res['data']['order_sn']]);
+                cache($ckey,null);
                 data_return('服务正忙，请稍后', -1);
             }
 
@@ -276,12 +289,14 @@ class Order extends Mall
             //默认销售，0-销售，1-展示，2-自提，3-虚拟销售
             if ($shop_type == 0) {
                 if (empty($this->param['addr_id'])) {
+                    cache($ckey,null);
                     data_return('请选择地址', -1);
                 }
                 $whereAddr = ['uid' => $this->uid,];
                 $whereAddr['id'] = intval($this->param['addr_id']);
                 $address = AppCommon::data_get('common_user_address', $whereAddr);
                 if (empty($address)) {
+                    cache($ckey,null);
                     data_return('地址不存在', -1);
                 }
 
@@ -337,7 +352,7 @@ class Order extends Mall
             if ($ret) {
                 data_return('ok', 0, $ret['data']);
             }
-
+            cache($ckey,null);
             data_return('创建超时，请稍后重试', -1);
 
         }
@@ -351,6 +366,11 @@ class Order extends Mall
         } elseif (empty($this->param['payType']) || !in_array(trim($this->param['payType']), ['credit'])) {
             data_return('不支持的支付方式', -1);
         }
+        $ckey = 'order_pay'.md5($this->uid.__FUNCTION__.__FILE__);
+        if (cache($ckey)){
+            data_return('付款中，请稍后...',-1);
+        }
+        cache($ckey,1,2);
         $order = ServerOrder::get($this->param['order_sn']);
 
         if (empty($order)) {
@@ -662,8 +682,7 @@ class Order extends Mall
         if (!empty($has['id'])) {
             data_return('您已提交评价，请勿重复提交', -1);
         }
-        //todo 关键词过滤，如se情、政治等
-        $content = strip_tags($this->param['content']);
+        $content = SafeService::filter_str(strip_tags($this->param['content']));
         $imgs = !empty($this->param['imgs']) ? join(',', $this->param['imgs']) : '';
         AppCommon::data_add('goods_comment', [
             'uid' => $this->uid,

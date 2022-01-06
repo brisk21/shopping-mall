@@ -27,6 +27,7 @@ class Order
             'order_sn' => $order_sn,
             'status' => 0,
             'price' => $arg['price'],
+            'ip_address' => get_ip(),
             'order_type' => !empty($arg['order_type']) ? $arg['order_type'] : 0,
             'tihuo_address' => !empty($arg['tihuo_address']) ? $arg['tihuo_address'] : '',
             'add_time' => time(),
