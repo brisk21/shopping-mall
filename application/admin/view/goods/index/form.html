@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="/static/adminlte/plugins/summernote/summernote-bs4.min.css">
     <link rel="stylesheet" href="/static/adminlte/plugins/webuploader-0.1.5/webuploader.css">
     <link rel="stylesheet" href="/static/adminlte/plugins/bs/css/upload.css">
+    <link rel="stylesheet" href="/static/adminlte/plugins/bs/css/sku.css">
     <style>
         i.fas.fa-trash.banner-del {
             color: red;
@@ -231,6 +232,7 @@
 <script src="/static/adminlte/plugins/summernote/summernote-bs4.min.js"></script>
 <script type="text/javascript" src="/static/adminlte/plugins/webuploader-0.1.5/webuploader.min.js"></script>
 <script type="text/javascript" src="/static/adminlte/plugins/bs/upload.js"></script>
+<script type="text/javascript" src="/static/adminlte/plugins/bs/sku.js"></script>
 <script>
     $(".imgs").on('click','.banner-del',function () {
         var obj = $(this);
@@ -302,7 +304,7 @@
             uploadScript      :  "<{:url('/admin/upload/image')}>" , //后台处理的url
             width         : 120, //宽度
             buttonText:  '上传图片' ,  //按钮显示的文字
-            fileTypeExts:   '*.jpg; *.png;*.jpeg' , //上传文件的类型,默认为所有文件,多个类型使用;分割'*.gif; *.jpg; *.png'
+            fileType:   '.jpg,.png,.jpeg' , //上传文件的类型,默认为所有文件,多个类型使用,分割'.gif,.jpg,.png'
             fileTypeDesc:  'Image Files' , //可选择文件的描述,在浏览窗口底部的文件类型下拉菜单中显示的文本
             formData: { 'fileKey' : 'bs_shop' , 'from' :'bsgoods'}, //发送给后台的其他参数通过formData指定
             auto:  true , //选择文件后自动上传

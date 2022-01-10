@@ -588,6 +588,70 @@ define({ "api": [
   {
     "version": "1.0.0",
     "type": "post",
+    "url": "/mall/com/uploader",
+    "title": "<newapi>[新]</newapi>上传-图片",
+    "name": "com_uploader",
+    "group": "common",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "from",
+            "description": "<p>上传来源，comment-商品评价,feedback-留言反馈</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "ord_id",
+            "description": "<p>订单详情商品的记录ID，from=comment时必填</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "code",
+            "description": "<p>返回信息码 0 表示查询正常</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "msg",
+            "description": "<p>返回说明信息</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "data",
+            "description": "<p>数据层</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\"code\":0,\"msg\":\"上传成功\",\"data\":{\"url\":\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/6592012a8f022833c6af7e6ef34e8951.jpg\"}}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "api/com.php",
+    "groupTitle": "common"
+  },
+  {
+    "version": "1.0.0",
+    "type": "post",
     "url": "/mall/goods/favorite_action",
     "title": "<newapi>[新]</newapi>收藏-增删",
     "description": "<p>如果已经收藏则自动取消，否则自动新增收藏，status=1代表收藏，status=0代表取消收藏</p>",
@@ -794,6 +858,70 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\"code\":0,\"msg\":\"ok\",\"data\":{\"goods\":{\"id\":994,\"title\":\"超威威王强效洁厕净洁厕灵液马桶清洁剂除重垢尿垢马桶清洁剂洁厕\",\"goods_desc\":\"超威威王强效洁厕净洁厕灵液马桶清洁剂除重垢尿垢马桶清洁剂洁厕\",\"thumb\":\"https:\\/\\/t00img.yangkeduo.com\\/goods\\/images\\/2021-03-11\\/81fdda1477802fa3e7fc5388381e0f77.jpeg\",\"market_price\":\"12.90\",\"price\":\"0.01\",\"stock\":1000,\"sale\":0,\"status\":1,\"banners\":[\"https:\\/\\/img.pddpic.com\\/mms-material-img\\/2021-03-11\\/b9114204-a06e-48c0-97a2-98a6f9776c35.jpeg.a.jpeg\",\"https:\\/\\/t00img.yangkeduo.com\\/goods\\/images\\/2021-03-11\\/81fdda1477802fa3e7fc5388381e0f77.jpeg\"],\"content\":\"<img style=\\\"max-width: 100%\\\" src=\\\"https:\\/\\/img.pddpic.com\\/mms-material-img\\/2021-03-11\\/b9114204-a06e-48c0-97a2-98a6f9776c35.jpeg.a.jpeg\\\"\\/><img style=\\\"max-width: 100%\\\" src=\\\"https:\\/\\/t00img.yangkeduo.com\\/goods\\/images\\/2021-03-11\\/81fdda1477802fa3e7fc5388381e0f77.jpeg\\\"\\/>\",\"category_id\":9,\"store_num\":\"1234567890\",\"has_favorite\":null}}}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "api/goods.php",
+    "groupTitle": "goods"
+  },
+  {
+    "version": "1.0.0",
+    "type": "post",
+    "url": "/mall/goods/get_comment",
+    "title": "<newapi>[新]</newapi>商品-获取评价",
+    "name": "goods_get_comment",
+    "group": "goods",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "id",
+            "description": "<p>商品ID</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "page",
+            "description": "<p>分页，默认1</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "code",
+            "description": "<p>返回信息码 0 表示查询正常</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "msg",
+            "description": "<p>返回说明信息</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "data",
+            "description": "<p>数据层</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\"code\":0,\"msg\":\"ok\",\"data\":{\"comment\":[{\"is_hide_user\":1,\"content\":\"实在太好了，我喜欢\",\"imgs\":[\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/b7a41d904b4d6cb5bffae74d906b05ab.jpg\",\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/539368c2b485262dc9cc7a9986b246d5.jpeg\",\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/48cf5010823149f7fe322b7b8bb3c523.jpg\"],\"status\":1,\"add_time\":\"2021-12-17\",\"uid\":\"bs91ca7180113e01fde28a157bb75bb78c\",\"star\":5,\"user\":{\"avatar\":\"http:\\/\\/shop.test.top\\/\\/static\\/com\\/img\\/user-default.jpg\",\"nickname\":\"匿名用户\"}},{\"is_hide_user\":1,\"content\":\"实在太好了，我喜欢\",\"imgs\":[\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/b7a41d904b4d6cb5bffae74d906b05ab.jpg\",\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/539368c2b485262dc9cc7a9986b246d5.jpeg\",\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/48cf5010823149f7fe322b7b8bb3c523.jpg\"],\"status\":1,\"add_time\":\"2021-12-17\",\"uid\":\"bs91ca7180113e01fde28a157bb75bb78c\",\"star\":5,\"user\":{\"avatar\":\"http:\\/\\/shop.test.top\\/\\/static\\/com\\/img\\/user-default.jpg\",\"nickname\":\"匿名用户\"}},{\"is_hide_user\":1,\"content\":\"实在太好了，我喜欢\",\"imgs\":[\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/b7a41d904b4d6cb5bffae74d906b05ab.jpg\",\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/539368c2b485262dc9cc7a9986b246d5.jpeg\",\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/48cf5010823149f7fe322b7b8bb3c523.jpg\"],\"status\":1,\"add_time\":\"2021-12-17\",\"uid\":\"bs91ca7180113e01fde28a157bb75bb78c\",\"star\":5,\"user\":{\"avatar\":\"http:\\/\\/shop.test.top\\/\\/static\\/com\\/img\\/user-default.jpg\",\"nickname\":\"匿名用户\"}},{\"is_hide_user\":1,\"content\":\"实在太好了，我喜欢\",\"imgs\":[\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/b7a41d904b4d6cb5bffae74d906b05ab.jpg\",\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/539368c2b485262dc9cc7a9986b246d5.jpeg\",\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/48cf5010823149f7fe322b7b8bb3c523.jpg\"],\"status\":1,\"add_time\":\"2021-12-17\",\"uid\":\"bs91ca7180113e01fde28a157bb75bb78c\",\"star\":5,\"user\":{\"avatar\":\"http:\\/\\/shop.test.top\\/\\/static\\/com\\/img\\/user-default.jpg\",\"nickname\":\"匿名用户\"}},{\"is_hide_user\":1,\"content\":\"实在太好了，我喜欢\",\"imgs\":[\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/b7a41d904b4d6cb5bffae74d906b05ab.jpg\",\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/539368c2b485262dc9cc7a9986b246d5.jpeg\",\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/48cf5010823149f7fe322b7b8bb3c523.jpg\"],\"status\":1,\"add_time\":\"2021-12-17\",\"uid\":\"bs91ca7180113e01fde28a157bb75bb78c\",\"star\":5,\"user\":{\"avatar\":\"http:\\/\\/shop.test.top\\/\\/static\\/com\\/img\\/user-default.jpg\",\"nickname\":\"匿名用户\"}},{\"is_hide_user\":1,\"content\":\"袜子质量一般，有点味道\",\"imgs\":[\"http:\\/\\/shop.test.top\\/upload\\/mall\\/comment\\/971a73545d147bdac869a029f690f08a.jpeg\"],\"status\":1,\"add_time\":\"2021-12-17\",\"uid\":\"bs91ca7180113e01fde28a157bb75bb78c\",\"star\":3,\"user\":{\"avatar\":\"http:\\/\\/shop.test.top\\/\\/static\\/com\\/img\\/user-default.jpg\",\"nickname\":\"匿名用户\"}}]}}",
           "type": "json"
         }
       ]
@@ -1098,6 +1226,165 @@ define({ "api": [
   {
     "version": "1.0.0",
     "type": "post",
+    "url": "/mall/order/comment",
+    "title": "<newapi>[新]</newapi>评论-获取",
+    "name": "order_comment",
+    "group": "order",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "allowedValues": [
+              "get"
+            ],
+            "optional": false,
+            "field": "from",
+            "description": "<p>操作类型:get</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "ord_id",
+            "description": "<p>订单详情商品的记录ID，在详情里面goods_list返回的ID</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "code",
+            "description": "<p>返回信息码 0 表示查询正常</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "msg",
+            "description": "<p>返回说明信息</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "data",
+            "description": "<p>数据层</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\"code\":0,\"msg\":\"ok\",\"data\":{\"comment\":{\"id\":3,\"uid\":\"bs91ca7180113e01fde28a157bb75bb78c\",\"order_goods_id\":88,\"goods_id\":53,\"content\":\"***，这个***，真的不懒啊哦\",\"star\":4,\"add_time\":1640851612,\"imgs\":[\"http:\\/\\/g.abc.top\\/upload\\/mall\\/comment\\/1b1eef32be5910a91593060bd3ef72ce.jpg\"],\"is_hide_user\":1,\"status\":0}}}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "api/order.php",
+    "groupTitle": "order"
+  },
+  {
+    "version": "1.0.0",
+    "type": "post",
+    "url": "/mall/order/comment_action",
+    "title": "<newapi>[新]</newapi>评论-发表",
+    "name": "order_comment_action",
+    "group": "order",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "from",
+            "description": "<p>操作类型:add-新增，del-删除</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": false,
+            "field": "ord_id",
+            "description": "<p>订单详情商品的记录ID，在详情里面goods_list返回的ID</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "isHidden",
+            "description": "<p>是否匿名，1-是，0-否</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "Number",
+            "optional": true,
+            "field": "star",
+            "description": "<p>评价的星星数量，1~5星,del删除时不需要</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "imgs",
+            "description": "<p>评价图片，多个可以用逗号隔开(英文)，也可以提交数组</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "content",
+            "description": "<p>评价的内容，5~200字符</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "code",
+            "description": "<p>返回信息码 0 表示查询正常</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "msg",
+            "description": "<p>返回说明信息</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "data",
+            "description": "<p>数据层</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\"code\":0,\"msg\":\"评价成功，感谢您的支持\",\"data\":[]}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "api/order.php",
+    "groupTitle": "order"
+  },
+  {
+    "version": "1.0.0",
+    "type": "post",
     "url": "/mall/order/create",
     "title": "<newapi>[新]</newapi>订单-创建订单",
     "name": "order_create",
@@ -1294,7 +1581,7 @@ define({ "api": [
       "examples": [
         {
           "title": "Success-Response:",
-          "content": "{\"code\":0,\"msg\":\"ok\",\"data\":{\"order\":{\"id\":146,\"order_sn\":\"BS2021121014054142548446\",\"uid\":\"bs1e7cdd3a5c3265c3f3c7bb77602d8ec9\",\"status\":0,\"price\":\"0.01\",\"pay_price\":\"0.00\",\"add_time\":1639116341,\"up_time\":1639116341,\"send_time\":0,\"pay_time\":0,\"pay_type\":\"\",\"trans_id\":\"\",\"address\":{\"id\":12,\"uid\":\"bs1e7cdd3a5c3265c3f3c7bb77602d8ec9\",\"province\":\"北京\",\"city\":\"北京市\",\"area\":\"石景山区\",\"town\":\"\",\"address\":\"222222\",\"is_default\":1,\"mobile\":\"111\",\"username\":\"111\"},\"cancel_pay_time\":1639119941,\"store_num\":\"1234567890\",\"is_del\":0,\"pay_openid\":\"\",\"express_com\":\"\",\"express_no\":\"\"},\"address\":{\"id\":12,\"uid\":\"bs1e7cdd3a5c3265c3f3c7bb77602d8ec9\",\"province\":\"北京\",\"city\":\"北京市\",\"area\":\"石景山区\",\"town\":\"\",\"address\":\"222222\",\"is_default\":1,\"mobile\":\"111\",\"username\":\"111\"},\"goods_list\":[{\"id\":111,\"order_sn\":\"BS2021121014054142548446\",\"goods_id\":956,\"thumb\":\"https:\\/\\/t00img.yangkeduo.com\\/goods\\/images\\/2021-05-21\\/43dfef1751e57ca4d6e251449102958b.jpeg\",\"title\":\"卓诗尼女童公主裙夏装2021新款儿童韩版立体蝴蝶连衣裙女孩裙子潮\",\"price\":\"0.01\",\"count\":1}]}}",
+          "content": "{\"code\":0,\"msg\":\"ok\",\"data\":{\"order\":{\"id\":107,\"order_sn\":\"BS2021121719321944572625\",\"uid\":\"bs91ca7180113e01fde28a157bb75bb78c\",\"status\":3,\"price\":\"0.02\",\"pay_price\":\"0.02\",\"add_time\":1639740739,\"up_time\":1639741088,\"send_time\":0,\"pay_time\":1639740739,\"pay_type\":\"credit\",\"trans_id\":\"\",\"address\":{\"id\":11,\"uid\":\"bs91ca7180113e01fde28a157bb75bb78c\",\"province\":\"北京\",\"city\":\"北京市\",\"area\":\"东城区\",\"town\":\"\",\"address\":\"xxxx浩\",\"is_default\":1,\"mobile\":\"1655555555\",\"username\":\"小编\"},\"cancel_pay_time\":1639744339,\"store_num\":\"123456\",\"is_del\":0,\"pay_openid\":\"\",\"express_com\":\"yunda\",\"express_no\":\"1234444444444444444\",\"refund_total\":\"0.00\",\"receive_time\":1639741088,\"refund\":null},\"address\":{\"id\":11,\"uid\":\"bs91ca7180113e01fde28a157bb75bb78c\",\"province\":\"北京\",\"city\":\"北京市\",\"area\":\"东城区\",\"town\":\"\",\"address\":\"xxxx浩\",\"is_default\":1,\"mobile\":\"1655555555\",\"username\":\"小编\"},\"goods_list\":[{\"id\":73,\"order_sn\":\"BS2021121719321944572625\",\"goods_id\":47,\"thumb\":\"https:\\/\\/img.pddpic.com\\/gaudit-image\\/2021-11-21\\/1550c02383aec776ebc721a33478bf9e.jpeg\",\"title\":\"珀莱雅水乳护肤品套装女学生党化妆品全套洗面奶爽肤补水保湿正牌\",\"price\":\"0.01\",\"count\":1,\"commented\":null},{\"id\":74,\"order_sn\":\"BS2021121719321944572625\",\"goods_id\":48,\"thumb\":\"https:\\/\\/t00img.yangkeduo.com\\/goods\\/images\\/2020-09-03\\/7d8faca96b4c63215df0ac0d9e0c69ef.jpeg\",\"title\":\"南极人袜子男中筒秋冬季保暖船袜男士袜子复古百搭透气高筒篮球袜\",\"price\":\"0.01\",\"count\":1,\"commented\":{\"id\":3}}]}}",
           "type": "json"
         }
       ]
@@ -2156,6 +2443,84 @@ define({ "api": [
         {
           "title": "Success-Response:",
           "content": "{\"code\":0,\"msg\":\"ok\",\"data\":{\"count\":{\"order\":{\"count0\":\"1\",\"count1\":\"19\",\"count2\":\"1\",\"count3\":\"2\"},\"credit\":{\"point\":78,\"credit\":\"100322.78\"},\"goods\":4,\"msg\":9}}}",
+          "type": "json"
+        }
+      ]
+    },
+    "filename": "api/user.php",
+    "groupTitle": "user"
+  },
+  {
+    "version": "1.0.0",
+    "type": "post",
+    "url": "/mall/user/feedback",
+    "title": "<newapi>[新]</newapi>留言反馈",
+    "name": "user_feedback",
+    "group": "user",
+    "parameter": {
+      "fields": {
+        "Parameter": [
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "category",
+            "description": "<p>分类，请参考页面</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": false,
+            "field": "content",
+            "description": "<p>内容，200字以内</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "from",
+            "description": "<p>来源，msg-留言，feedback-反馈</p>"
+          },
+          {
+            "group": "Parameter",
+            "type": "String",
+            "optional": true,
+            "field": "imgs",
+            "description": "<p>图片地址，多个用逗号分开</p>"
+          }
+        ]
+      }
+    },
+    "success": {
+      "fields": {
+        "Success 200": [
+          {
+            "group": "Success 200",
+            "type": "Number",
+            "optional": false,
+            "field": "code",
+            "description": "<p>返回信息码 0 表示查询正常</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "msg",
+            "description": "<p>返回说明信息</p>"
+          },
+          {
+            "group": "Success 200",
+            "type": "String",
+            "optional": false,
+            "field": "data",
+            "description": "<p>数据层</p>"
+          }
+        ]
+      },
+      "examples": [
+        {
+          "title": "Success-Response:",
+          "content": "{\"code\":0,\"msg\":\"感谢您的留言\\/反馈\",\"data\":[]}",
           "type": "json"
         }
       ]

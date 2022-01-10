@@ -1,37 +1,79 @@
-<div class="form-group">
-    <div class="card-body table-responsive p-0">
-        <span class="btn btn-success"><i class="fas fa-plus"></i></span>
-        <table class="table   text-nowrap">
-            <thead>
-            <tr>
-                <th >属性</th>
-                <th>值</th>
-                <th>库存</th>
-                <th>价格</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr>
-                <td rowspan="4" style="text-align: center;vertical-align: middle" >颜色</td>
-            </tr>
-            <tr>
-                <td>红色</td>
-                <td>12</td>
-                <td>12.00</td>
-            </tr>
-            <tr>
-                <td>白色</td>
-                <td>144</td>
-                <td>12.00</td>
-            </tr>
-            <tr>
-                <td>蓝色</td>
-                <td>13</td>
-                <td>133.00</td>
-            </tr>
-
-            </tbody>
-        </table>
+<div class="container-fluid">
+    <div class="spec-content">
+        <div class="spec-group" spId="1" spName="机身颜色">
+            <div class="title">机身颜色</div>
+            <div class="value-content row">
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="iphone X 深空灰 原封" value="101">iphone X 深空灰 原封
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="iphone X 银色 原封" value="102">iphone X 银色 原封
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="澳门版深空灰 三网通 原封" value="103">澳门版深空灰 三网通 原封
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="澳门版深银色 三网通 原封" value="104">澳门版深银色 三网通 原封
+                </div>
+            </div>
+        </div>
+        <div class="spec-group" spId="2" spName="套餐类型">
+            <div class="title">套餐类型</div>
+            <div class="value-content row">
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="官方标配" value="201">官方标配
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="套餐一" value="202">套餐一
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="套餐二" value="203">套餐二
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="套餐三" value="204">套餐三
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="套餐四" value="205">套餐四
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="套餐五" value="206">套餐五
+                </div>
+            </div>
+        </div>
+        <div class="spec-group" spId="3" spName="存储容量">
+            <div class="title">存储容量</div>
+            <div class="value-content row">
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="64G" value="301">64G
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="128G" value="302">128G
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="256G" value="303">256G
+                </div>
+            </div>
+        </div>
+        <div class="spec-group" spId="4" spName="版本类型">
+            <div class="title">版本类型</div>
+            <div class="value-content row">
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="港澳台" value="401">港澳台
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="亚太" value="402">亚太
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="中国大陆" value="403">中国大陆
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="日本" value="404">日本
+                </div>
+                <div class="col-md-2">
+                    <input type="checkbox" spValueName="欧洲" value="405">欧洲
+                </div>
+            </div>
+        </div>
     </div>
+    <div id="createTable"></div>
 </div>
-<hr>

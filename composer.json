@@ -24,7 +24,8 @@
         "phpmailer/phpmailer": "^6.5",
         "topthink/think-captcha": "1.*",
         "alibabacloud/dysmsapi-20170525": "2.0.8",
-      "ext-pdo": "*"
+        "qiniu/php-sdk": "^7.4",
+        "aliyuncs/oss-sdk-php": "^2.4"
     },
     "autoload": {
         "psr-4": {

@@ -136,6 +136,7 @@
     {"code":0,"msg":"ok","data":{"user_info":{"account":"wei@alipay168.cn","uid":"bs76eb38dc7a8550b10d506b157e17d50f","status":1}}}
  *
  */
+
 /**
  * @apiVersion 1.0.0
  * @api {post}  /mall/user/msg_list <newapi>[新]</newapi>消息-列表
@@ -150,5 +151,26 @@
  *
  * @apiSuccessExample Success-Response:
 {"code":0,"msg":"ok","data":{"msg_list":[{"id":9,"title":"退款成功","content":"您的订单已退款，请自行查看订单......","type":1,"add_time":"2021年12月22日","typeDesc":"系统通知"},{"id":8,"title":"退款成功","content":"您的订单已退款，请自行查看订单......","type":1,"add_time":"2021年12月22日","typeDesc":"系统通知"},{"id":7,"title":"您购买的商品发货啦","content":"您购买的商品发货了，查看发货信......","type":1,"add_time":"2021年12月22日","typeDesc":"系统通知"},{"id":6,"title":"您购买的商品发货啦","content":"您购买的商品发货了，查看发货信......","type":1,"add_time":"2021年12月22日","typeDesc":"系统通知"},{"id":5,"title":"确认收货成功","content":"您购买的商品已被确认收货，若不......","type":1,"add_time":"2021年12月22日","typeDesc":"系统通知"},{"id":4,"title":"您购买的商品发货啦","content":"您购买的商品发货了，查看发货信......","type":1,"add_time":"2021年12月22日","typeDesc":"系统通知"},{"id":3,"title":"您购买的商品发货啦","content":"您购买的商品发货了，查看发货信......","type":1,"add_time":"2021年12月22日","typeDesc":"系统通知"},{"id":2,"title":"您购买的商品发货啦","content":"您购买的商品发货了，查看发货信......","type":1,"add_time":"2021年12月22日","typeDesc":"系统通知"},{"id":1,"title":"您购买的商品发货啦","content":"您购买的商品发货了，查看发货信......","type":1,"add_time":"2021年12月22日","typeDesc":"系统通知"}]}}
+ *
+ */
+
+
+/**
+ * @apiVersion 1.0.0
+ * @api {post}  /mall/user/feedback <newapi>[新]</newapi>留言反馈
+ * @apiName user_feedback
+ * @apiGroup user
+ *
+ * * @apiParam {String} category 分类，请参考页面
+ * * @apiParam {String} content 内容，200字以内
+ * * @apiParam {String} [from] 来源，msg-留言，feedback-反馈
+ * * @apiParam {String} [imgs] 图片地址，多个用逗号分开
+ *
+ * @apiSuccess {Number} code 返回信息码 0 表示查询正常
+ * @apiSuccess {String} msg 返回说明信息
+ * @apiSuccess {String} data 数据层
+ *
+ * @apiSuccessExample Success-Response:
+{"code":0,"msg":"感谢您的留言\/反馈","data":[]}
  *
  */

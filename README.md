@@ -29,10 +29,17 @@
 ![ 后台](./public/test/admin1.png "后台")
 
 
+
+
 商品管理
 ![ 后台](./public/test/admin2.png "后台")
 
+应用中心（测试中）
+
+![ 后台](./public/test/admin3.png "后台")
+
 #### 接口文档
+  [https://doc.bs.shop.wei1.top/](https://doc.bs.shop.wei1.top/)  <br>
 客户端（商城端）的接口文档在doc目录的html里面，直接打开即可。
 生成：用apidoc的@0.19.1生成，tpl为生成模板（已自定义样式）
 ![ apidoc](./public/test/doc1.png "apidoc")

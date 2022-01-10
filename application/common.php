@@ -11,6 +11,13 @@
 
 // 应用公共文件
 
+/**
+ * @param string $msg
+ * @param int $code
+ * @param array $data
+ * @param bool $exit
+ * @return array|void
+ */
 function data_return($msg = '操作成功', $code = 0, $data = [], $exit = true)
 {
     $ret = [
@@ -21,6 +28,22 @@ function data_return($msg = '操作成功', $code = 0, $data = [], $exit = true)
     if ($exit) {
         exit(json_encode($ret, JSON_UNESCAPED_UNICODE));
     }
+    return $ret;
+}
+
+/**
+ * @param string $msg
+ * @param int $code
+ * @param array $data
+ * @return array
+ */
+function data_return_arr($msg = '操作成功', $code = 0, $data = [])
+{
+    $ret = [
+        'code' => $code,
+        'msg' => $msg,
+        'data' => $data
+    ];
     return $ret;
 }
 
@@ -428,4 +451,33 @@ function is_ip($ip)
     } else {
         return false;
     }
+}
+
+/**
+ * 循环删除目录和文件
+ * @param string $dir_name
+ * @return bool
+ */
+function delete_dir_file($dir_name)
+{
+    $result = false;
+    if (is_dir($dir_name)) {
+        if ($handle = opendir($dir_name)) {
+            while (false !== ($item = readdir($handle))) {
+                if ($item != '.' && $item != '..') {
+                    if (is_dir($dir_name . DS . $item)) {
+                        delete_dir_file($dir_name . DS . $item);
+                    } else {
+
+                        unlink($dir_name . DS . $item);
+                    }
+                }
+            }
+            closedir($handle);
+            if (rmdir($dir_name)) {
+                $result = true;
+            }
+        }
+    }
+    return $result;
 }

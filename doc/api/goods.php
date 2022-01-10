@@ -65,3 +65,24 @@
 
  *
  */
+
+/**
+ * @apiVersion 1.0.0
+ * @api {post}  /mall/goods/get_comment  <newapi>[新]</newapi>商品-获取评价
+ * @apiName goods_get_comment
+ * @apiGroup goods
+ *
+
+ * @apiParam {Number} id 商品ID
+ * @apiParam {Number} [page] 分页，默认1
+
+ *
+ * @apiSuccess {Number} code 返回信息码 0 表示查询正常
+ * @apiSuccess {String} msg 返回说明信息
+ * @apiSuccess {String} data 数据层
+
+ *
+ * @apiSuccessExample Success-Response:
+{"code":0,"msg":"ok","data":{"comment":[{"is_hide_user":1,"content":"实在太好了，我喜欢","imgs":["http:\/\/shop.test.top\/upload\/mall\/comment\/b7a41d904b4d6cb5bffae74d906b05ab.jpg","http:\/\/shop.test.top\/upload\/mall\/comment\/539368c2b485262dc9cc7a9986b246d5.jpeg","http:\/\/shop.test.top\/upload\/mall\/comment\/48cf5010823149f7fe322b7b8bb3c523.jpg"],"status":1,"add_time":"2021-12-17","uid":"bs91ca7180113e01fde28a157bb75bb78c","star":5,"user":{"avatar":"http:\/\/shop.test.top\/\/static\/com\/img\/user-default.jpg","nickname":"匿名用户"}},{"is_hide_user":1,"content":"实在太好了，我喜欢","imgs":["http:\/\/shop.test.top\/upload\/mall\/comment\/b7a41d904b4d6cb5bffae74d906b05ab.jpg","http:\/\/shop.test.top\/upload\/mall\/comment\/539368c2b485262dc9cc7a9986b246d5.jpeg","http:\/\/shop.test.top\/upload\/mall\/comment\/48cf5010823149f7fe322b7b8bb3c523.jpg"],"status":1,"add_time":"2021-12-17","uid":"bs91ca7180113e01fde28a157bb75bb78c","star":5,"user":{"avatar":"http:\/\/shop.test.top\/\/static\/com\/img\/user-default.jpg","nickname":"匿名用户"}},{"is_hide_user":1,"content":"实在太好了，我喜欢","imgs":["http:\/\/shop.test.top\/upload\/mall\/comment\/b7a41d904b4d6cb5bffae74d906b05ab.jpg","http:\/\/shop.test.top\/upload\/mall\/comment\/539368c2b485262dc9cc7a9986b246d5.jpeg","http:\/\/shop.test.top\/upload\/mall\/comment\/48cf5010823149f7fe322b7b8bb3c523.jpg"],"status":1,"add_time":"2021-12-17","uid":"bs91ca7180113e01fde28a157bb75bb78c","star":5,"user":{"avatar":"http:\/\/shop.test.top\/\/static\/com\/img\/user-default.jpg","nickname":"匿名用户"}},{"is_hide_user":1,"content":"实在太好了，我喜欢","imgs":["http:\/\/shop.test.top\/upload\/mall\/comment\/b7a41d904b4d6cb5bffae74d906b05ab.jpg","http:\/\/shop.test.top\/upload\/mall\/comment\/539368c2b485262dc9cc7a9986b246d5.jpeg","http:\/\/shop.test.top\/upload\/mall\/comment\/48cf5010823149f7fe322b7b8bb3c523.jpg"],"status":1,"add_time":"2021-12-17","uid":"bs91ca7180113e01fde28a157bb75bb78c","star":5,"user":{"avatar":"http:\/\/shop.test.top\/\/static\/com\/img\/user-default.jpg","nickname":"匿名用户"}},{"is_hide_user":1,"content":"实在太好了，我喜欢","imgs":["http:\/\/shop.test.top\/upload\/mall\/comment\/b7a41d904b4d6cb5bffae74d906b05ab.jpg","http:\/\/shop.test.top\/upload\/mall\/comment\/539368c2b485262dc9cc7a9986b246d5.jpeg","http:\/\/shop.test.top\/upload\/mall\/comment\/48cf5010823149f7fe322b7b8bb3c523.jpg"],"status":1,"add_time":"2021-12-17","uid":"bs91ca7180113e01fde28a157bb75bb78c","star":5,"user":{"avatar":"http:\/\/shop.test.top\/\/static\/com\/img\/user-default.jpg","nickname":"匿名用户"}},{"is_hide_user":1,"content":"袜子质量一般，有点味道","imgs":["http:\/\/shop.test.top\/upload\/mall\/comment\/971a73545d147bdac869a029f690f08a.jpeg"],"status":1,"add_time":"2021-12-17","uid":"bs91ca7180113e01fde28a157bb75bb78c","star":3,"user":{"avatar":"http:\/\/shop.test.top\/\/static\/com\/img\/user-default.jpg","nickname":"匿名用户"}}]}}
+ *
+ */

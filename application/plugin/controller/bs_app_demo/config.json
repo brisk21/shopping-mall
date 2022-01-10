@@ -1,0 +1,19 @@
+{
+  "info": {
+    "plugin_tag": "bs_app_demo",
+    "category_id": 6,
+    "name": "简单demo",
+    "logo": "\/static\/plugins\/bs_app_demo\/img\/logo.png",
+    "author": "官方",
+    "author_url": "https:\/\/demo.bs.shop.wei1.top\/",
+    "version": "1.0.0",
+    "desc": "简单的目录结构",
+    "contact": "微信：wei1-top",
+    "can_install": 1,
+    "has_front_page": 1,
+    "need_config": 1
+  },
+  "hook": [],
+  "add_time": 1641813379,
+  "up_time": 1641813451
+}

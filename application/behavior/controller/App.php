@@ -25,27 +25,27 @@ class App
         $domains = ['localhost', 'shop.test.top', 'demo.bs.shop.wei1.top'];
         $refer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
         if (!empty($refer) && in_array(parse_url($refer, PHP_URL_HOST), $domains)) {
-            header('Access-Control-Allow-Origin: *');
-            header('Access-Control-Allow-Methods: POST, GET, PUT, OPTIONS'); //支持的http 动作
-            header('Access-Control-Allow-Headers: *');//设置支持的header
+            @header('Access-Control-Allow-Origin: *');
+            @header('Access-Control-Allow-Methods: POST, GET, PUT, OPTIONS'); //支持的http 动作
+            @header('Access-Control-Allow-Headers: *');//设置支持的header
             // 带 cookie 的跨域访问
             //header('Access-Control-Allow-Credentials: true');
             // 响应头设置
             //header('Access-Control-Allow-Headers:x-requested-with,Content-Type,X-CSRF-Token');
             //响应options这种试探类型请求
             if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
-                header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
+                @header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept, Authorization");
                 Response::create()->contentType("application/json")->code(200)->send();
             }
         }
 
         //数据库查询慢日志监控
         Db::listen(function ($sql, $time, $explain, $master) {
-            if ($time >= 5 && stripos($sql,'SHOW COLUMNS')===false) {
-                DiyLog::$save_path =  RUNTIME_PATH . '/log/diy/sql/';
+            if ($time >= 5 && stripos($sql, 'SHOW COLUMNS') === false) {
+                DiyLog::$save_path = RUNTIME_PATH . '/log/diy/sql/';
                 DiyLog::file([
-                    'sql'=>$sql, 'time'=>$time,'explain'=> $explain, 'master'=>$master
-                ],date('Ymd.log'));
+                    'sql' => $sql, 'time' => $time, 'explain' => $explain, 'master' => $master
+                ], date('Ymd.log'));
             }
         });
     }
@@ -72,7 +72,7 @@ class App
         }
         //限流配置
         $route = !empty($params['module']) ? join('|', $params['module']) : '';
-        $keyRequest = 'request_limit_' . md5($ip . $route . __FILE__);
+        $keyRequest = 'request_limit_' . md5($ip . $route . __FILE__ . date('YmdHis'));
         if (extension_loaded('redis')) {
             $cacheDriver = 'redis';
         } elseif (extension_loaded('memcached')) {
@@ -88,8 +88,7 @@ class App
         } else {
             $ipCount++;
         }
-
-        Cache::store($cacheDriver)->set($keyRequest, $ipCount, 1);
+        Cache::store($cacheDriver)->set($keyRequest, $ipCount, 3);
 
         //同一个接口请求每秒限流
         if ($ipCount >= 10) {

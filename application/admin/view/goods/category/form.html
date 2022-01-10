@@ -104,7 +104,7 @@
         uploadScript      :  "<{:url('/admin/upload/image')}>" , //后台处理的url
         width         : 120, //宽度
         buttonText:  '上传图片' ,  //按钮显示的文字
-        fileTypeExts:   '*.jpg; *.png;*.jpeg' , //上传文件的类型,默认为所有文件,多个类型使用;分割'*.gif; *.jpg; *.png'
+        fileType:   '.jpg,.png,.jpeg' , //上传文件的类型,默认为所有文件,多个类型使用,分割'.gif,.jpg,.png'
         fileTypeDesc:  'Image Files' , //可选择文件的描述,在浏览窗口底部的文件类型下拉菜单中显示的文本
         formData: { 'fileKey' : 'bs_shop' , 'from' :'bscategory'}, //发送给后台的其他参数通过formData指定
         auto:  true , //选择文件后自动上传
