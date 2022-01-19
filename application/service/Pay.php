@@ -96,6 +96,59 @@ class Pay
         return ['code' => 0, 'msg' => 'ok', 'data' => $arr];
     }
 
+    //微信H5支付，在wap网页打开微信
+    public static function wx_h5($param)
+    {
+        if (!isMobile() || fromClient() == 'weixin') {
+            return ['code' => -1, 'msg' => '请在非微信移动端网页打开'];
+        }
+        if (empty($param['order'])) {
+            return ['code' => -1, 'msg' => '订单信息不存在'];
+        }
+        $wxConfig = self::get_wx_config();
+        if (isset($wxConfig['code'])) {
+            return $wxConfig;
+        }
+
+        $payData = [
+            'body' => !empty($param['body']) ? $param['body'] : '商品支付',
+            'subject' => !empty($param['subject']) ? $param['subject'] : '商品信息请查看订单',
+            'trade_no' => $param['order']['order_sn'],
+            'time_expire' => $param['order']['cancel_pay_time'],// 表示必须 600s 内付款
+            'amount' => $param['order']['price'],
+            'return_param' => 'bswxh5',
+            'client_ip' => request()->ip(),// 客户地址
+            'scene_info' => [
+                'type' => 'Wap',// IOS  Android  Wap  腾讯建议 IOS  ANDROID 采用app支付
+                'wap_url' => !empty($param['url']) ? $param['url'] : '',//自己的 wap 地址
+                'wap_name' => '微信支付',
+            ],
+            'redirect_url' => empty($param['redirect_url']) ? '' : urlencode($param['redirect_url'])
+        ];
+
+        try {
+            $client = new \Payment\Client(\Payment\Client::WECHAT, $wxConfig);
+            $res = $client->pay(\Payment\Client::WX_CHANNEL_WAP, $payData);
+        } catch (\InvalidArgumentException $e) {
+            self::del_tmp_pem($wxConfig);
+            return ['code' => -1, 'msg' => $e->getMessage()];
+        } catch (\Payment\Exceptions\GatewayException $e) {
+            self::del_tmp_pem($wxConfig);
+            return ['code' => -1, 'msg' => $e->getMessage()];
+        } catch (\Payment\Exceptions\ClassNotFoundException $e) {
+            self::del_tmp_pem($wxConfig);
+            return ['code' => -1, 'msg' => $e->getMessage()];
+        }
+
+        //支付完成后跳转的页面
+        if (!empty($payData['redirect_url'])) {
+            $res['mweb_url'] = $res['mweb_url'] . '&redirect_url=' . $payData['redirect_url'];
+        }
+        self::del_tmp_pem($wxConfig);
+        return ['code' => 0, 'msg' => 'ok', 'data' => $res];
+    }
+
+
     /**
      * 充值订单参数
      * @param $order
@@ -221,7 +274,7 @@ class Pay
             return ['code' => -1, 'msg' => '订单未找到'];
         }
 
-        $refundNo = 'BSRE'.time().get_random(10,true);
+        $refundNo = 'BSRE' . time() . get_random(10, true);
         $data = [
             'trade_no' => $order_sn,
             'transaction_id' => !empty($order['trans_id']) ? $order['trans_id'] : '',
@@ -250,7 +303,7 @@ class Pay
         //DiyLog::file($res, 'wxrefund.log');
 
 
-        if ($res['return_code'] <> 'SUCCESS' || $res['result_code'] <> 'SUCCESS'){
+        if ($res['return_code'] <> 'SUCCESS' || $res['result_code'] <> 'SUCCESS') {
             return ['code' => -1, 'msg' => $res['return_msg']];
         }
         self::del_tmp_pem($wxConfig);

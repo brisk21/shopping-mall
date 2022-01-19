@@ -300,7 +300,7 @@ function is_url($str)
  * @param int $length
  * @return string
  */
-function GetNumberCode($length = 6)
+function getNumberCode($length = 6)
 {
     $code = '';
     for ($i = 0; $i < intval($length); $i++) $code .= rand(1, 9);
@@ -480,4 +480,90 @@ function delete_dir_file($dir_name)
         }
     }
     return $result;
+}
+
+/**
+ * 获取表全名
+ * @param $table
+ * @return string
+ */
+function table_name($table)
+{
+    $prefix = config('database.prefix');
+    return $prefix . $table;
+}
+
+/**
+ * 封装curl的调用接口，post的请求方式
+ * @param $url
+ * @param $requestString
+ * @param int $timeout
+ * @return bool|mixed
+ */
+function curl_post_request($url, $requestString, $timeout = 5)
+{
+    if ($url == "" || $requestString == "" || $timeout <= 0) {
+        return false;
+    }
+    $con = curl_init((string)$url);
+    curl_setopt($con, CURLOPT_HEADER, false);
+    curl_setopt($con, CURLOPT_POSTFIELDS, $requestString);
+    curl_setopt($con, CURLOPT_POST, true);
+    curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($con, CURLOPT_SSL_VERIFYPEER, false); //信任任何证书
+    curl_setopt($con, CURLOPT_SSL_VERIFYHOST, 0); // 检查证书中是否设置域名,0不验证
+    curl_setopt($con, CURLOPT_TIMEOUT, (int)$timeout);
+    return curl_exec($con);
+}
+
+/**
+ * 新增post请求
+ */
+function curl_post_request_array($url, $post_data, $timeout = 10)
+{
+    $con = curl_init();
+    curl_setopt($con, CURLOPT_URL, $url);
+    //设置头文件的信息作为数据流输出
+    curl_setopt($con, CURLOPT_HEADER, 0);
+    //设置获取的信息以文件流的形式返回，而不是直接输出。
+    curl_setopt($con, CURLOPT_RETURNTRANSFER, 1);
+    curl_setopt($con, CURLOPT_POST, 1);
+    curl_setopt($con, CURLOPT_POSTFIELDS, http_build_query($post_data));
+    curl_setopt($con, CURLOPT_SSL_VERIFYPEER, false); //信任任何证书
+    curl_setopt($con, CURLOPT_SSL_VERIFYHOST, 0); // 检查证书中是否设置域名,0不验证
+    //请求时间
+    //设置header信息
+
+    curl_setopt($con, CURLOPT_TIMEOUT, (int)$timeout);
+    $res = curl_exec($con);
+    //print_r(curl_error($con));
+    curl_close($con);
+    return $res;
+}
+
+/**
+ * 封装curl的调用接口，get的请求方式
+ * @param $url
+ * @param array $data
+ * @param int $timeout
+ * @return bool|mixed
+ */
+function curl_get_request($url, $data = array(), $timeout = 10, $header = [])
+{
+    if ($url == "" || $timeout <= 0) {
+        return false;
+    }
+    if ($data != array()) {
+        $url = $url . '?' . http_build_query($data);
+    }
+    $con = curl_init((string)$url);
+    curl_setopt($con, CURLOPT_HEADER, false);
+    curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($con, CURLOPT_SSL_VERIFYPEER, false); //信任任何证书
+    curl_setopt($con, CURLOPT_SSL_VERIFYHOST, 0); // 检查证书中是否设置域名,0不验证
+    if (!empty($headers)) {
+        curl_setopt($con, CURLOPT_HTTPHEADER, $headers);
+    }
+    curl_setopt($con, CURLOPT_TIMEOUT, (int)$timeout);
+    return curl_exec($con);
 }

@@ -133,6 +133,10 @@
           item+= ' <div class="weui-panel__ft">\n' +
                   ' <div class="weui-cell weui-cell_access weui-cell_link oder-opt-btnbox">\n'  ;
 
+                  if (orders[i].express_no){
+                    item+='<a href="<{:url(\'/mall/order/express\')}>?order_sn='+orders[i].order_sn+'" class="ords-btn-com express" data-sn="'+orders[i].order_sn+'">查看物流</a>';
+                  }
+
           if (orders[i].status=='0'){
             item+='<a href="javascript:;" class="ords-btn-dele" data-sn="'+orders[i].order_sn+'">删除订单</a>' +
                     '<a href="<{:url(\'/mall/order/detail\')}>?order_sn='+orders[i].order_sn+'" class="ords-btn-com" data-sn="'+orders[i].order_sn+'">去付款</a>';
@@ -151,7 +155,9 @@
               item+='<a href="<{:url(\'/mall/order/virtual\')}>?order_sn='+orders[i].order_sn+'" class="ords-btn-com " data-sn="'+orders[i].order_sn+'">查看发货</a>';
               item+='<a href="javascript:;" class="ords-btn-com receipt" data-sn="'+orders[i].order_sn+'">确认收货</a>';
             }else {
+
               item+='<a href="javascript:;" class="ords-btn-com receipt" data-sn="'+orders[i].order_sn+'">确认收货</a>';
+
             }
           }else if(orders[i].status==3){
             if (orders[i].order_type==3){

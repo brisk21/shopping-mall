@@ -229,6 +229,9 @@
         }
 
       }else {
+        if (ret.data.payParam.mweb_url&&ret.data.payParam.mweb_url!=='undefined'){
+          return location.href = ret.data.payParam.mweb_url;
+        }
         callpay(ret.data.payParam)
       }
     })

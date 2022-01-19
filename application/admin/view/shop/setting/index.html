@@ -137,7 +137,18 @@
                                             </div>
                                             <span class="bs-red">启用游客登录后用户可以临时创建一个账号，账号、密码都是随机，享有和注册一样的权限，但不支持二次登录，可以后台修改登录信息。</span>
                                         </div>
-
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="wx_login">是否支持微信登录</label>
+                                        <div class="form-group clearfix">
+                                            <div class="icheck-success d-block ">
+                                                <input type="checkbox" name="wx_login" id="wx_login" <{if !empty($data.wx_login)}>checked<{/if}>  >
+                                                <label for="wx_login">
+                                                    支持
+                                                </label>
+                                            </div>
+                                            <span class="bs-red">开启后用微信自动创建账号，也可以自己绑定后进行微信登录，在设置中心支持解绑微信。</span>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="card-footer">

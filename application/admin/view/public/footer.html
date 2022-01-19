@@ -51,6 +51,38 @@
                },true,true)
             });
         }
+        if ($(".admin-msg-count-box").length>0){
+            setInterval(function () {
+                check_msg();
+            },30000)
+
+        }
+
+        check_msg();
     })
+
+    function check_msg() {
+        sendData("<{:url('/admin/index/msg_count')}>",{},function (res) {
+            if (res.code==0){
+                var $box = $(".admin-msg-count-box")[0];
+                $($box).find('.total-count').text(res.data.total>0?res.data.total:'')
+
+                var $listListDiv = $($box).find('.msg-list');
+                $($listListDiv).empty();
+                if (res.data.total>0){
+                    for (var i=0;i<res.data.msg_list.length;i++){
+                        $($listListDiv).append('<div class="dropdown-divider"></div>\n' +
+                            '                <a href="<{:url(\'/admin/index/msg\')}>" class="dropdown-item">\n' +
+                            '                    <i class="fas '+res.data.msg_list[i].icon+' mr-2"></i> '+res.data.msg_list[i].total+' '+res.data.msg_list[i].msg_type_desc+'\n' +
+                            '                    <span class="float-right text-muted text-sm"></span>\n' +
+                            '                </a')
+                    }
+                }
+
+
+
+            }
+        },true,true)
+    }
 
 </script>

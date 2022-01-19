@@ -312,4 +312,7 @@ return [
         'defaultPath' => PUBLIC_PATH . 'upload/',//默认保存路径,
         'enable_type' => ['jpg', 'png', 'jpeg']
     ],
+    'bs' => [
+        'is_developer' => true
+    ],
 ];

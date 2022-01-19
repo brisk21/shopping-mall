@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang='zh'>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>物流查询</title>
+    <{include file="public/header" /}>
+    <style>
+        #ordertrack td {
+            vertical-align: top;
+        }
+
+        table {
+            empty-cells: show;
+        }
+        body {
+            color: #666;
+            font: 12px/150% Arial,Verdana,"宋体";
+        }
+
+        #mohe-kuaidi_new .mh-icon-new {
+            background-position: 0 -58px;
+            height: 18px;
+            left: -20px;
+            margin-left: -41px;
+            margin-top: -9px;
+            position: absolute;
+            top: 1.5em;
+            width: 41px;
+        }
+        h1, h2, h3, h4, h5, h6, input, textarea, select, cite, em, i, b, strong, th {
+            font-size: 100%;
+            font-style: normal;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap .mh-list li.first {
+            color: #3eaf0e;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap .mh-list li {
+            color: #666;
+        }
+
+        p, form, ol, ul, li, h3, menu {
+            list-style: outside none none;
+        }
+        body, th, td {
+            font-family: arial;
+            color: #333;
+        }
+
+        #mohe-kuaidi_new .mh-wrap {
+            margin: 6px 0;
+        }
+
+        #mohe-kuaidi_new .mh-wrap a {
+            text-decoration: none;
+        }
+
+        #mohe-kuaidi_new .mh-wrap a:hover {
+            text-decoration: underline;
+        }
+
+
+        #mohe-kuaidi_new .mh-form-wrap p {
+            margin: 10px 0;
+        }
+
+        #mohe-kuaidi_new .mh-form-wrap p label {
+            margin-right: 10px;
+            vertical-align: middle;
+            padding: 6px 0;
+        }
+
+        #mohe-kuaidi_new .mh-form-wrap p input, #mohe-kuaidi_new .mh-form-wrap p select {
+            width: 186px;
+            line-height: normal;
+            border: 1px solid #ccc;
+            padding: 6px;
+            box-sizing: border-box;
+            margin: 0;
+        }
+
+        #mohe-kuaidi_new .mh-form-wrap p button {
+            width: 80px;
+            height: 28px;
+            border: 1px solid #ccc;
+            margin-left: 10px;
+            text-align: center;
+            color: #333;
+            font-family: "Microsoft Yahei";
+            font-size: 14px;
+            cursor: pointer;
+            background: #f7f7f7;
+            background: -moz-linear-gradient(top,#f7f7f7,#ececec);
+            background: -webkit-gradient(linear,left top,left bottom,color-stop(#f7f7f7),color-stop(#ececec));
+            background: -ms-linear-gradient(top,#f7f7f7,#ececec);
+            background: linear-gradient(to bottom,#f7f7f7,#ececec);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f7f7f7',endColorstr='#ececec',GradientType=0);
+        }
+
+        #mohe-kuaidi_new .mh-form-wrap p button:hover {
+            background: -moz-linear-gradient(top,#ececec,#f7f7f7);
+            background: -webkit-gradient(linear,left top,left bottom,color-stop(#ececec),color-stop(#f7f7f7));
+            background: -ms-linear-gradient(top,#ececec,#f7f7f7);
+            background: linear-gradient(to bottom,#ececec,#f7f7f7);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ececec',endColorstr='#f7f7f7',GradientType=0);
+        }
+
+        #mohe-kuaidi_new .mh-form-wrap p button:active {
+            background: -moz-linear-gradient(top,#f3f3f3,#fff);
+            background: -webkit-gradient(linear,left top,left bottom,color-stop(#f3f3f3),color-stop(#fff));
+            background: -ms-linear-gradient(top,#f3f3f3,#fff);
+            background: linear-gradient(to bottom,#f3f3f3,#fff);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f3f3f3',endColorstr='#ffffff',GradientType=0);
+        }
+
+        #mohe-kuaidi_new .mh-form-wrap form.mh-loading p button {
+            position: relative;
+            color: transparent;
+            pointer-events: none;
+        }
+
+        #mohe-kuaidi_new .mh-form-wrap .mh-error label {
+            visibility: hidden;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap {
+            max-height: 0;
+            _height: 0;
+            --overflow: hidden;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap.mh-unfold {
+            max-height: 281px;
+            _height: 281px;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap .mh-list {
+            border-top: 1px solid #eee;
+           /* margin: 0 15px;*/
+            padding: 15px 0;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap .mh-list ul {
+            max-height: 255px;
+            _height: 255px;
+            padding-left: 75px;
+            padding-right: 20px;
+            --overflow: auto;
+            height: 626px;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap .mh-list li {
+            position: relative;
+            border-bottom: 1px solid #f5f5f5;
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            color: #666;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap .mh-list li.first {
+            color: #3eaf0e;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap .mh-list li p {
+            line-height: 20px;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap .mh-list li .before {
+            position: absolute;
+            left: -13px;
+            top: 2.2em;
+            height: 82%;
+            width: 0;
+            border-left: 2px solid #ddd;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap .mh-list li .after {
+            position: absolute;
+            left: -16px;
+            top: 1.2em;
+            width: 8px;
+            height: 8px;
+            background: #ddd;
+            border-radius: 6px;
+        }
+
+        #mohe-kuaidi_new .mh-list-wrap .mh-list li.first .after {
+            background: #3eaf0e;
+        }
+
+        #mohe-kuaidi_new .mh-kd-wrap li {
+            display: none;
+        }
+
+
+
+        #mohe-kuaidi_new .mh-kd-wrap .mh-img-wrap img {
+            width: 50px;
+        }
+
+        #mohe-kuaidi_new .mh-kd-wrap .mh-info-wrap p {
+            margin-bottom: 8px;
+        }
+
+        #mohe-kuaidi_new .mh-kd-wrap .mh-info-wrap .mh-info-link a {
+            text-decoration: none;
+            margin-right: 10px;
+            padding: 2px 10px;
+            border: 1px solid #ccc;
+            color: #333;
+        }
+
+        #mohe-kuaidi_new .mh-kd-wrap .mh-info-wrap .mh-info-link a:hover {
+            background: white;
+        }
+
+        #mohe-kuaidi_new .mh-kd-wrap .mh-info-wrap .mh-info-link a:active {
+            background: -moz-linear-gradient(top,#f3f3f3,#fff);
+            background: -webkit-gradient(linear,left top,left bottom,color-stop(#f3f3f3),color-stop(#fff));
+            background: -ms-linear-gradient(top,#f3f3f3,#fff);
+            background: linear-gradient(to bottom,#f3f3f3,#fff);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f3f3f3',endColorstr='#ffffff',GradientType=0);
+        }
+
+
+        #mohe-kuaidi_new .mh-slogan span {
+            vertical-align: middle;
+        }
+
+
+
+
+
+        #mohe-kuaidi_new .mh-icon-new {
+            position: absolute;
+            left: -20px;
+            top: 1.5em;
+            width: 41px;
+            height: 18px;
+            margin-left: -41px;
+            margin-top: -9px;
+            background-position: 0 -58px;
+        }
+
+
+        #mohe-kuaidi_new .mh-identcode .mh-img-wrap img {
+            width: 54px;
+        }
+
+    </style>
+</head>
+<body>
+
+<div data-mohe-type="kuaidi_new" class="g-mohe " id="mohe-kuaidi_new">
+    <div id="mohe-kuaidi_new_nucom">
+        <div class="mohe-wrap mh-wrap">
+            <div class="mh-cont mh-list-wrap mh-unfold">
+                <div class="mh-list">
+                    <ul class="express_info">
+                        <!--<li class="first">
+                            <p>2015-04-28 11:23:28</p>
+                            <p>妥投投递并签收，签收人：他人收 他人收</p>
+                            <span class="before"></span><span class="after"></span><i class="mh-icon mh-icon-new"></i></li>
+                        <li>
+                            <p>2015-04-28 07:38:44</p>
+                            <p>深圳市南油速递营销部安排投递（投递员姓名：蔡远发<a href="tel:187xxxxx3">187xxxxx3</a>;联系电话：）</p>
+                            <span class="before"></span><span class="after"></span></li>
+                        <li>
+                            <p>2015-04-28 05:08:00</p>
+                            <p>到达广东省邮政速递物流有限公司深圳航空邮件处理中心处理中心（经转）</p>
+                            <span class="before"></span><span class="after"></span></li>
+                        <li>
+                            <p>2015-04-28 00:00:00</p>
+                            <p>离开中山市 发往深圳市（经转）</p>
+                            <span class="before"></span><span class="after"></span></li>
+                        <li>
+                            <p>2015-04-27 15:00:00</p>
+                            <p>到达广东省邮政速递物流有限公司中山三角邮件处理中心处理中心（经转）</p>
+                            <span class="before"></span><span class="after"></span></li>
+                        <li>
+                            <p>2015-04-27 08:46:00</p>
+                            <p>离开泉州市 发往中山市</p>
+                            <span class="before"></span><span class="after"></span>
+                        </li>
+                        <li>
+                            <p>2015-04-26 17:12:00</p>
+                            <p>泉州市速递物流分公司南区电子商务业务部已收件，（揽投员姓名：王光;联系电话：<a href="tel:187xxxxx3">187xxxxx3</a>）</p>
+                            <span class="before"></span><span class="after"></span></li>-->
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<{include file="public/footer" /}>
+
+<script>
+    var order_sn = bs_get_param('order_sn');
+    bs_request("<{:url('express')}>",{order_sn:order_sn},function (res) {
+        console.log(res);
+
+        if (res.code!==0){
+            return $.alert(res.msg)
+        }
+        if (res.data.express && res.data.express.length>0){
+            for (var i=0;i<res.data.express.length;i++){
+                var item;
+                if (i===0){
+                    item = '<li class="first"><p>'+res.data.express[i].time+'</p><p>'+res.data.express[i].status+'</p><span class="before"></span><span class="after"></span><i class="mh-icon mh-icon-new"></i></li><li>'
+                }else {
+                    item = '<li><p>'+res.data.express[i].time+'</p><p>'+res.data.express[i].status+'</p<span class="before"></span><span class="after"></span></li>';
+                }
+
+                $(".express_info").append(item)
+            }
+        }
+    });
+</script>
+</body>
+</html>

@@ -49,6 +49,7 @@ class CommonUser
             'loginCount' => !empty($data['loginCount']) ? $data['loginCount'] : 0,
             'nickname' => !empty($data['nickname']) ? $data['nickname'] : '',
             'remark' => !empty($data['remark']) ? $data['remark'] : '',
+            'openid_wx' => !empty($data['openid_wx']) ? $data['openid_wx'] : '',
         ]);
         if ($id && !empty($conf['reg_gift_credit'])) {
             $res = Credits::update($data['uid'], 'credit', $conf['reg_gift_credit'], [

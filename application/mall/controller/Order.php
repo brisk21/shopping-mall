@@ -6,6 +6,7 @@ namespace app\mall\controller;
 
 use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
+use app\service\AdminMsg;
 use app\service\ConfigService;
 use app\service\Credits;
 use app\service\DiyLog;
@@ -13,12 +14,16 @@ use app\service\ErrorService;
 use app\service\Msg;
 use app\service\Pay;
 use app\service\SafeService;
+use base\Express;
 use think\Db;
 use app\service\Order as ServerOrder;
 use think\Request;
 
 class Order extends Mall
 {
+    public $whiteList = [
+        'mall/order/express',
+    ];
     /**
      * 店铺的配置
      * @var array|mixed
@@ -105,7 +110,7 @@ class Order extends Mall
             $where['status'] = $status;
         }
         $where['is_del'] = 0;
-        $orders = AppCommon::data_list('order', $where, $page, 'order_sn,price,status,pay_time,pay_price,add_time,order_type,code_tihuo,tihuo_address', 'id desc');
+        $orders = AppCommon::data_list('order', $where, $page, 'order_sn,price,status,pay_time,pay_price,add_time,order_type,code_tihuo,tihuo_address,express_no', 'id desc');
 
         if (!empty($orders)) {
             foreach ($orders as &$order) {
@@ -207,32 +212,32 @@ class Order extends Mall
     //创建订单
     public function create()
     {
-        $ckey = 'order_create'.md5($this->uid.__FILE__.__FUNCTION__.'ABC');
-        if (cache($ckey)){
-            data_return('操作过于频繁，请稍后...',-1);
+        $ckey = 'order_create' . md5($this->uid . __FILE__ . __FUNCTION__ . 'ABC');
+        if (cache($ckey)) {
+            data_return('操作过于频繁，请稍后...', -1);
         }
-        cache($ckey,1,10);
+        cache($ckey, 1, 10);
 
         $shop_type = empty($this->config_shop['shop_type']) ? 0 : intval($this->config_shop['shop_type']);
         if (!empty($this->param['id'])) {
             //立即购买
             $goods = AppCommon::data_get('goods', ['id' => intval($this->param['id'])], 'id,thumb,title,price,status,stock,stock_locked,store_num');
             if (empty($goods) || $goods['status'] <> 1 || ($goods['stock']) <= 0) {
-                cache($ckey,null);
+                cache($ckey, null);
                 data_return('商品已售罄', -1);
             }
 
             //默认销售，0-销售，1-展示，2-自提，3-虚拟销售
             if ($shop_type == 0) {
                 if (empty($this->param['addr_id'])) {
-                    cache($ckey,null);
+                    cache($ckey, null);
                     data_return('请选则地址', -1);
                 }
                 $whereAddr = ['uid' => $this->uid,];
                 $whereAddr['id'] = intval($this->param['addr_id']);
                 $address = AppCommon::data_get('common_user_address', $whereAddr);
                 if (empty($address)) {
-                    cache($ckey,null);
+                    cache($ckey, null);
                     data_return('地址不存在', -1);
                 }
             }
@@ -240,7 +245,7 @@ class Order extends Mall
 
             $goods['count'] = !empty($this->param['count']) ? intval($this->param['count']) : 1;
             if ($goods['stock'] < $goods['count']) {
-                cache($ckey,null);
+                cache($ckey, null);
                 data_return('库存不足', -1);
             }
 
@@ -258,7 +263,7 @@ class Order extends Mall
             $res = ServerOrder::add($arg);
 
             if ($res['code'] <> 0) {
-                cache($ckey,null);
+                cache($ckey, null);
                 data_return('服务正忙，请稍后', -1);
             }
 
@@ -274,7 +279,7 @@ class Order extends Mall
             if (!$resGoods) {
                 //删除无效订单
                 AppCommon::data_del('order', ['order_sn' => $res['data']['order_sn']]);
-                cache($ckey,null);
+                cache($ckey, null);
                 data_return('服务正忙，请稍后', -1);
             }
 
@@ -289,14 +294,14 @@ class Order extends Mall
             //默认销售，0-销售，1-展示，2-自提，3-虚拟销售
             if ($shop_type == 0) {
                 if (empty($this->param['addr_id'])) {
-                    cache($ckey,null);
+                    cache($ckey, null);
                     data_return('请选择地址', -1);
                 }
                 $whereAddr = ['uid' => $this->uid,];
                 $whereAddr['id'] = intval($this->param['addr_id']);
                 $address = AppCommon::data_get('common_user_address', $whereAddr);
                 if (empty($address)) {
-                    cache($ckey,null);
+                    cache($ckey, null);
                     data_return('地址不存在', -1);
                 }
 
@@ -352,7 +357,7 @@ class Order extends Mall
             if ($ret) {
                 data_return('ok', 0, $ret['data']);
             }
-            cache($ckey,null);
+            cache($ckey, null);
             data_return('创建超时，请稍后重试', -1);
 
         }
@@ -366,11 +371,11 @@ class Order extends Mall
         } elseif (empty($this->param['payType']) || !in_array(trim($this->param['payType']), ['credit'])) {
             data_return('不支持的支付方式', -1);
         }
-        $ckey = 'order_pay'.md5($this->uid.__FUNCTION__.__FILE__);
-        if (cache($ckey)){
-            data_return('付款中，请稍后...',-1);
+        $ckey = 'order_pay' . md5($this->uid . __FUNCTION__ . __FILE__);
+        if (cache($ckey)) {
+            data_return('付款中，请稍后...', -1);
         }
-        cache($ckey,1,2);
+        cache($ckey, 1, 2);
         $order = ServerOrder::get($this->param['order_sn']);
 
         if (empty($order)) {
@@ -455,6 +460,13 @@ class Order extends Mall
                     'remark' => '下单赠送',
                 ]);
             }
+            //后台静态消息
+            AdminMsg::add([
+                'title' => '新订单付款通知',
+                'content' => '客户付款了，订单编号：' . $order['order_sn'] . '，尽快安排发货可以有效提高成交率哦。',
+                'msg_type' => 'order'
+            ]);
+
             data_return('支付成功', 0, ['order_sn' => $order['order_sn']]);
         }
         data_return('系统忙碌，稍后再试', -1);
@@ -482,21 +494,35 @@ class Order extends Mall
     //微信支付参数
     public function wx_param()
     {
-        parent::wx_env();
-        $openid = cookie('my_gzh_openid');
-        if (empty($openid)) {
-            data_return('请在微信环境进行测试微信支付', -1);
-        }
         if (empty($this->param['order_sn'])) {
             data_return('订单号未找到', -1);
         }
         $order = ServerOrder::get($this->param['order_sn']);
-
-        $res = Pay::wx_pub($order);
-        if ($res['code'] <> 0) {
-            data_return($res['msg'], -1);
+        if (empty($order)) {
+            data_return('订单未找到', -1);
         }
-        data_return('ok', 0, ['payParam' => $res['data']]);
+        //非微信环境H5支付
+        if (isMobile() && fromClient() <> 'weixin') {
+            $param['order'] = $order;
+            $param['url'] = URL_WEB . trim(url('my_orders'), '/');
+            $param['redirect_url'] = URL_WEB . trim(url('all_orders'), '/');
+            $res = Pay::wx_h5($param);
+            if ($res['code'] <> 0) {
+                data_return($res['msg'], -1);
+            }
+            data_return('ok', 0, ['payParam' => $res['data']]);
+        } else {
+            parent::wx_env();
+            $openid = cookie('my_gzh_openid');
+            if (empty($openid)) {
+                data_return('请在微信环境进行微信支付', -1);
+            }
+            $res = Pay::wx_pub($order);
+            if ($res['code'] <> 0) {
+                data_return($res['msg'], -1);
+            }
+            data_return('ok', 0, ['payParam' => $res['data']]);
+        }
     }
 
     //退款页面
@@ -754,5 +780,55 @@ class Order extends Mall
         }
 
         data_return('ok', 0, ['order' => $order]);
+    }
+
+    //物流查询
+    public function express()
+    {
+        if (IS_AJAX) {
+            if (empty($this->param['order_sn'])) {
+                data_return('订单号未找到', -1);
+            }
+            $order = ServerOrder::get($this->param['order_sn'], 'order_sn,send_time,express_com,express_no');
+            if (empty($order)) {
+                data_return('订单不存在', -1);
+            } elseif (empty($order['express_no'])) {
+                data_return('订单未发货或者缺失物流单号', -1);
+            }
+            $conf = ConfigService::get('express');
+            if (empty($conf['pt'])) {
+                $pt = 'aliyun';
+            } else {
+                $pt = $conf['pt'];
+            }
+
+            if (empty($conf[$pt])) {
+                data_return('物流配置接口未配置，暂不可用', -1);
+            }
+            $keyCache = 'express_info' . md5(json_encode($conf[$pt]) . $pt . $order['express_no']);
+            $data = cache($keyCache);
+            if (!empty($data)) {
+                data_return('查询成功', 0, $data);
+            }
+            Express::set_config($conf[$pt]);
+            Express::set_pt('aliyun');
+            $res = Express::run($order['express_no']);
+            if ($res['code'] <> 0) {
+                data_return($res['msg'], -1);
+            }
+            //添加缓存
+            cache($keyCache, [
+                'express' => !empty($res['data']['list']) ? $res['data']['list'] : null,
+                'expressName' => !empty($res['data']['typename']) ? $res['data']['typename'] : null
+            ], 3600);
+
+            data_return('查询成功', 0, [
+                'express' => !empty($res['data']['list']) ? $res['data']['list'] : null,
+                'expressName' => !empty($res['data']['typename']) ? $res['data']['typename'] : null
+            ]);
+
+        }
+
+        return $this->fetch();
     }
 }

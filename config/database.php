@@ -28,7 +28,7 @@ return [
     // 数据库连接参数
     'params'          => [],
     // 数据库编码默认采用utf8
-    'charset'         => Env::get('database.charset','utf8mb4'),
+    'charset'         => Env::get('database.charset','utf8'),
     // 数据库表前缀
     'prefix'          => Env::get('database.prefix','bs_'),
     // 数据库调试模式

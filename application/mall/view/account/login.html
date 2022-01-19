@@ -7,7 +7,7 @@
 <body ontouchstart style="background:#323542;">
 <!--主体-->
 <div class="login-box">
-    <div class="lg-title">欢迎登陆小V商城</div>
+    <div class="lg-title">欢迎登录<span class="shop_name">BS_SHOP商城</span></div>
     <div class="login-form">
         <form action="#">
             <div class="login-user-name common-div">
@@ -25,9 +25,8 @@
             <span  class="login-btn common-div" onclick="submit()">登陆</span>
 
             <span  class="login-oth-btn login-tmp-account common-div" style="display: none">游客登录</span>
+            <span   class="login-oth-btn login-wx-account common-div" style="display: none">微信登陆</span>
 
-            <!--<a href="javascript:;" class="login-oth-btn common-div">微信登陆</a>
-            <a href="javascript:;" class="login-oth-btn common-div">QQ登陆</a>-->
             <{:token()}>
         </form>
     </div>
@@ -38,12 +37,16 @@
 </div>
 <{include file="public/footer" /}>
 <script>
-
+   // const vConsole = new VConsole();
     $(function () {
+        var code = bs_get_param('code');
+        var from = bs_get_param('from');
+        var openid = bs_get_param('openid');
         $(".login-tmp-account").on('click',function () {
            $.confirm('确定用游客身份登录吗？',function () {
                bs_request("<{:url('do_login')}>",{
                    from:'tmp_user',
+
                },function (res) {
                    $.toast(res.msg,res.code !=0?'cancel':'',function () {
                        if (res.code==0){
@@ -55,7 +58,33 @@
                })
            })
         });
+        if (code||openid){
+            wxlogin({
+                code:code,
+                from:from,
+                openid:openid,
+            })
+        }
+        $(".login-wx-account").on('click',function () {
+            wxlogin({})
+        });
     })
+
+    function wxlogin(data) {
+        bs_request("<{:url('wx_login')}>",data,function (res) {
+            $.toast(res.msg,res.code !=0?'cancel':'',function () {
+                if (res.code==0){
+                    if (res.data.from=='code'){
+                        location.href = res.data.url
+                    }else {
+                        localStorage.setItem('user_token',res.data.token)
+                        location.href = "<{:url('index')}>"
+                    }
+                }
+            })
+
+        })
+    }
 
     function submit(){
 

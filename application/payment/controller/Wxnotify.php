@@ -6,6 +6,7 @@ namespace app\payment\controller;
 
 use AlibabaCloud\SDK\Dysmsapi\V20170525\Models\AddShortUrlResponseBody\data;
 use app\common\controller\AppCommon;
+use app\service\AdminMsg;
 use app\service\ConfigService;
 use app\service\Credits;
 use app\service\DiyLog;
@@ -36,7 +37,7 @@ class Wxnotify implements \Payment\Contracts\IPayNotify
 
         //wx-商品支付，recharge-余额充值
         $type = $notifyData['attach'];
-        if ($type == 'wx') {
+        if ($type == 'wx' || $type == 'bswxh5') {
             $order = ServerOrder::get($notifyData['out_trade_no']);
             if ($order['status'] == 0) {
                 //事务提交
@@ -93,6 +94,12 @@ class Wxnotify implements \Payment\Contracts\IPayNotify
 
                 });
                 if ($ret) {
+                    //后台静态消息
+                    AdminMsg::add([
+                        'title' => '新订单付款通知',
+                        'content' => '客户付款了，订单编号：' . $order['order_sn'] . '，尽快安排发货可以有效提高成交率哦。',
+                        'msg_type' => 'order'
+                    ]);
                     $this->success();
                 }
                 return $ret;
@@ -151,7 +158,7 @@ class Wxnotify implements \Payment\Contracts\IPayNotify
 
 
         //日志
-        DiyLog::file([$channel, $notifyType, $notifyWay, $notifyData], 'wxnotify.log');
+       // DiyLog::file([$channel, $notifyType, $notifyWay, $notifyData], 'wxnotify.log');
         return true;
     }
 

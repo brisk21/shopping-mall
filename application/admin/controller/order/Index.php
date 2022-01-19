@@ -69,12 +69,14 @@ class Index extends Admin
                     $v['goods']['title'] = mb_substr($v['goods']['title'], 0, 15) . '......';
                 } else {
                     $v['goods']['title'] = '未知....';
+                    $v['goods']['thumb'] = '';
                 }
 
 
                 $v['user'] = AppCommon::data_get('common_user', ['uid' => $v['uid']], 'account,nickname');
                 if (empty($v['user'])) {
                     $v['user']['uid'] = '用户不存在';
+                    $v['user']['account'] = '用户不存在';
                 }
 
                 $v['refund'] = AppCommon::data_get('order_refund_apply_log', ['order_sn' => $v['order_sn'], 'status' => 0], 'id,apply_money');
@@ -163,6 +165,7 @@ class Index extends Admin
         $upData = [
             'express_com' => trim($this->param['express_com']),
             'express_no' => trim($this->param['express_no']),
+            'send_time' => empty($data['send_time']) ? time() : $data['send_time'],
             'status' => $data['status'] == 1 ? 2 : $data['status'],
         ];
         $res = Order::update($data['order_sn'], $upData);

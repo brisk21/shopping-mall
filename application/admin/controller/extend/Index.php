@@ -44,6 +44,10 @@ class Index extends Admin
                     }
                 }
                 unset($v);
+            }else{
+                array_walk($plugins ,function (&$v){
+                    $v['status'] = 0;
+                });
             }
             $upTime = array_column($plugins, 'up_time');
             array_multisort($plugins, SORT_DESC, $upTime);

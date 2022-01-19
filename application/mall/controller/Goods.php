@@ -247,7 +247,7 @@ class Goods extends Mall
                 if (!empty($v['imgs'])){
                     $v['imgs'] = explode(',',$v['imgs']);
                 }
-                $v['user']['avatar'] = URL_WEB.'/static/com/img/user-default.jpg';
+                $v['user']['avatar'] = URL_WEB.'/static/com/img/user-default1.png';
                 if ($v['is_hide_user']==1){
                     $v['user']['nickname'] = '匿名用户';
                 }else{

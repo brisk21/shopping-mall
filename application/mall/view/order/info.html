@@ -111,6 +111,7 @@
 <{include file="public/footer" /}>
 <{include file="public/weixin_jsapi" /}>
 <script>
+    //const vConsole = new VConsole();
   var shoptype = 0;
   function shop_config() {
     var shop_config = JSON.parse(localStorage.getItem('config_shop'));
@@ -239,6 +240,9 @@
               }
 
           }else {
+              if (ret.data.payParam.mweb_url&&ret.data.payParam.mweb_url!=='undefined'){
+                 return location.href = ret.data.payParam.mweb_url;
+              }
               callpay(ret.data.payParam)
           }
       })

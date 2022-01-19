@@ -5,6 +5,7 @@ namespace app\mall\controller\com;
 
 
 use app\service\DiyLog;
+use app\service\WechatService;
 use think\Controller;
 use think\Log;
 use think\Request;
@@ -28,7 +29,7 @@ class Mall extends Controller
         parent::__construct($request);
         $this->param = input();
         $this->get_header($request);
-        if (empty($this->uid)){
+        if (empty($this->uid)) {
             $this->uid = session($this->key_cache_user, '', $this->session_prefix);
         }
         $this->check_login($request);
@@ -43,12 +44,14 @@ class Mall extends Controller
             if (!empty($header['bstoken'])) {
                 $key = base64_decode($header['bstoken']);
                 $uid = cache($this->key_cache_user_token . $key);
-                if ($uid){
+                if ($uid) {
                     $this->uid = $uid;
                 }
             }
         }
     }
+
+
 
     //微信环境检测授权
     public function wx_env()
@@ -56,18 +59,40 @@ class Mall extends Controller
         if (fromClient() <> 'weixin') {
             return;
         }
-
         $openid = cookie('my_gzh_openid');
-        if (empty($openid) && !IS_AJAX) {
-            $curl = URL_WEB . url('/mall/home/wx_openid');
-            $url = "https://wx.wei1.top/weixin/gzh/openid/akey/uqhmv7c6qc.html?my_redirect_uri=" . urlencode($curl);
-            return $this->redirect($url);
-        } elseif (empty($openid)) {
-            $curl = URL_WEB . url('/mall/home/wx_openid');
-            $url = "https://wx.wei1.top/weixin/gzh/openid/akey/uqhmv7c6qc.html?my_redirect_uri=" . urlencode($curl);
-            data_return('微信环境检测，即将进入首页...', 30002, $url);
+        if (!empty($openid)){
+            return;
         }
-
+        $conf = WechatService::get_gzh_conf();
+        if (empty($conf['pt'])) {
+            if (IS_AJAX) {
+                data_return('未配置公众号信息', -1);
+            }
+            return $this->error('未配置公众号信息');
+        }
+        if ($conf['pt'] == 'wei1-top') {
+            $type = !empty($conf['userinfo'])?'userInfo':'openid';
+            if (!IS_AJAX) {
+                cookie('authbacktourl',\request()->url());
+                $curl = URL_WEB . url('/mall/home/wx_openid');
+                $url = "https://wxauth.alipay168.cn/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
+                return $this->redirect($url);
+            } elseif (empty($openid)) {
+                $curl = URL_WEB . url('/mall/home/wx_openid');
+                $url = "https://wxauth.alipay168.cn/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
+                data_return('微信环境检测，即将进入首页...', 30002, $url);
+            }
+        } else {
+            $url = URL_WEB . trim(url('/mall/home/wx_openid', ['from' => 'gzh']), '/');
+            $codeUrl = WechatService::get_code($url, !empty($conf['userinfo']));
+            if (!IS_AJAX) {
+                cookie('authbacktourl',\request()->url());
+                return $this->redirect($codeUrl['data']['url']);
+            } else {
+                $url = $codeUrl['data']['url'];
+                data_return('微信环境检测，即将进入首页...', 30002, $url);
+            }
+        }
     }
 
     //检查登录状态

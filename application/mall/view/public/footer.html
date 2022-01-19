@@ -49,6 +49,12 @@
             if (res.data.login_tmp_user && $(".login-tmp-account").length>0){
                 $(".login-tmp-account").show();
             }
+            if (res.data.wx_login && $(".login-wx-account").length>0){
+                $(".login-wx-account").show();
+            }
+            if (res.data.shop_name && $(".shop_name").length>0){
+                $(".shop_name").html(res.data.shop_name);
+            }
         }
     });
 

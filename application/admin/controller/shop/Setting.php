@@ -38,6 +38,8 @@ class Setting extends Admin
             'pay_credit' => !empty($this->param['pay_credit']) ? 1 : 0,
             'pay_alipay' => !empty($this->param['pay_alipay']) ? 1 : 0,
             'pay_wechat' => !empty($this->param['pay_wechat']) ? 1 : 0,
+            //是否支持微信登录
+            'wx_login' => !empty($this->param['wx_login']) ? 1 : 0,
             //是否支持游客登录
             'login_tmp_user' => !empty($this->param['login_tmp_user']) ? 1 : 0,
             'gift_order_point' => max(0, intval($this->param['gift_order_point'])),

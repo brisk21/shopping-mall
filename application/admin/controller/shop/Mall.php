@@ -36,7 +36,7 @@ class Mall extends Admin
             $upData['add_time'] = time();
 
             $upData['is_check'] = 1;//fixme 默认已通过审核
-            $upData['store_num'] = GetNumberCode(10);
+            $upData['store_num'] = getNumberCode(10);
 
             AppCommon::data_add('stores', $upData);
         } else {

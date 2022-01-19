@@ -6,8 +6,10 @@ namespace app\mall\controller;
 
 use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
+use app\service\CommonUser;
 use app\service\ConfigService;
 use app\service\DiyLog;
+use app\service\WechatService;
 
 class Home extends Mall
 {
@@ -21,6 +23,7 @@ class Home extends Mall
         'mall/home/get_article',
         'mall/home/get_article_info',
         'mall/home/get_xieyi_info',
+        'mall/home/openid',
     ];
 
     //商城配置
@@ -36,12 +39,44 @@ class Home extends Mall
     //微信授权缓存openid
     public function wx_openid()
     {
-        $openid = input('openid');
-        if (!empty($openid)) {
-            cookie('my_gzh_openid', $openid);
-            DiyLog::file(input(), 'my_gzh_openid');
-            return $this->redirect(url('index'));
+        if (cookie('authbacktourl')){
+            $authbacktourl = cookie('authbacktourl');
+            cookie('authbacktourl',null);
+        }else{
+            $authbacktourl = url('index');
         }
+
+        if (!empty($this->param['from'])&&$this->param['from']=='gzh'){
+            if (empty($this->param['code'])) {
+                return $this->error('获取code授权失败');
+            }
+            $getOpenid = WechatService::get_openid($this->param['code']);
+            if (empty($getOpenid['data']['openid'])){
+                return $this->error('微信授权失败:'.$getOpenid['msg']);
+            }
+            //todo 用户信息的获取
+            cookie('my_gzh_openid', $getOpenid['data']['openid']);
+
+            $conf = WechatService::get_gzh_conf();
+            if (!empty($conf['pt']) && $conf['pt'] =='gzh' && !empty($conf['userinfo'])) {
+                $info = WechatService::get_user_info($getOpenid['data']['openid'],$this->param['state'],$getOpenid['data']['access_token']);
+                if (!empty($info['data']['nickname'])){
+                    CommonUser::update($this->uid,['nickname'=>$info['data']['nickname']]);
+                }
+
+            }
+
+            return $this->redirect($authbacktourl);
+        }else{
+            $openid = input('openid');
+            if (!empty($openid)) {
+                cookie('my_gzh_openid', $openid);
+
+                return $this->redirect($authbacktourl);
+            }
+            return $this->error('微信授权失败');
+        }
+
     }
 
     public function index()

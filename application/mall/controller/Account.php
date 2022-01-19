@@ -12,6 +12,7 @@ use app\service\DiyLog;
 use app\service\Mailer;
 use app\service\Msg;
 use app\service\VerifyCode;
+use app\service\WechatService;
 use think\captcha\Captcha;
 use think\Request;
 
@@ -29,6 +30,7 @@ class Account extends Mall
         'mall/account/pwd_forget',
         'mall/account/reset_pwd',
         'mall/account/get_forget_pwd_dcode',
+        'mall/account/wx_login',
     ];
 
     public function __construct(Request $request = null)
@@ -50,6 +52,198 @@ class Account extends Mall
         return redirect('/mall/account/login');
     }
 
+    private function wx_login_logic($openid)
+    {
+        $data = AppCommon::data_get('common_user', ['openid_wx' => $openid], 'uid,loginCount');
+        if (!empty($data)) {
+            $loginData = [
+                'uid' => $data['uid'],
+                'add_time' => time(),
+                'ip' => get_ip(),
+            ];
+            AppCommon::data_add('common_user_login_log', $loginData);
+            AppCommon::data_update('common_user', ['uid' => $data['uid']], ['pwd_err_count' => 0, 'loginCount' => $data['loginCount'] + 1]);
+            cookie('my_gzh_openid', $openid);
+        } else {
+            //生成账号
+            $this->param['account'] = get_random(20);
+            while (true) {
+                $has = AppCommon::data_get('common_user', ['account' => trim($this->param['account'])], 'id');
+                if (empty($has['id'])) {
+                    break;
+                }
+                $this->param['account'] = get_random(20);
+            }
+
+            $salt = get_random(10, false);
+            $uid = 'bs' . md5($this->param['account'] . rand(1, 99999) . time() . $salt);
+            while (true) {
+                $tmp = AppCommon::data_get('common_user', ['uid' => $uid], 'id');
+                if (empty($tmp['id'])) {
+                    break;
+                }
+                $uid = 'bs' . md5($this->param['account'] . rand(1, 99999) . time() . get_random(10, false));
+            }
+            $data = [
+                'account' => trim($this->param['account']),
+                'uid' => $uid,
+                'pwd' => md5(get_random(32) . $salt),
+                'salt' => $salt,
+                'add_time' => time(),
+                'up_time' => time(),
+                'status' => 0,
+                'loginCount' => 1,
+                'nickname' => '用户' . get_random(6, true),
+                'remark' => '微信创建',
+                'openid_wx' => $openid,
+            ];
+
+            CommonUser::add($data);
+
+            //登录记录
+            AppCommon::data_add('common_user_login_log', [
+                'uid' => $data['uid'],
+                'add_time' => time(),
+                'ip' => get_ip(),
+            ]);
+            Msg::add($data['uid'], [
+                'title' => '账号创建成功',
+                'content' => '您的账号是：' . $this->param['account'] . '，微信账号和注册账号一样的权限，若未绑定手机号、邮箱则本账号属于临时账号，临时账号如果进行解绑微信后下次微信登录不会匹配到本账号，如需要再次使用请记录本账号，并让后台管理帮您绑定邮箱、手机号操作后即可成为正常可登录账号或者修改密码或者您一直用微信授权登录，。<span style="color: red;display: block;">需要充值、下单请务必记得账号，否则难以找回。</span>',
+                'type' => 1
+            ]);
+        }
+        //设置登录状态
+        cookie('my_gzh_openid', $openid);
+        session($this->key_cache_user, $data['uid'], $this->session_prefix);
+        //简单生成一个token
+        $key = md5(get_random(32));
+        $token = base64_encode($key);
+        //清理其它token
+        cache(null, $this->key_cache_user . $data['uid']);
+        //设置新的token
+        cache($this->key_cache_user_token . $key, $data['uid'], ['expire' => 86400 * 7], $this->key_cache_user . $data['uid']);
+
+        data_return('登录成功', 0, ['token' => $token, 'from' => 'login']);
+    }
+
+    public function wx_login()
+    {
+        if (fromClient() <> 'weixin') {
+            data_return('请在微信环境使用', -1);
+        }
+        $conf = WechatService::get_gzh_conf();
+        if (empty($conf['pt'])) {
+            data_return('未配置公众号信息', -1);
+        }
+        if ($conf['pt'] == 'wei1-top') {
+            if (empty($this->param['openid']) && IS_AJAX) {
+                $type = !empty($conf['userinfo']) ? 'userInfo' : 'openid';
+                $curl = URL_WEB . trim(url('/mall/account/login', ['from' => 'wx-login']), '/');
+                $url = "https://wxauth.alipay168.cn/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
+                data_return('正在跳转，请稍后...', 0, ['url' => $url, 'from' => 'code']);
+            } elseif (!empty($this->param['openid']) && IS_AJAX) {
+                $this->wx_login_logic($this->param['openid']);
+            }
+
+        } else {
+            if (!empty($this->param['code']) && IS_AJAX) {
+
+                $getOpenid = WechatService::get_openid($this->param['code']);
+                if (empty($getOpenid['data']['openid'])) {
+                    data_return('微信授权失败:' . $getOpenid['msg'], -1);
+                }
+                $openid = $getOpenid['data']['openid'];
+                $this->wx_login_logic($openid);
+            } elseif (empty($this->param['code'])) {
+                $conf = ConfigService::get('mobile_shop');
+                if (empty($conf['wx_login'])) {
+                    data_return('后台未开启微信登录功能', -1);
+                }
+
+                $url = URL_WEB . trim(url('/mall/account/login', ['from' => 'wx-login']), '/');
+                $codeUrl = WechatService::get_code($url, false);
+                if ($codeUrl['code'] <> 0) {
+                    data_return($codeUrl['msg'], -1);
+                }
+                data_return('正在跳转，请稍后...', 0, ['url' => $codeUrl['data']['url'], 'from' => 'code']);
+            }
+        }
+
+        data_return('内部授权错误', -1);
+    }
+
+    private function wx_bind_logic($openid, $uid)
+    {
+        CommonUser::update($this->uid, ['openid_wx' => $openid, 'up_time' => time()]);
+
+        Msg::add($uid, [
+            'title' => '绑定微信成功',
+            'content' => '您已成功绑定微信，下次可以直接用微信登录咯，如果需要解绑请从【设置】》【菜单导航】》【解绑微信】',
+            'type' => 1
+        ]);
+        data_return('绑定成功', 0, ['from' => 'bind']);
+    }
+
+    public function wx_bind()
+    {
+        $user = CommonUser::get($this->uid, 'uid,openid_wx');
+        if (!empty($user['openid_wx'])) {
+            data_return('您已绑定微信,可以直接用微信登录', -1);
+        }
+        if (fromClient() <> 'weixin') {
+            data_return('请在微信环境使用', -1);
+        }
+        $conf = WechatService::get_gzh_conf();
+        if (empty($conf['pt'])) {
+            data_return('未配置公众号信息', -1);
+        }
+        if ($conf['pt'] == 'wei1-top') {
+            if (empty($this->param['openid']) && IS_AJAX) {
+                $type = !empty($conf['userinfo']) ? 'userInfo' : 'openid';
+                $curl = URL_WEB . trim(url('/mall/user/setting', ['from' => 'wx-bind']), '/');
+                $url = "https://wxauth.alipay168.cn/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
+                data_return('正在跳转授权，请稍后...', 0, ['url' => $url, 'from' => 'code']);
+            } elseif (!empty($this->param['openid']) && IS_AJAX) {
+                $openid = $this->param['openid'];
+                $this->wx_bind_logic($openid, $this->uid);
+            }
+        } else {
+            if (!empty($this->param['code']) && IS_AJAX) {
+
+                $getOpenid = WechatService::get_openid($this->param['code']);
+                if (empty($getOpenid['data']['openid'])) {
+                    data_return('微信授权失败:' . $getOpenid['msg'], -1);
+                }
+                $openid = $getOpenid['data']['openid'];
+                $this->wx_bind_logic($openid, $this->uid);
+
+            } elseif (empty($this->param['code'])) {
+                $conf = ConfigService::get('mobile_shop');
+                if (empty($conf['wx_login'])) {
+                    data_return('后台未开启微信登录功能', -1);
+                }
+
+                $url = URL_WEB . trim(url('/mall/user/setting', ['from' => 'wx-bind']), '/');
+                $codeUrl = WechatService::get_code($url, false);
+                if ($codeUrl['code'] <> 0) {
+                    data_return($codeUrl['msg'], -1);
+                }
+                data_return('正在跳转授权，请稍后...', 0, ['url' => $codeUrl['data']['url'], 'from' => 'code']);
+            }
+        }
+
+    }
+
+    public function wx_unbind()
+    {
+        $user = CommonUser::get($this->uid, 'uid,openid_wx');
+        if (empty($user['openid_wx'])) {
+            data_return('您未绑定微信', -1);
+        }
+        CommonUser::update($this->uid, ['openid_wx' => '', 'up_time' => time()]);
+        cookie('my_gzh_openid', null);
+        data_return('解绑成功');
+    }
 
     //获取图形验证码
     public function get_vcode()
@@ -496,6 +690,7 @@ class Account extends Mall
     {
         session($this->key_cache_user, null, $this->session_prefix);
         cache(null, $this->key_cache_user . $this->uid);
+        cookie('my_gzh_openid', null);
         if (IS_POST || IS_AJAX) {
             data_return();
         }

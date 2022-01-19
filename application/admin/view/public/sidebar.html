@@ -44,7 +44,7 @@
                 <{/if}>
 
                 <li class="nav-item">
-                    <a href="<{$item.url}>" class="nav-link">
+                    <a href="<{:url($item.url)}>" class="nav-link">
                         <i class="nav-icon fas <{$item.class_name}>"></i>
                         <p>
                             <{$item.name}>
@@ -62,7 +62,7 @@
                         <?php continue;?>
                         <{/if}>
                         <li class="nav-item">
-                            <a href="<{$sub.url}>" class="nav-link">
+                            <a href="<{:url($sub.url)}>" class="nav-link">
                                 <i class="nav-icon fas <{$sub.class_name}> "></i>
                                 <p><{$sub.name}>
                                     <!--<i class="right fas fa-angle-left"></i>-->
@@ -72,25 +72,25 @@
                                 </p>
                             </a>
                             <!--三级菜单-->
-                           <!-- <{if !empty($sub.subcat)}>
-                            <ul class="nav nav-treeview ">
-                                <{foreach $item.subcat as $three}>
-                                <{if $three.type==0}>
-                                <?php continue;?>
-                                <{/if}>
-                                <li class="nav-item">
-                                    <a href="<{$three.url}>" class="nav-link">
-                                        <i class="nav-icon fas <{$three.class_name}> "></i>
-                                        <p><{$three.name}>
-                                            <{if $three.is_new}>
-                                            <span class="right badge badge-danger">New</span>
-                                            <{/if}>
-                                        </p>
-                                    </a>
-                                </li>
-                                <{/foreach}>
-                            </ul>
-                            <{/if}>-->
+                            <!-- <{if !empty($sub.subcat)}>
+                             <ul class="nav nav-treeview ">
+                                 <{foreach $item.subcat as $three}>
+                                 <{if $three.type==0}>
+                                 <?php continue;?>
+                                 <{/if}>
+                                 <li class="nav-item">
+                                     <a href="<{$three.url}>" class="nav-link">
+                                         <i class="nav-icon fas <{$three.class_name}> "></i>
+                                         <p><{$three.name}>
+                                             <{if $three.is_new}>
+                                             <span class="right badge badge-danger">New</span>
+                                             <{/if}>
+                                         </p>
+                                     </a>
+                                 </li>
+                                 <{/foreach}>
+                             </ul>
+                             <{/if}>-->
                             <!--三级菜单end-->
                         </li>
                         <{/foreach}>

@@ -73,6 +73,9 @@ location / {
 ```
 6.访问域名（xxxx.com）访问（后台访问xxxx.com/admin/）
 
+```后台账号密码 sbshop ：123456```
+
+安装不上加微信：wei1-top
 
 #### 使用说明
 

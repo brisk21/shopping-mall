@@ -448,4 +448,85 @@ class Index extends Admin
             data_return('暂不支持的商户类型', -1);
         }
     }
+
+    //物流配送
+    public function express()
+    {
+        $conf = ConfigService::get('express', 1);
+        if (!empty($conf)) {
+            $this->assign('data', $conf);
+        }
+        return $this->fetch();
+    }
+
+    public function express_action()
+    {
+        if (empty($this->param['from'])) {
+            data_return('操作表单目标有误', -1);
+        }
+        $key = 'express';
+        $conf = ConfigService::get($key, true);
+        $from = trim($this->param['from']);
+        $pt = !empty($this->param['pt']) ? trim($this->param['pt']) : 'aliyun';
+        if ($from == 'express') {
+            $rule = [
+                ['type' => 'empty', 'key' => 'appcode', 'rule' => '2,80', 'msg' => 'appcode必填',],
+            ];
+            $check = check_param($this->param, $rule);
+            if ($check['code'] <> 0) {
+                data_return($check['msg'], $check['code']);
+            }
+            $conf['pt'] = $pt;
+            $conf['aliyun'] = [
+                'appcode' => trim($this->param['appcode']),
+            ];
+            ConfigService::action($key, $conf);
+            parent::add_admin_log(['title' => '操作物流配置', 'content' => $this->param]);
+            data_return('保存成功');
+        }
+        data_return('未知表单', -1);
+    }
+
+    //微信配置
+    public function wechat()
+    {
+        $conf = ConfigService::get('wechat', 1);
+        if (!empty($conf)) {
+            $this->assign('data', $conf);
+        }
+        return $this->fetch();
+    }
+
+    public function wechat_action()
+    {
+        if (empty($this->param['from'])) {
+            data_return('操作表单目标有误', -1);
+        }
+        $key = 'wechat';
+        $conf = ConfigService::get($key, true);
+        $from = trim($this->param['from']);
+        if ($from == 'wechat') {
+            $rule = [
+                ['type' => 'empty', 'key' => 'appid', 'rule' => '2,80', 'msg' => 'appid必填',],
+                ['type' => 'empty', 'key' => 'appSecret', 'rule' => '2,80', 'msg' => 'appSecret必填',],
+                ['type' => 'empty', 'key' => 'pt', 'rule' => '2,80', 'msg' => '平台未选择',],
+            ];
+            $check = check_param($this->param, $rule);
+            if ($check['code'] <> 0) {
+                data_return($check['msg'], $check['code']);
+            }
+
+            $conf['gzh'] = [
+                'appid' => trim($this->param['appid']),
+                'appSecret' => trim($this->param['appSecret']),
+                'pt' => trim($this->param['pt']),
+                'akey' => trim($this->param['akey']),
+                'userinfo' => !empty($this->param['userinfo']) ? 1 : 0,
+            ];
+            ConfigService::action($key, $conf);
+            parent::add_admin_log(['title' => '操作物公众号', 'content' => $this->param]);
+            data_return('保存成功');
+        }
+        data_return('未知表单', -1);
+    }
 }

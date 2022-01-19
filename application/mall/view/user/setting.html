@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="/static/com/css/weui/weui.css"/>
     <link rel="stylesheet" href="/static/com/css/weui/weui2.css"/>
     <link rel="stylesheet" href="/static/mall/css/style.css">
+    <{include file="public/header" /}>
 </head>
 <body ontouchstart style="background-color: #f8f8f8;">
 
@@ -16,59 +17,51 @@
 </header>
 
 
+<div class="weui-panel">
+    <div class="weui-panel__bd">
+        <div class="weui-media-box weui-media-box_small-appmsg">
+            <div class="weui-cells">
+                <a class="weui-cell weui-cell_access" href="<{:url('msg')}>">
+                    <div class="weui-cell__hd"><img src="/static/com/img/icon-msg-2.png" alt="" class="center-list-icon"></div>
+                    <div class="weui-cell__bd weui-cell_primary">
 
-<div class="timeline">
-    <ul>
-        <li class="timeline-item">
-            <div class="timeline-item-head-first">
-                <i class="weui_icon weui_icon_success_no_circle timeline-item-checked"></i> </div> <div class="timeline-item-tail"></div>
-            <div class="timeline-item-content">
-                <h4 class="recent">bug随时修复中,若有问题请联系微信：wei1-top</h4>
-                <p class="recent">未来</p> </div>
-        </li>
-        <li class="timeline-item">
-            <div  class="timeline-item-head"> <i class="weui_icon weui_icon_success_no_circle timeline-item-checked hide" ></i> </div> <div class="timeline-item-tail" ></div>
-            <div class="timeline-item-content">
-                <h4>
-                    时支付订单自动取消；优化客户端订单列表；
-                </h4>
-                <p>2021-12-24</p>
-            </div>
-        </li>
-        <li class="timeline-item">
-            <div  class="timeline-item-head"> <i class="weui_icon weui_icon_success_no_circle timeline-item-checked hide" ></i> </div> <div class="timeline-item-tail" ></div>
-            <div class="timeline-item-content">
-            <h4> 新增用户消息中心，优化首页商品加载，优化个人中心数据统计。优化手机端显示操作后台某些快速按钮情况下无反应问题。</h4>
-                <p>2021-12-23</p>
-            </div>
-        </li>
-        <li class="timeline-item">
-            <div  class="timeline-item-head"> <i class="weui_icon weui_icon_success_no_circle timeline-item-checked hide" ></i> </div> <div class="timeline-item-tail" ></div>
-            <div class="timeline-item-content">
-            <h4>
-                店铺新增销售、虚拟、展示、自提类型订单，优化客户端。<br>
-                销售：商品->付款->发货->收货->完成；<br>
-                展示：商品->联系商家->完成；<br>
-                自提：商品->付款->到店提货->完成；<br>
-                虚拟：商品->支付->自动发货->完成。<br>
-            </h4>
-                <p>2021-12-22</p>
-            </div>
-        </li>
-        <li class="timeline-item">
-            <div  class="timeline-item-head">
-                <i class="weui_icon weui_icon_success_no_circle timeline-item-checked hide" ></i>
-            </div>
-            <div class="timeline-item-tail hide" ></div>
-            <div class="timeline-item-content">
-                <h4>
-                    新增商品订单评价，评价在后台审核，审核通过才可以在客户端显示。
+                        <p class="center-list-txt">我的消息<span class="weui-badge msg-count" style="position: absolute;right: 28px;display: none"></span></p>
+                    </div>
+                    <span class="weui-cell__ft"></span>
+                </a>
+                <a class="weui-cell weui-cell_access" href="<{:url('record')}>">
+                    <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-jyjl.png" alt="" class="center-list-icon"></div>
+                    <div class="weui-cell__bd weui-cell_primary">
+                        <p class="center-list-txt">交易记录</p>
+                    </div>
+                    <span class="weui-cell__ft"></span>
+                </a>
+                <a class="weui-cell weui-cell_access" href="<{:url('/mall/goods/my_favorite')}>">
+                    <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-sc.png" alt="" class="center-list-icon"></div>
+                    <div class="weui-cell__bd weui-cell_primary">
+                        <p class="center-list-txt">我的收藏</p>
+                    </div>
+                    <span class="weui-cell__ft"></span>
+                </a>
+                <a class="weui-cell weui-cell_access" href="<{:url('/mall/user/address_list')}>">
+                    <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-dz.png" alt="" class="center-list-icon"></div>
+                    <div class="weui-cell__bd weui-cell_primary">
+                        <p class="center-list-txt">地址管理</p>
+                    </div>
+                    <span class="weui-cell__ft"></span>
+                </a>
 
-                </h4>
-                <p>2021-12-18</p>
+                <a class="weui-cell weui-cell_access" href="<{:url('/mall/account/pwd_change')}>">
+                    <div class="weui-cell__hd"><img src="/static/mall/images/center-icon-dlmm.png" alt="" class="center-list-icon"></div>
+                    <div class="weui-cell__bd weui-cell_primary">
+                        <p class="center-list-txt">密码修改</p>
+                    </div>
+                    <span class="weui-cell__ft"></span>
+                </a>
+
             </div>
-        </li>
-    </ul>
+        </div>
+    </div>
 </div>
 
 
@@ -87,6 +80,7 @@
         <span>账户</span>
         <ul class="nav-base-ul">
             <em></em>
+            <li onclick="bindwx()" class="bind_wx">绑定微信</li>
             <li onclick="logout()">退出登录</li>
         </ul>
     </div>
@@ -106,12 +100,63 @@
 <{include file="public/footer" /}>
 <!--<script src="/static/mall/lib/zepto.js"></script>-->
 <script>
+    //const vConsole = new VConsole();
+    $(function () {
+        code = bs_get_param('code');
+        openid = bs_get_param('openid');
+        bs_request("<{:url('/mall/user/info')}>", {}, function (res) {
+            if (res.code==0){
+                if (res.data.user_info.openid_wx){
+                    $(".bind_wx").text('解绑微信');
+                    $(".bind_wx").data('action','unbind');
+                }else {
+                    $(".bind_wx").text('绑定微信');
+                    $(".bind_wx").data('action','bind');
+                }
+            }
+        });
+        if (code||openid){
+            dobind({code:code,openid:openid})
+        }
+    })
     function logout(){
-         var c = confirm('确定要退出吗','退出登录状态')
-         if (c){
-             localStorage.removeItem('user_token');
-             location.href  = "<{:url('/mall/account/logout')}>";
-         }
+          $.confirm('确定要退出吗',function () {
+              localStorage.removeItem('user_token');
+              location.href  = "<{:url('/mall/account/logout')}>";
+         })
+    }
+    function dobind(data) {
+        bs_request("<{:url('/mall/account/wx_bind')}>", data, function (res) {
+            if (res.code==0){
+                if (res.data.from=='code'){
+                    $.toast(res.msg,'ok',function () {
+                        location.href = res.data.url
+                    })
+                }else {
+                    $.toast('绑定成功','success',function () {
+                        location.href = "<{:url('setting')}>"
+                    })
+                }
+            }else {
+                $.alert(res.msg)
+            }
+        })
+    }
+    function bindwx(){
+        var type = $(".bind_wx").data('action')
+        if (type=='unbind'){
+            $.confirm('确定要解绑微信吗？',function () {
+                bs_request("<{:url('/mall/account/wx_unbind')}>", {}, function (res) {
+                    if (res.code==0){
+                        location.reload();
+                    }else {
+                        $.alert(res.msg)
+                    }
+                })
+            })
+        }else {
+            dobind({})
+        }
     }
 
 </script>

@@ -6,6 +6,7 @@ namespace app\mall\controller;
 
 use app\common\controller\AppCommon;
 use app\mall\controller\com\Mall;
+use app\service\AdminMsg;
 use app\service\CommonUser;
 use app\service\Credits;
 use app\service\FeedBackService;
@@ -43,7 +44,7 @@ class User extends Mall
     //用户信息
     public function info()
     {
-        $data = CommonUser::get($this->uid, 'account,uid,status');
+        $data = CommonUser::get($this->uid, 'account,uid,status,openid_wx');
 
         data_return('ok', 0, ['user_info' => $data]);
     }
@@ -304,9 +305,13 @@ class User extends Mall
                 'imgs' => !empty($this->param['imgs']) ? join(',', $this->param['imgs']) : '',
             ]);
 
+            //后台静态消息
+            AdminMsg::add([
+                'title' => '新增用户留言反馈',
+                'content' => '留言类型：' . $this->param['category'] . '，请尽快查看处理。',
+                'msg_type' => 'feedback'
+            ]);
             data_return('感谢您的留言/反馈');
-
-
         }
 
         return $this->fetch();
