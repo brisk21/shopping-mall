@@ -98,7 +98,7 @@
       if (res.code==0){
         $.toast(res.msg,function () {
           //跳转登录页面
-          location.href = "<{:url('login')}>"
+          location.href = res.data.url
         })
 
       }else {

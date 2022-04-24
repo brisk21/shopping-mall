@@ -7,7 +7,7 @@
 <body ontouchstart style="background:#323542;">
 <!--主体-->
 <div class="login-box">
-    <div class="lg-title">欢迎登录<span class="shop_name">BS_SHOP商城</span></div>
+    <div class="lg-title">欢迎登录</div>
     <div class="login-form">
         <form action="#">
             <div class="login-user-name common-div">
@@ -31,32 +31,31 @@
         </form>
     </div>
     <div class="forgets">
-        <a href="<{:url('/mall/account/pwd_forget')}>">忘记密码？</a>
-        <a href="<{:url('/mall/account/reg')}>">免费注册</a>
+        <a href="<{:url('pwd_forget')}>">忘记密码？</a>
+        <a href="<{:url('reg')}>">免费注册</a>
     </div>
 </div>
 <{include file="public/footer" /}>
 <script>
-   // const vConsole = new VConsole();
+    // const vConsole = new VConsole();
     $(function () {
         var code = bs_get_param('code');
         var from = bs_get_param('from');
         var openid = bs_get_param('openid');
         $(".login-tmp-account").on('click',function () {
-           $.confirm('确定用游客身份登录吗？',function () {
-               bs_request("<{:url('do_login')}>",{
-                   from:'tmp_user',
+            $.confirm('确定用游客身份登录吗？',function () {
+                bs_request("<{:url('do_login')}>",{
+                    from:'tmp_user',
+                },function (res) {
+                    $.toast(res.msg,res.code !=0?'cancel':'',function () {
+                        if (res.code==0){
+                            localStorage.setItem('user_token',res.data.token)
+                            location.href = res.data.url;
+                        }
+                    })
 
-               },function (res) {
-                   $.toast(res.msg,res.code !=0?'cancel':'',function () {
-                       if (res.code==0){
-                           localStorage.setItem('user_token',res.data.token)
-                           location.href = "<{:url('index')}>"
-                       }
-                   })
-
-               })
-           })
+                })
+            })
         });
         if (code||openid){
             wxlogin({
@@ -78,7 +77,7 @@
                         location.href = res.data.url
                     }else {
                         localStorage.setItem('user_token',res.data.token)
-                        location.href = "<{:url('index')}>"
+                        location.href = res.data.url;
                     }
                 }
             })
@@ -107,7 +106,7 @@
         },function (res) {
             if (res.code==0){
                 localStorage.setItem('user_token',res.data.token)
-                location.href = "<{:url('index')}>"
+                location.href = res.data.url;
             }else {
                 $.alert(res.msg)
             }

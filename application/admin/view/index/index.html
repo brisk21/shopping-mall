@@ -2,9 +2,8 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <title>后台管理</title>
+    <title>BS_SHOP-后台管理</title>
     <{include file="public/header"}>
-
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <!-- Site wrapper -->
@@ -43,7 +42,9 @@
 
 <{include file="public/footer"}>
 
-
+<!--Tracker-->
+<img referrerpolicy="no-referrer-when-downgrade" src="https://s.alipay168.cn/matomo.php?idsite=6&rec=1" style="border:0" alt="" />
+<!-- End Tracker -->
 <script src="/static/adminlte/plugins/chart.js/Chart.min.js"></script>
 <!-- Sparkline -->
 <script src="/static/adminlte/plugins/sparklines/sparkline.js"></script>
@@ -58,9 +59,83 @@
 
 <!-- Tempusdominus Bootstrap 4 -->
 <script src="/static/adminlte/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<!-- echarts -->
+<script src="/static/adminlte/plugins/echarts/echarts.min.js"></script>
 
 
+<script type="text/javascript">
+    // 基于准备好的dom，初始化echarts实例
+    var myChart = echarts.init(document.getElementById('main'));
+    var dataX = [<{$data.tongji.x}>];
+    var dataY = [<{$data.tongji.order}>];
+    // 指定图表的配置项和数据
+    var option = {
+        title : {
+            text: '收入金额',
+            subtext: '单位(元)'
+        },
+        tooltip : {
+            trigger: 'axis'
+        },
+        legend: {
+            data:['订单量']
+        },
+        grid: {
+            left: '3%',
+            right: '4%',
+            bottom: '3%',
+            containLabel: true
+        },
+        toolbox: {
+            show : true,
+            feature : {
+                dataView : {show: true, readOnly: false},
+                magicType : {show: true, type: ['line', 'bar','tiled','stack']},
+                restore : {show: true},
+                saveAsImage : {show: true}
+            }
+        },
+        calculable : true,
+        xAxis : [
+            {
+                type : 'category',
+                data : dataX,
+                name:'日'
+            }
+        ],
+        yAxis : [
+            {
+                type : 'value'
+            }
+        ],
+        series : [
+            {
+                name:'交易',
+                type:'bar',
+                data:dataY,
+                /*markLine : {
+                    data : [
+                        {type : 'average', name: '平均值'}
+                    ]
+                },*/
+                label: {
+                    normal: {
+                        show: true,
+                        position: 'top',
+                        color:'#cc1828'
+                    }
+                },
+                color:'rgba(66,255,38,0.83)',
+            },
+        ]
+    };
 
+
+    //清空画布，防止缓存
+    myChart.clear();
+    //使用刚指定的配置项和数据显示图表。
+    myChart.setOption(option,true);
+</script>
 
 </body>
 </html>

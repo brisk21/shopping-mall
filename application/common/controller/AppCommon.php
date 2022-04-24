@@ -53,6 +53,28 @@ class AppCommon extends Controller
     }
 
     /**
+     * 获取某个字段
+     * @param $table
+     * @param null $where
+     * @param string $column 某个字段名，如username，返回值
+     * @param null $order
+     * @return false|mixed
+     */
+    public static function data_get_column($table, $where = null, $column = '', $order = null)
+    {
+        if (!$column) {
+            return false;
+        }
+        $data = self::data_get($table, $where, $column, $order);
+        if (!isset($data[$column])) {
+            return false;
+        }
+
+        return $data[$column];
+    }
+
+
+    /**
      * 批量查询
      * @param $table
      * @param null $where
@@ -79,15 +101,15 @@ class AppCommon extends Controller
     }
 
     //原生查询
-    public static function query($sql)
+    public static function query($sql, $bind = [], $master = false, $pdo = false)
     {
-        return Db::query($sql);
+        return Db::query($sql, $bind, $master, $pdo);
     }
 
     //execute用于更新和写入数据的sql操作，如果数据非法或者查询错误则返回false ，否则返回影响的记录数。
-    public static function execute($sql)
+    public static function execute($sql, $bind = [], $fetch = null, $getLastInsID = false, $sequence = null)
     {
-        return Db::execute($sql);
+        return Db::execute($sql, $bind, $fetch, $getLastInsID, $sequence);
     }
 
     //无需分页

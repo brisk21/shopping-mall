@@ -29,7 +29,7 @@ class WechatService
 
     /**
      * 获取授权code
-     * @param $redirectUri string 会跳地址，成功后会带上code参数
+     * @param $redirectUri string 回跳地址，成功后会带上code参数
      * @param bool $userinfo 是否获取用户信息，不建议
      * @return mixed
      */

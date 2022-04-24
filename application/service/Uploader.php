@@ -87,7 +87,10 @@ class Uploader
 
         } elseif ($upload_type == 'qiniu') {
             $toPath = stripos($toPath, 'bs_shop') !== false ? trim($toPath, '/') . '/' . $fileName : ('bs_shop/' . ltrim($toPath, '/') . '/' . $fileName);
-            $toPath = str_replace(PUBLIC_PATH, '', $toPath . $fileName);
+
+            $toPath = str_replace([PUBLIC_PATH, '//'], '', $toPath);
+
+
             $res = self::qiniu_upload($files['tmp_name'], $toPath);
             if (empty($res['url'])) {
                 return $res;
@@ -105,7 +108,7 @@ class Uploader
 
         } elseif ($upload_type == 'oss') {
             $toPath = stripos($toPath, 'bs_shop') !== false ? trim($toPath, '/') . '/' . $fileName : ('bs_shop/' . ltrim($toPath, '/') . '/' . $fileName);
-            $toPath = str_replace(PUBLIC_PATH, '', $toPath . $fileName);
+            $toPath = str_replace([PUBLIC_PATH, '//'], '', $toPath);
             $res = self::oss_upload($files['tmp_name'], $toPath);
             if (empty($res['url'])) {
                 return $res;

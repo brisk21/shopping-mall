@@ -122,11 +122,11 @@
     function logout(){
           $.confirm('确定要退出吗',function () {
               localStorage.removeItem('user_token');
-              location.href  = "<{:url('/mall/account/logout')}>";
+              location.href  = "<{:url('/console/account/logout')}>";
          })
     }
     function dobind(data) {
-        bs_request("<{:url('/mall/account/wx_bind')}>", data, function (res) {
+        bs_request("<{:url('/console/account/wx_bind')}>", data, function (res) {
             if (res.code==0){
                 if (res.data.from=='code'){
                     $.toast(res.msg,'ok',function () {
@@ -146,7 +146,7 @@
         var type = $(".bind_wx").data('action')
         if (type=='unbind'){
             $.confirm('确定要解绑微信吗？',function () {
-                bs_request("<{:url('/mall/account/wx_unbind')}>", {}, function (res) {
+                bs_request("<{:url('/console/account/wx_unbind')}>", {}, function (res) {
                     if (res.code==0){
                         location.reload();
                     }else {

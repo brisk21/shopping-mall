@@ -6,13 +6,14 @@ namespace app\admin\controller\goods;
 
 use app\admin\controller\com\Admin;
 use app\common\controller\AppCommon;
+use app\service\DiyLog;
 use app\service\Page;
 use think\Paginator;
 use think\paginator\driver\Bootstrap;
 
 class Index extends Admin
 {
-    public function index()
+    public function index($recycle = false)
     {
         $where = [];
         $sort = !empty($this->param['sort']) ? trim($this->param['sort']) : '';
@@ -48,6 +49,11 @@ class Index extends Admin
         if (!empty($keyword)) {
             $where['title'] = ['like', '%' . $keyword . '%'];
         }
+        if ($recycle) {
+            $where['is_del'] = 1;
+        } else {
+            $where['is_del'] = 0;
+        }
 
         $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
         $pageSize = 10;
@@ -60,9 +66,15 @@ class Index extends Admin
         if ($category) {
             $this->assign('category', tree($category, 'category_id', 'parent_id', 'subcat'));
         }
+
         $this->assign('page', Page::set($goods, $pageSize, $page, $total, $this->param, url()));
         $this->assign('goods', $goods);
-        return $this->fetch();
+        if ($recycle) {
+            $tpl = 'recycle';
+        } else {
+            $tpl = 'index';
+        }
+        return $this->fetch($tpl);
     }
 
 
@@ -78,8 +90,8 @@ class Index extends Admin
             }
 
         }
-        //已通过审核的店铺
-        $stores = AppCommon::data_list_nopage('stores', ['is_check' => 1]);
+        //店铺
+        $stores = AppCommon::data_list_nopage('stores');
         if (!empty($stores)) {
             $this->assign('stores', $stores);
         }
@@ -96,16 +108,34 @@ class Index extends Admin
     public function action()
     {
         $id = !empty($this->param['id']) ? intval($this->param['id']) : 0;
+        $ac = !empty($this->param['ac']) ? trim($this->param['ac']) : '';
         if (!empty($id)) {
             $goods = AppCommon::data_get('goods', ['id' => intval($id)]);
             if (empty($goods)) {
                 data_return('商品已不存在', -1);
             }
-            //仅删除
-            if (!empty($this->param['ac']) && $this->param['ac'] == 'del') {
-                AppCommon::data_del('goods', ['id' => $goods['id']]);
-                parent::add_admin_log(['title' => '删除商品', 'content' => $goods]);
-                data_return('删除成功');
+            //放入回收站
+            if ($ac == 'recycle') {
+                AppCommon::data_update('goods', ['id' => $goods['id']], ['is_del' => 1, 'status' => 0]);
+                data_return('已移入回收站，可以在回收站中恢复');
+            }elseif ($ac == 'copy') {
+                $data = [
+                    'title' => 'copy_' . $goods['title'],
+                    'goods_desc' => trim($goods['goods_desc']),
+                    'banners' => $goods['banners'],
+                    'content' => $goods['content'],
+                    'thumb' => $goods['thumb'],
+                    'market_price' => floatval($goods['market_price']),
+                    'price' => floatval($goods['price']),
+                    'stock' => intval($goods['stock']),
+                    'category_id' => intval($goods['category_id']),
+                    'status' => 0,
+                    'is_top' => $goods['is_top'],
+                    'store_num' => $goods['store_num'],
+                ];
+                $data['add_time'] = time();
+                $res = AppCommon::data_add('goods', $data);
+                data_return('复制成功');
             }
         }
 
@@ -138,6 +168,7 @@ class Index extends Admin
             'stock' => intval($this->param['stock']),
             'category_id' => intval($this->param['category_id']),
             'status' => !empty($this->param['status']) ? 1 : 0,
+            'banner2detail' => !empty($this->param['banner2detail']) ? 1 : 0,
             'is_top' => !empty($this->param['is_top']) ? 1 : 0,
             'store_num' => intval($this->param['store_num']),
         ];
@@ -167,30 +198,29 @@ class Index extends Admin
         }
 
 
-
         $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
         $pageSize = 10;
         $total = AppCommon::data_count('goods_comment', $where);
         $data = AppCommon::data_list('goods_comment', $where, $page . ',' . $pageSize, '*', $orderBy);
 
-        if ($data){
-            foreach ($data as &$v){
-                $v['add_time'] = date('Y-m-d H:i:s',$v['add_time']);
-                if (!empty($v['imgs'])){
-                    $v['imgs'] = explode(',',$v['imgs']);
+        if ($data) {
+            foreach ($data as &$v) {
+                $v['add_time'] = date('Y-m-d H:i:s', $v['add_time']);
+                if (!empty($v['imgs'])) {
+                    $v['imgs'] = explode(',', $v['imgs']);
                 }
-                $v['user']['avatar'] = URL_WEB.'/static/com/img/user-default.jpg';
+                $v['user']['avatar'] = URL_WEB . '/static/com/img/user-default.jpg';
                 $v['user'] = AppCommon::data_get('common_user', ['uid' => $v['uid']], 'account,nickname');
                 if (empty($v['user'])) {
                     $v['user']['nickname'] = '已注销';
                     $v['user']['account'] = '已注销';
-                }elseif($v['is_hide_user']==1){
+                } elseif ($v['is_hide_user'] == 1) {
                     $v['user']['nickname'] = '匿名用户';
                 }
-                $v['goods'] = AppCommon::data_get('goods',['id'=>$v['goods_id']],'title,thumb');
-                if ($v['status']==0){
+                $v['goods'] = AppCommon::data_get('goods', ['id' => $v['goods_id']], 'title,thumb');
+                if ($v['status'] == 0) {
                     $v['statusDesc'] = '<span class="bs-red">待审核</span>';
-                }else{
+                } else {
                     $v['statusDesc'] = '<span class="bs-green">已通过</span>';
                 }
             }
@@ -219,9 +249,44 @@ class Index extends Admin
                 data_return('删除成功');
             }
         }
-        $res = AppCommon::data_update('goods_comment', ['id' => intval($id)], ['status'=>1]);
+        $res = AppCommon::data_update('goods_comment', ['id' => intval($id)], ['status' => 1]);
         data_return('已通过', 0, [
             'res' => $res
         ]);
     }
+
+    //回收站
+    public function recycle()
+    {
+        return $this->index(true);
+    }
+
+    //回收站操作
+    public function recycle_action()
+    {
+        if (!IS_AJAX) {
+            data_return('非法操作', -1);
+        }
+        $id = !empty($this->param['id']) ? intval($this->param['id']) : 0;
+        if (empty($id)) {
+            data_return('参数有误', -1);
+        }
+        $goods = AppCommon::data_get('goods', ['id' => intval($id)]);
+        if (empty($goods)) {
+            data_return('商品已不存在', -1);
+        }
+        $ac = !empty($this->param['ac']) ? $this->param['ac'] : '';
+        //完全移除
+        if ($ac == 'del') {
+            AppCommon::data_del('goods', ['id' => $goods['id']]);
+            DiyLog::file($goods, 'del_goods_' . date('Ymd') . '.log');
+            data_return('删除成功', 0);
+        } elseif ($ac == 'restore') {
+            //恢复
+            AppCommon::data_update('goods', ['id' => $goods['id']], ['is_del' => 0]);
+            data_return('恢复成功');
+        }
+        data_return('未知操作', -1);
+    }
+
 }

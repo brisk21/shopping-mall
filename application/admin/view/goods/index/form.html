@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <title>后台管理</title>
+    <title>BS_SHOP-后台管理</title>
     <{include file="public/header"}>
     <link rel="stylesheet" href="/static/adminlte/plugins/jq-uploadifive/uploadifive.css">
     <link rel="stylesheet" href="/static/adminlte/plugins/summernote/summernote-bs4.min.css">
@@ -135,17 +135,20 @@
 
                                             <div class="col-md-6 col-sm-6">
                                                 <div class="form-group clearfix">
+                                                    是否首页推荐：
                                                     <div class="icheck-primary d-inline">
                                                         <input type="checkbox" name="is_top" id="is_top" <{if !empty($goods['is_top'])}>checked<{/if}> >
                                                         <label for="is_top">
-                                                            首页推荐
+                                                            推荐
                                                         </label>
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="col-md-6 col-sm-6">
                                                 <div class="form-group clearfix">
+                                                    是否上架：
                                                     <div class="icheck-primary d-inline">
+
                                                         <input type="checkbox" id="status" name="status" <{if !empty($goods['status'])}>checked<{/if}>>
                                                         <label for="status">
                                                             上架
@@ -156,7 +159,14 @@
                                         </div>
                                     </div>
                                     <div class="form-group">
-                                        <h3 >详情页轮播图</h3>
+                                        <h3 >详情页轮播图
+                                            <span class="icheck-primary d-inline" style="margin-left: 20px;">
+                                            <input type="checkbox" id="banner2detail" name="banner2detail" <{if !empty($goods['banner2detail'])}>checked<{/if}>>
+                                            <label title="将下面的轮播图同步到商品详情,在购物页面显示" for="banner2detail" style="font-weight: normal !important;">
+                                                同步到详情
+                                            </label>
+                                        </span>
+                                        </h3>
                                         <div class="imgs" style="margin-top: 10px">
                                             <{if !empty($goods['banners'])}>
                                             <{foreach $goods['banners'] as $src}>
@@ -302,7 +312,7 @@
             uploadScript      :  "<{:url('/admin/upload/image')}>" , //后台处理的url
             width         : 120, //宽度
             buttonText:  '上传图片' ,  //按钮显示的文字
-            fileType:   '.jpg,.png,.jpeg' , //上传文件的类型,默认为所有文件,多个类型使用,分割'.gif,.jpg,.png'
+            fileType:   '.jpg,.png,.jpeg,.JPG,.JPGE,PNG' , //上传文件的类型,默认为所有文件,多个类型使用,分割'.gif,.jpg,.png',大小写后缀并不相同，这个插件的bug
             fileTypeDesc:  'Image Files' , //可选择文件的描述,在浏览窗口底部的文件类型下拉菜单中显示的文本
             formData: { 'fileKey' : 'bs_shop' , 'from' :'bsgoods'}, //发送给后台的其他参数通过formData指定
             auto:  true , //选择文件后自动上传

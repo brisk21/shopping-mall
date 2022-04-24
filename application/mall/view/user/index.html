@@ -200,7 +200,7 @@
   function logout(){
     $.confirm('确定要退出吗','退出登录状态',function () {
       localStorage.removeItem('user_token');
-      location.href  = "<{:url('/mall/account/logout')}>";
+      location.href  = "<{:url('/console/account/logout')}>";
     })
   }
 

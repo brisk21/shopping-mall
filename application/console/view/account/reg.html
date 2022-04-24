@@ -136,9 +136,9 @@
         //跳转登录页面
           if (res.data.token){
               localStorage.setItem('user_token',res.data.token);
-              location.href = "<{:url('index')}>"
+              location.href = res.data.url
           }else {
-              location.href = "<{:url('login')}>"
+              location.href = res.data.url
           }
       }else {
         $.alert(res.msg)

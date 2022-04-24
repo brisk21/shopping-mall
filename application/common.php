@@ -10,6 +10,7 @@
 // +----------------------------------------------------------------------
 
 // 应用公共文件
+use app\common\controller\AppCommon;
 
 /**
  * @param string $msg
@@ -500,7 +501,7 @@ function table_name($table)
  * @param int $timeout
  * @return bool|mixed
  */
-function curl_post_request($url, $requestString, $timeout = 5)
+function curl_post_request($url, $requestString, $timeout = 5,$headers=array())
 {
     if ($url == "" || $requestString == "" || $timeout <= 0) {
         return false;
@@ -512,6 +513,9 @@ function curl_post_request($url, $requestString, $timeout = 5)
     curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($con, CURLOPT_SSL_VERIFYPEER, false); //信任任何证书
     curl_setopt($con, CURLOPT_SSL_VERIFYHOST, 0); // 检查证书中是否设置域名,0不验证
+    if (!empty($headers)) {
+        curl_setopt($con, CURLOPT_HTTPHEADER, $headers);
+    }
     curl_setopt($con, CURLOPT_TIMEOUT, (int)$timeout);
     return curl_exec($con);
 }
@@ -519,7 +523,7 @@ function curl_post_request($url, $requestString, $timeout = 5)
 /**
  * 新增post请求
  */
-function curl_post_request_array($url, $post_data, $timeout = 10)
+function curl_post_request_array($url, $post_data, $timeout = 10,$headers=[])
 {
     $con = curl_init();
     curl_setopt($con, CURLOPT_URL, $url);
@@ -533,7 +537,9 @@ function curl_post_request_array($url, $post_data, $timeout = 10)
     curl_setopt($con, CURLOPT_SSL_VERIFYHOST, 0); // 检查证书中是否设置域名,0不验证
     //请求时间
     //设置header信息
-
+    if (!empty($headers)) {
+        curl_setopt($con, CURLOPT_HTTPHEADER, $headers);
+    }
     curl_setopt($con, CURLOPT_TIMEOUT, (int)$timeout);
     $res = curl_exec($con);
     //print_r(curl_error($con));
@@ -548,7 +554,7 @@ function curl_post_request_array($url, $post_data, $timeout = 10)
  * @param int $timeout
  * @return bool|mixed
  */
-function curl_get_request($url, $data = array(), $timeout = 10, $header = [])
+function curl_get_request($url, $data = array(), $timeout = 10, $headers = [])
 {
     if ($url == "" || $timeout <= 0) {
         return false;
@@ -566,4 +572,168 @@ function curl_get_request($url, $data = array(), $timeout = 10, $header = [])
     }
     curl_setopt($con, CURLOPT_TIMEOUT, (int)$timeout);
     return curl_exec($con);
+}
+
+/**
+ * 移除url的某个参数
+ * @param $url
+ * @param $keys array|string 需要移除的一个或者多个参数
+ * @return string
+ * @example $url = 'https://wei1.top?a=1&b=2&user=cccc&x=ad';
+ *          $newUrl = remove_query_var($url,'user');
+ *          echo $newUrl;//https://wei1.top?a=1&b=2&x=ad
+ */
+function remove_query_var($url, $keys)
+{
+    $url = parse_url($url);
+    if (!empty($url['query'])) {
+        parse_str($url['query'], $arr);
+        if (is_array($keys)) {
+            foreach ($keys as $key) {
+                if (isset($arr[$key])) {
+                    unset($arr[$key]);
+                }
+            }
+        } else {
+            if (isset($arr[$keys])) {
+                unset($arr[$keys]);
+            }
+        }
+        $url = $url['scheme'] . '://' . $url['host'] . (isset($url['port']) ? ':' . $url['port'] : '') . $url['path'] . '?' . http_build_params($arr);
+    }
+    return $url;
+}
+
+/**数组拼接
+ * @param $params
+ * @return string
+ */
+function http_build_params($params)
+{
+    if (empty($params) || !is_array($params)) {
+        return '';
+    }
+    $str = '&';
+    foreach ($params as $k => $v) {
+        $str .= "&$k=$v";
+    }
+    return str_replace('&&', '', $str);
+}
+
+/**
+ * 判断插件是否存在
+ * @param $tag
+ * @return bool
+ */
+function bs_p($tag)
+{
+    if (!$tag) {
+        return false;
+    }
+    if (!file_exists(APP_PATH . 'plugin/controller/' . strtolower($tag) . '/config.json')) {
+        return false;
+    }
+    $has = AppCommon::data_get('plugins', ['plugin_tag' => $tag], 'id,disable');
+    if (empty($has['id']) || !empty($has['disable'])) {
+        return false;
+    }
+    return true;
+}
+
+
+
+/**
+ * 发送消息
+ * @param $uid
+ * @param $msg
+ * @param false $toGroup
+ */
+function gateway_send_msg($uid, $msg, $toGroup = false)
+{
+    // 设置GatewayWorker服务的Register服务ip和端口，请根据实际情况改成实际值(ip不能是0.0.0.0)
+    \GatewayClient\Gateway::$registerAddress = '127.0.0.1:1238';
+    // 向任意群组的网站页面发送数据
+    if ($toGroup) {
+        \GatewayClient\Gateway::sendToGroup($uid, $msg);
+    } else {
+        // 向任意uid的网站页面发送数据
+        \GatewayClient\Gateway::sendToUid($uid, $msg);
+    }
+}
+
+/**
+ * 绑定uid
+ * @param $client_id
+ * @param $uid
+ * @param false $group_id
+ */
+function gateway_bind_uid($client_id, $uid, $group_id = false)
+{
+    //加载GatewayClient。关于GatewayClient参见本页面底部介绍
+    // require_once '/your/path/GatewayClient/Gateway.php';
+    // GatewayClient 3.0.0版本开始要使用命名空间
+
+    // 设置GatewayWorker服务的Register服务ip和端口，请根据实际情况改成实际值(ip不能是0.0.0.0)
+    \GatewayClient\Gateway::$registerAddress = '127.0.0.1:1238';
+    // client_id与uid绑定
+    \GatewayClient\Gateway::bindUid($client_id, $uid);
+    // 加入某个群组（可调用多次加入多个群组）
+    if ($group_id) {
+        \GatewayClient\Gateway::joinGroup($client_id, $group_id);
+    }
+
+}
+
+/**
+ * 缓存状态监测
+ * @param $type
+ * @return bool
+ */
+function cache_service_check($type)
+{
+    static $handler;
+    //2分钟检查一次，不用每个请求都连接一次
+    $expire = 120;
+    $key = 'cache_service_check_' . $type;
+    if (!empty($handler[$type])) {
+        return true;
+    }
+    $c = cache($key);
+    if ($c) {
+        return $c == 1;
+    }
+
+    if (!in_array($type, ['redis', 'memcache', 'memcached'])) {
+        if ($type == 'default') {
+            //默认用文件系统
+            cache($key, 1, $expire);
+            return true;
+        }
+        cache($key, -1, $expire);
+        return false;
+    }
+    if (!extension_loaded(strtolower($type))) {
+        cache($key, -1, $expire);
+        return false;
+    }
+    $class = ucfirst($type);
+    if (!class_exists($class)) {
+        cache($key, -1, $expire);
+        return false;
+    }
+    // 获取默认缓存配置，并连接
+    $options = \think\Config::get('cache.' . $type);
+    if (empty($options)) {
+        cache($key, -1, $expire);
+        return false;
+    }
+
+    try {
+        $handler[$type] = \think\Cache::connect($options);
+    } catch (Exception $e) {
+        cache($key, -1, $expire);
+        return false;
+    }
+    cache($key, 1, $expire);
+    return true;
 }

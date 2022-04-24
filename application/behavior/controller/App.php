@@ -7,6 +7,7 @@ use app\common\controller\AppCommon;
 use app\service\ConfigService;
 use app\service\DiyLog;
 use app\service\ErrorService;
+use app\service\UpdateService;
 use think\Cache;
 use think\Db;
 use think\Response;
@@ -18,11 +19,11 @@ class App
     {
         $this->limit_request($params);
         //异常监听
-        if (defined('BS_CATCH_ERROR')) {
+        if (defined('BS_CATCH_ERROR') && BS_CATCH_ERROR) {
             ErrorService::catch_error(BS_CATCH_ERROR);
         }
         //可以跨域的白名单
-        $domains = ['localhost', 'shop.test.top', 'demo.bs.shop.wei1.top'];
+        $domains = ['vip.bs.shop.wei1.top'];
         $refer = isset($_SERVER['HTTP_REFERER']) ? $_SERVER['HTTP_REFERER'] : '';
         if (!empty($refer) && in_array(parse_url($refer, PHP_URL_HOST), $domains)) {
             @header('Access-Control-Allow-Origin: *');
@@ -39,13 +40,16 @@ class App
             }
         }
 
-        //数据库查询慢日志监控
+        //数据库查询日志监控
         Db::listen(function ($sql, $time, $explain, $master) {
-            if ($time >= 5 && stripos($sql, 'SHOW COLUMNS') === false) {
-                DiyLog::$save_path = RUNTIME_PATH . '/log/diy/sql/';
+            DiyLog::$save_path = RUNTIME_PATH . '/log/diy/sql/' . date('Ym') . '/';
+            if ($time >= 5 && stripos($sql, 'SHOW COLUMNS') === false && stripos($sql, 'SHOW TABLES') === false) {
+
                 DiyLog::file([
                     'sql' => $sql, 'time' => $time, 'explain' => $explain, 'master' => $master
-                ], date('Ymd.log'));
+                ], date('d') . 'lower.log');
+            } elseif (stripos($sql, 'SHOW COLUMNS') === false && stripos($sql, 'SHOW TABLES') === false) {
+                DiyLog::file(['sql' => $sql, 'time' => $time, 'explain' => $explain, 'master' => $master], date('d') . '.log');
             }
         });
     }
@@ -62,6 +66,7 @@ class App
      */
     private function limit_request($params)
     {
+        //fixme 考虑同一个局域网下面同一个IP问题，那时候采用uid比较合适，只是不能全局了
         $ip = request()->ip();
         $confIpBlackList = ConfigService::get('ip_blacklist', false);
         if (!empty($confIpBlackList)) {
@@ -82,12 +87,18 @@ class App
         } else {
             $cacheDriver = 'default';
         }
+        //监测服务状态，不正常则用默认
+        if ($cacheDriver <> 'default' && !cache_service_check($cacheDriver)){
+            $cacheDriver = 'default';
+        }
+
         $ipCount = Cache::store($cacheDriver)->get($keyRequest);
         if (empty($ipCount)) {
             $ipCount = 1;
         } else {
             $ipCount++;
         }
+
         Cache::store($cacheDriver)->set($keyRequest, $ipCount, 3);
 
         //同一个接口请求每秒限流

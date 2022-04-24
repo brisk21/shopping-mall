@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <title>后台管理</title>
+    <title>BS_SHOP-后台管理</title>
     <{include file="public/header"}>
     <{include file="public/data_tables_css"}>
 
@@ -96,6 +96,7 @@
                                 <th>#</th>
                                 <th>商品信息</th>
                                 <th>下单用户</th>
+                                <th>店铺</th>
                                 <th>订单号</th>
                                 <th>状态</th>
                                 <th>订单类型</th>
@@ -116,6 +117,15 @@
                                 </td>
                                 <td>
                                     <a href="<{:url('/admin/user.index/index',['keyword'=>$item.uid])}>"><{$item.user.account}></a>
+                                </td>
+
+                                <td>
+                                    <{if !empty($item.store) }>
+                                    <a href="<{:url(null,['store_num'=>$item.store_num])}>"><{$item.store.store_name}></a>
+
+                                    <{else}>
+                                    未知
+                                    <{/if}>
                                 </td>
                                 <td><{$item.order_sn}></td>
                                 <td>
@@ -188,9 +198,9 @@
             "lengthChange": false,
             "autoWidth": false,
             "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
-           // "pageLength": 10,         //初始化显示几条数据
+            // "pageLength": 10,         //初始化显示几条数据
             //serverSide: true, // use local process instead of server
-           // bFilter: true, // show top right search input box.
+            // bFilter: true, // show top right search input box.
             bPaginate: false,//是否开启分页
             //iDisplayLength: 10, //默认显示的记录数
             bInfo: false,//是否显示页脚信息，DataTables插件左下角显示记录数

@@ -63,6 +63,7 @@ class Goods extends Mall
             $where['title'] = ['like', '%' . trim(strip_tags($this->param['keyword'])) . '%'];
         }
 
+        $where['is_del'] = 0;
         $goods = AppCommon::data_list('goods', $where, $page, 'id,title,market_price,price,stock,sale,thumb', $order);
         $total = AppCommon::data_count('goods', $where);
 
@@ -76,12 +77,20 @@ class Goods extends Mall
     public function goods_detail()
     {
         $id = !empty($this->param['id']) ? intval($this->param['id']) : 0;
-        $goods = AppCommon::data_get('goods', ['id' => $id, 'status' => 1], 'id,title,goods_desc,thumb,market_price,price,stock,sale,status,banners,content,category_id,store_num');
+        $goods = AppCommon::data_get('goods', ['id' => $id, 'status' => 1, 'is_del' => 0], 'id,title,goods_desc,thumb,market_price,price,stock,sale,status,banners,content,category_id,store_num,banner2detail');
         if ($goods) {
             if (!empty($goods['banners'])) {
                 $goods['banners'] = json_decode($goods['banners'], true);
             }
-            $goods['content'] = htmlspecialchars_decode($goods['content'], ENT_QUOTES);
+            $content = '';
+            if (!empty($goods['banner2detail']) && !empty($goods['banners'])) {
+
+                foreach ($goods['banners'] as $img) {
+                    $content .= "<img src='{$img}' alt='goods image' />";
+                }
+            }
+
+            $goods['content'] = $content . htmlspecialchars_decode($goods['content'], ENT_QUOTES);
 
             $goods['has_favorite'] = AppCommon::data_get('goods_favorite', ['uid' => $this->uid, 'goods_id' => $goods['id']], 'id');
         }
@@ -236,21 +245,21 @@ class Goods extends Mall
     //商品评价
     public function get_comment()
     {
-        if (empty($this->param['id'])){
-            data_return('参数有误',-1);
+        if (empty($this->param['id'])) {
+            data_return('参数有误', -1);
         }
         $page = !empty($this->param['page']) ? intval($this->param['page']) : 1;
-        $data = AppCommon::data_list('goods_comment',['goods_id'=>intval($this->param['id']),'status'=>1],$page,'is_hide_user,content,imgs,status,add_time,uid,star','id desc');
-        if ($data){
-            foreach ($data as &$v){
-                $v['add_time'] = date('Y-m-d',$v['add_time']);
-                if (!empty($v['imgs'])){
-                    $v['imgs'] = explode(',',$v['imgs']);
+        $data = AppCommon::data_list('goods_comment', ['goods_id' => intval($this->param['id']), 'status' => 1], $page, 'is_hide_user,content,imgs,status,add_time,uid,star', 'id desc');
+        if ($data) {
+            foreach ($data as &$v) {
+                $v['add_time'] = date('Y-m-d', $v['add_time']);
+                if (!empty($v['imgs'])) {
+                    $v['imgs'] = explode(',', $v['imgs']);
                 }
-                $v['user']['avatar'] = URL_WEB.'/static/com/img/user-default1.png';
-                if ($v['is_hide_user']==1){
+                $v['user']['avatar'] = URL_WEB . '/static/com/img/user-default1.png';
+                if ($v['is_hide_user'] == 1) {
                     $v['user']['nickname'] = '匿名用户';
-                }else{
+                } else {
                     $v['user'] = AppCommon::data_get('common_user', ['uid' => $v['uid']], 'account,nickname');
                     if (empty($v['user']['nickname'])) {
                         $v['user']['nickname'] = '匿名用户';
@@ -261,14 +270,14 @@ class Goods extends Mall
             unset($v);
         }
 
-        data_return('ok',0,['comment'=>$data]);
+        data_return('ok', 0, ['comment' => $data]);
     }
 
     //评价列表
     public function comment_list()
     {
-        return $this->fetch()
-;    }
+        return $this->fetch();
+    }
 
     //我的购物车统计
     public function my_cart_total()

@@ -21,7 +21,7 @@
 
 <{include file="public/footer" /}>
 <script>
-  bs_request("<{:url('/mall/home/get_xieyi_info')}>",{gtype:'reg'},function (res) {
+  bs_request("<{:url('get_xieyi_info')}>",{gtype:'reg'},function (res) {
     if (res.code==0 && res.data.article){
 
       $(".wy-news-info").html(res.data.article.content)

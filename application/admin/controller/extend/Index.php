@@ -6,6 +6,7 @@ namespace app\admin\controller\extend;
 
 use app\admin\controller\com\Admin;
 use app\common\controller\AppCommon;
+use app\service\DiyLog;
 use app\service\PluginsService;
 
 
@@ -20,6 +21,9 @@ class Index extends Admin
             $plugins = PluginsService::get_all_plugin_list($tags);
         }
         if (!empty($plugins)) {
+            array_walk($plugins,function(&$v){
+                $v['info']['desc'] = nl2br($v['info']['desc']);
+            });
             $upTime = array_column($plugins, 'up_time');
             array_multisort($plugins, SORT_DESC, $upTime);
             $this->assign('data', $plugins);
@@ -39,6 +43,7 @@ class Index extends Admin
                 $dbPlugins = array_column($dbPlugins, null, 'plugin_tag');
                 foreach ($plugins as &$v) {
                     $v['status'] = 1;
+                    $v['info']['desc'] = nl2br($v['info']['desc']);
                     if (!empty($dbPlugins[$v['info']['plugin_tag']]['disable'])) {
                         $v['status'] = 0;
                     }
@@ -47,6 +52,7 @@ class Index extends Admin
             }else{
                 array_walk($plugins ,function (&$v){
                     $v['status'] = 0;
+                    $v['info']['desc'] = nl2br($v['info']['desc']);
                 });
             }
             $upTime = array_column($plugins, 'up_time');

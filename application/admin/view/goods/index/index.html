@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="zh">
 <head>
-    <title>后台管理</title>
+    <title>BS_SHOP-后台管理</title>
     <{include file="public/header"}>
     <{include file="public/data_tables_css"}>
 
@@ -147,27 +147,13 @@
                                 <td>
                                     <a class="btn btn-success btn-xs" href="<{:url('/admin/goods.index/form',['id'=>$item.id])}>" title="查看编辑"><i class="fas fa-edit"></i></a>
                                     <span class="btn btn-danger btn-xs del-data bs-left-10" onclick="del(this)" data-id="<{$item.id}>" title="删除"><i class="fas fa-trash"></i></span>
+                                    <span class="btn  btn-default btn-xs set-status bs-left-10" onclick="set_copy(this)"  data-id="<{$item.id}>"   title="复制一份"><i class="fas fa-copy"></i></span>
                                 </td>
 
                             </tr>
                             <{/foreach}>
                             <{/if}>
-
-
-
                             </tbody>
-                            <tfoot>
-                            <tr>
-                                <th>#</th>
-                                <th>商品名称</th>
-                                <th>状态</th>
-                                <th>价格</th>
-                                <th>数量</th>
-                                <th>封面图</th>
-                                <th>操作</th>
-                            </tr>
-
-                            </tfoot>
                         </table>
                     </div>
                     <div class="card-footer">
@@ -194,12 +180,23 @@
     function del(obj){
         var id = $(obj).data('id')
 
-        layer.confirm('确定要删除吗，不可恢复哦',{title:0},function () {
-            sendData("<{:url('/admin/goods.index/action')}>",{id:id,ac:'del'},function (res) {
+        layer.confirm('确定要放到回收站吗？',{title:0},function () {
+            sendData("<{:url('/admin/goods.index/action')}>",{id:id,ac:'recycle'},function (res) {
                 if(res.code==0){
                     $(obj).parent('td').parent('tr').remove();
                 }
             })
+        })
+    }
+    function set_copy(obj){
+        var id = $(obj).data('id');
+        layer.confirm('复制后会共用之前是商品信息，如图片资源地址，确定吗？',{title:'复制确认',btn:['确定','点错了']},function (index) {
+            sendData("<{:url('/admin/goods.index/action')}>",{id:id,ac:'copy'},function (res) {
+                if (res.code==0){
+                    location.reload()
+                }
+            })
+
         })
     }
     $(function () {
@@ -209,10 +206,10 @@
             "responsive": true,
             "lengthChange": false,
             "autoWidth": false,
-            "buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
+            //"buttons": ["copy", "csv", "excel", "pdf", "print", "colvis"],
            // "pageLength": 10,         //初始化显示几条数据
             //serverSide: true, // use local process instead of server
-           // bFilter: true, // show top right search input box.
+            bFilter: false, // show top right search input box.
             bPaginate: false,//是否开启分页
             //iDisplayLength: 10, //默认显示的记录数
             bInfo: false,//是否显示页脚信息，DataTables插件左下角显示记录数

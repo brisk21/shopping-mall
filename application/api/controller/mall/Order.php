@@ -29,6 +29,7 @@ class Order
 
         $data = AppCommon::data_list('order', ['status' => 0, 'cancel_pay_time' => ['<', time()]], '1,100', 'order_sn');
         if (empty($data)) {
+            cache($key, null);
             data_return('暂无订单需要关闭', -1);
         }
         $count = 0;
@@ -54,6 +55,7 @@ class Order
 
         $data = AppCommon::data_list('order', ['status' => 0, 'cancel_pay_time' => ['<', $time]], '1,20', 'order_sn,uid,order_type');
         if (empty($data)) {
+            cache($key, null);
             data_return('暂无订单需要自动确认收货', -1);
         }
         $count = 0;

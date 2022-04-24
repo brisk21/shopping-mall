@@ -157,7 +157,9 @@
   function getData() {
     bs_request("<{:url('/mall/order/ready')}>",{addr_id:addr_id},function (res) {
       if (res.code !=0){
-        return $.alert(res.msg);
+        $.confirm(res.msg,function () {
+          location.href = "<{:url('/mall/home/index')}>"
+        })
       }
 
       if (!in_array(shoptype,[2,3])){

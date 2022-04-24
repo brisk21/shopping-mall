@@ -46,6 +46,7 @@ class Setting extends Admin
             'auto_receive_order_time' => max(0,intval($this->param['auto_receive_order_time'])),
             //注册赠送金额
             'reg_gift_credit' => max(0, intval($this->param['reg_gift_credit'])),
+            'footer_code' => !empty($this->param['footer_code']) ? input('footer_code','',null) : '',
         ];
 
         if ($data['shop_type'] == 2 && empty($data['shop_address_tihuo'])) {

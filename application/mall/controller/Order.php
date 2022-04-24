@@ -191,7 +191,7 @@ class Order extends Mall
             ->join('goods b', 'b.id = a.goods_id')
             ->join('stores c', 'b.store_num = c.store_num')
             ->where(['a.uid' => $this->uid, 'a.status' => 1])
-            ->field('b.title,b.price,b.thumb,a.id,a.count,b.status,a.goods_id,b.id as bid,b.stock,b.stock_locked,c.store_name,c.store_num')
+            ->field('b.title,b.price,b.thumb,a.id,a.count,b.status,a.goods_id,b.id as bid,b.stock,b.stock_locked,c.store_name,c.store_num,b.is_del')
             ->select();
 
         if (empty($goods)) {
@@ -200,6 +200,9 @@ class Order extends Mall
         foreach ($goods as $item) {
             if (empty($item['bid']) || ($item['stock'] <= 0) || $item['status'] <> 1) {
                 data_return('存在已下架或已售罄商品', -1);
+            }
+            if ($item['is_del'] == 1) {
+                data_return($item['title'] . '已下线', -1);
             }
             if ($item['stock'] < $item['count']) {
                 data_return($item['title'] . '库存不足', -1);
@@ -216,12 +219,12 @@ class Order extends Mall
         if (cache($ckey)) {
             data_return('操作过于频繁，请稍后...', -1);
         }
-        cache($ckey, 1, 10);
+        cache($ckey, 1, 1);
 
         $shop_type = empty($this->config_shop['shop_type']) ? 0 : intval($this->config_shop['shop_type']);
         if (!empty($this->param['id'])) {
             //立即购买
-            $goods = AppCommon::data_get('goods', ['id' => intval($this->param['id'])], 'id,thumb,title,price,status,stock,stock_locked,store_num');
+            $goods = AppCommon::data_get('goods', ['id' => intval($this->param['id']), 'status' => 1, 'is_del' => 0], 'id,thumb,title,price,status,stock,stock_locked,store_num');
             if (empty($goods) || $goods['status'] <> 1 || ($goods['stock']) <= 0) {
                 cache($ckey, null);
                 data_return('商品已售罄', -1);
@@ -335,7 +338,7 @@ class Order extends Mall
                 foreach ($goods as $value) {
                     $trest = ServerOrder::add_order_goods([
                         'order_sn' => $order_sn,
-                        'goods_id' => $value['id'],
+                        'goods_id' => $value['goods_id'],
                         'count' => $value['count'],
                         'thumb' => $value['thumb'],
                         'price' => $value['price'],

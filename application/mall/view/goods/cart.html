@@ -178,6 +178,11 @@ function checkCart(){
         }
       }else{
         st = 0;
+        if (cpage==1){
+            $.confirm('没有记录，是否跳到首页？',function () {
+                location.href = "<{:url('/mall/home/index')}>"
+            })
+        }
       }
     });
   }

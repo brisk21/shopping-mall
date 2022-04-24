@@ -52,7 +52,6 @@ class Mall extends Controller
     }
 
 
-
     //微信环境检测授权
     public function wx_env()
     {
@@ -60,7 +59,7 @@ class Mall extends Controller
             return;
         }
         $openid = cookie('my_gzh_openid');
-        if (!empty($openid)){
+        if (!empty($openid)) {
             return;
         }
         $conf = WechatService::get_gzh_conf();
@@ -71,9 +70,9 @@ class Mall extends Controller
             return $this->error('未配置公众号信息');
         }
         if ($conf['pt'] == 'wei1-top') {
-            $type = !empty($conf['userinfo'])?'userInfo':'openid';
+            $type = !empty($conf['userinfo']) ? 'userInfo' : 'openid';
             if (!IS_AJAX) {
-                cookie('authbacktourl',\request()->url());
+                cookie('authbacktourl', \request()->url());
                 $curl = URL_WEB . url('/mall/home/wx_openid');
                 $url = "https://wxauth.alipay168.cn/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
                 return $this->redirect($url);
@@ -86,7 +85,7 @@ class Mall extends Controller
             $url = URL_WEB . trim(url('/mall/home/wx_openid', ['from' => 'gzh']), '/');
             $codeUrl = WechatService::get_code($url, !empty($conf['userinfo']));
             if (!IS_AJAX) {
-                cookie('authbacktourl',\request()->url());
+                cookie('authbacktourl', \request()->url());
                 return $this->redirect($codeUrl['data']['url']);
             } else {
                 $url = $codeUrl['data']['url'];
@@ -107,12 +106,15 @@ class Mall extends Controller
         if (empty($this->whiteList) || !in_array($route, $this->whiteList)) {
 
             if (empty($this->uid)) {
+                $uri = !IS_AJAX ? urlencode(URL_HTTP . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI']) : URL_WEB . ltrim(url('/mall/home/index'), '/');
+                $loginUrl = URL_WEB . ltrim(url('/console/account/login'), '/');
+                $loginUrl = $loginUrl . '?bs_redirect_uri=' . $uri;
                 if (IS_AJAX || IS_POST) {
                     data_return('登录超时', 401, [
-                        'login_url' => URL_WEB . ltrim(url('/mall/account/login'), '/')
+                        'login_url' => $loginUrl
                     ]);
                 } else {
-                    return $this->redirect(url('/mall/account/login'), [], 4003);
+                    return $this->redirect($loginUrl, [], 4003);
                 }
             }
         }

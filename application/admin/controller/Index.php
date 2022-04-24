@@ -8,6 +8,8 @@ use app\admin\controller\com\Admin;
 use app\common\controller\AppCommon;
 use app\service\AdminMsg;
 use app\service\Page;
+use app\service\TongJiService;
+use app\service\UpdateService;
 use think\Request;
 
 class Index extends Admin
@@ -50,6 +52,15 @@ class Index extends Admin
         if (!empty($data['order_pay'])) {
             $data['order_pay_rate'] = round($data['order_pay'] / $data['order'] * 100, 2);
         }
+        $time = date('Y-m');
+        if (!empty($this->param['date'])){
+            $time = $this->param['date'];
+        }
+        $data['tongji'] = [
+            'order' => implode(',', array_column(TongJiService::tongji_order('order', $time, 'day'), 'total')),
+            'x' => implode(',', TongJiService::get_xAxis($time, 'day'))
+        ];
+
 
         if ($return) {
             return $data;
@@ -198,4 +209,36 @@ class Index extends Admin
         data_return('操作成功');
     }
 
+    //检测是否需要更新
+    public function check_update($get = false)
+    {
+        if (!IS_AJAX) {
+            data_return('非法操作', -1);
+        }
+        $version = UpdateService::get_version();
+        $res = [
+            'v' => $version
+        ];
+        $res['status'] = 0;
+        if (!empty($version['new']) && !empty($version['old'])) {
+            //只检测是否需要更新sql字段、表等
+            if ($version['old']['sql_version'] < $version['new']['sql']) {
+                $res['status'] = 1;
+            }
+        }
+        if ($get) {
+            return $res;
+        }
+        data_return('ok', 0, $res);
+    }
+
+    public function start_update()
+    {
+        $res = $this->check_update(true);
+        if ($res['status'] <> 1) {
+            data_return('无需更新', -1);
+        }
+        $action = UpdateService::app_update();
+        data_return($action['msg'], $action['code']);
+    }
 }
