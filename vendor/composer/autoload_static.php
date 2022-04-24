@@ -22,6 +22,7 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
     public static $prefixLengthsPsr4 = array (
         't' => 
         array (
+            'think\\worker\\' => 13,
             'think\\composer\\' => 15,
             'think\\captcha\\' => 14,
             'think\\' => 6,
@@ -33,6 +34,10 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
         'Y' => 
         array (
             'Yunpian\\Sdk\\' => 12,
+        ),
+        'W' => 
+        array (
+            'Workerman\\' => 10,
         ),
         'S' => 
         array (
@@ -60,6 +65,8 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
             'GuzzleHttp\\Psr7\\' => 16,
             'GuzzleHttp\\Promise\\' => 19,
             'GuzzleHttp\\' => 11,
+            'GatewayWorker\\' => 14,
+            'GatewayClient\\' => 14,
         ),
         'D' => 
         array (
@@ -78,6 +85,10 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
     );
 
     public static $prefixDirsPsr4 = array (
+        'think\\worker\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/topthink/think-worker/src',
+        ),
         'think\\composer\\' => 
         array (
             0 => __DIR__ . '/..' . '/topthink/think-installer/src',
@@ -97,6 +108,10 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
         'Yunpian\\Sdk\\' => 
         array (
             0 => __DIR__ . '/..' . '/yunpian/src',
+        ),
+        'Workerman\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/workerman/workerman',
         ),
         'Symfony\\Polyfill\\Php72\\' => 
         array (
@@ -145,6 +160,14 @@ class ComposerStaticInit2bc4f313dba415539e266f7ac2c87dcd
         'GuzzleHttp\\' => 
         array (
             0 => __DIR__ . '/..' . '/guzzlehttp/guzzle/src',
+        ),
+        'GatewayWorker\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/workerman/gateway-worker/src',
+        ),
+        'GatewayClient\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/workerman/gatewayclient',
         ),
         'Darabonba\\OpenApi\\' => 
         array (

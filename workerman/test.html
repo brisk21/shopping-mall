@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>测试wesocket</title>
+    <script src="https://cdn.bootcss.com/jquery/3.4.1/jquery.min.js"></script>
+    <style>
+        .abc{
+            padding: 8px;
+        }
+    </style>
+</head>
+<body>
+<div class="btn-group">
+    <button class="btn abc">发送消息1</button>
+
+    <button class="send2" style="padding: 8px;">发送消息2</button>
+    <div class="res">
+        <p>下面的返回的消息</p>
+        <div class="bs-data" style="color: red;"></div>
+    </div>
+</div>
+<script>
+    var ws;//websocket实例
+    var lockReconnect = false;//避免重复连接
+    var wsUrl = 'ws:127.0.0.1:8002';
+
+    function createWebSocket(url) {
+        try {
+            ws = new WebSocket(url);
+            initEventHandle();
+        } catch (e) {
+            reconnect(url);
+        }
+    }
+
+
+    function initEventHandle() {
+        ws.onclose = function () {
+            reconnect(wsUrl);
+        };
+        ws.onerror = function () {
+            reconnect(wsUrl);
+        };
+        ws.onopen = function () {
+            //心跳检测重置
+            heartCheck.reset().start();
+            login();
+        };
+        ws.onmessage = function (event) {
+            //如果获取到消息，心跳检测重置
+            //拿到任何消息都说明当前连接是正常的
+            heartCheck.reset().start();
+            onmessage(event)
+        }
+    }
+
+    function reconnect(url) {
+        if(lockReconnect) return;
+        lockReconnect = true;
+        //没连接上会一直重连，设置延迟避免请求过多
+        setTimeout(function () {
+            createWebSocket(url);
+            lockReconnect = false;
+        }, 2000);
+    }
+
+
+    //心跳检测
+    var heartCheck = {
+        timeout: 10000,//10秒
+        timeoutObj: null,
+        reset: function(){
+            clearTimeout(this.timeoutObj);
+            return this;
+        },
+        start: function(){
+            this.timeoutObj = setTimeout(function(){
+                //这里发送一个心跳，后端收到后，返回一个心跳消息，
+                //onmessage拿到返回的心跳就说明连接正常
+                ws.send('{"type":"ping"}');
+            }, this.timeout)
+        }
+    }
+
+    //初始化登录
+    function login(){
+        ws.send('{"type":"start","bsid":"bsshoptest"}');
+    }
+
+    //消息接收
+    function onmessage(e){
+        console.log('收到消息啦',e.data)
+        var data = e.data;
+        if (data==='pong'){
+            return ;
+        }
+        data = $.parseJSON(data);
+        var content = '';
+        switch (data.type){
+            case  'text':
+                content = data.data.content;
+                break;
+            default:
+                content = data.data.content?data.data.content: '未知';
+                break;
+        }
+
+        $(".bs-data").html(content)
+    }
+
+    createWebSocket(wsUrl);
+
+
+    $(function (){
+        $(".btn").on('click',function () {
+           return ws.send('{"type":"test"}');
+        });
+        $(".send2").on('click',function () {
+            return  ws.send('{"type":"abc"}');
+        });
+    })
+</script>
+
+</body>
+</html>

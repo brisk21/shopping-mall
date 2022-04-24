@@ -174,8 +174,8 @@ return [
         'type' => 'File',
         // 日志保存目录
         'path' => LOG_PATH,
-        // 日志记录级别
-        'level' => [],
+        // 日志记录级别, 'log', 'error', 'info', 'sql', 'notice', 'alert', 'debug'
+        'level' => ['log', 'error', 'sql', 'notice', 'alert', 'debug'],
     ],
 
     // +----------------------------------------------------------------------
@@ -314,5 +314,11 @@ return [
     ],
     'bs' => [
         'is_developer' => true
+    ],
+    //版本配置，整型
+    'version' => [
+        'app' => 1,
+        'sql' => 3,
+        'file' => 1
     ],
 ];

@@ -50,9 +50,11 @@
 
 1. 下载源码
 
-   github：<a href="https://github.com/brisk21/shopping-mall">https://github.com/brisk21/shopping-mall</a>
+   
    
    gitee：<a href="https://gitee.com/brisklan/thinkphp5-shopping-mall">https://gitee.com/brisklan/thinkphp5-shopping-mall</a>
+   
+   github：<a href="https://github.com/brisk21/shopping-mall">https://github.com/brisk21/shopping-mall</a>
 
 2. 解压源码
 
@@ -60,7 +62,7 @@
 
 4. 创建数据库，导入sql（install目录下面的bs_shop.sql有demo数据，另外一个仅结构)数据
 
-5.  伪静态设置（参考thinkphp）,下面是nginx配置：
+5.  URL重写(隐藏应用的入口文件index.php)设置（参考thinkphp）,下面是nginx配置：
 ```nginx
 
 
@@ -70,16 +72,35 @@ location / {
    break;
     }
  }
+
+
+
 ```
+apache： <br>
+    ① httpd.conf配置文件中加载了mod_rewrite.so模块<br>
+    ② AllowOverride None 将None改为 All<br>
+③把下面的内容保存为.htaccess文件放到应用入口文件的同级目录下
+```
+<IfModule mod_rewrite.c>
+Options +FollowSymlinks -Multiviews
+RewriteEngine on
+
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
+</IfModule>
+```
+
+
 6.访问域名（xxxx.com）访问（后台访问xxxx.com/admin/）
 
-```后台账号密码 sbshop ：123456```
+```后台账号密码 bsshop ：123456```
 
 安装不上加微信：wei1-top
 
 #### 使用说明
 
-1.  适用单商户
+1.  适用单商户（多商户定制版加微信可获取）
 2.  支持购物车
 3.  支持批量下单
 4.  支持商品收藏、交易等
