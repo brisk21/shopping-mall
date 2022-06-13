@@ -165,18 +165,6 @@ return [
     // 异常处理handle类 留空使用 \think\exception\Handle
     'exception_handle' => '',
 
-    // +----------------------------------------------------------------------
-    // | 日志设置
-    // +----------------------------------------------------------------------
-
-    'log' => [
-        // 日志记录方式，内置 file socket 支持扩展
-        'type' => 'File',
-        // 日志保存目录
-        'path' => LOG_PATH,
-        // 日志记录级别, 'log', 'error', 'info', 'sql', 'notice', 'alert', 'debug'
-        'level' => ['log', 'error', 'sql', 'notice', 'alert', 'debug'],
-    ],
 
     // +----------------------------------------------------------------------
     // | Trace设置 开启 app_trace 后 有效
@@ -184,59 +172,6 @@ return [
     'trace' => [
         // 内置Html Console 支持扩展
         'type' => 'Html',
-    ],
-
-    // +----------------------------------------------------------------------
-    // | 缓存设置
-    // +----------------------------------------------------------------------
-
-    'cache' => [
-        // 驱动方式,支持的缓存类型包括file、memcache、memcached、redis、sqlite、wincache和xcache，complex-混合。
-
-        'type' => 'complex',
-        'default' => [
-            'type' => 'File',
-            // 缓存保存目录
-            'path' => CACHE_PATH,
-            // 缓存前缀
-            'prefix' => 'bs_',
-            // 缓存有效期 0表示永久缓存
-            'expire' => 0,
-            //多少天自动清除
-            'max_files' => 30
-        ],
-        'redis' => [
-            'type' => 'redis',
-            // 缓存前缀
-            'prefix' => 'bs_',
-            // 缓存有效期 0表示永久缓存
-            'expire' => 0,
-            'host' => '127.0.0.1',
-            'port' => 6379,
-            'password' => '',
-            'select' => 0,
-            'timeout' => 0,
-            'persistent' => false,
-        ],
-        'memcached' => [
-            'type' => 'memcached',
-            'host' => '127.0.0.1',
-            'port' => 11211,
-            'expire' => 0,
-            'timeout' => 0, // 超时时间（单位：毫秒）
-            'prefix' => 'bs_',
-            'username' => '', //账号
-            'password' => '', //密码
-            'option' => [],
-        ],
-        // 缓存保存目录
-        'path' => CACHE_PATH,
-        // 缓存前缀
-        'prefix' => 'bs_',
-        // 缓存有效期 0表示永久缓存
-        'expire' => 0,
-        //多少天自动清除
-        'max_files' => 30
     ],
 
     // +----------------------------------------------------------------------
@@ -289,36 +224,7 @@ return [
             'last_page' => true  //尾页
         ]
     ],
-    //微信配置,生成参数时动态传入
-    'wechat' => [
-        'use_sandbox' => false, // 是否使用 微信支付仿真测试系统
-        'app_id' => '',  // 公众账号ID
-        'mch_id' => '', // 商户id
-        'md5_key' => '', // md5 秘钥
-        'app_cert_pem' => '',
-        'app_key_pem' => '',
-        'sign_type' => 'MD5', // MD5  HMAC-SHA256
-        'limit_pay' => [
-            //'no_credit',
-        ], // 指定不能使用信用卡支付   不传入，则均可使用
-        'fee_type' => 'CNY', // 货币类型  当前仅支持该字段
-        'notify_url' => URL_WEB . 'payment/wxnotify/index',//  回调地址
-        'redirect_url' => '', // 如果是h5支付，可以设置该值，返回到指定页面
-    ],
-    //上传设置
-    'upload' => [
-        'method' => 'local',//local-本地，oss-阿里云oss，qiniu-七牛云,
-        'fileSizeLimit' => 2 * 1024 * 1024,//文件大小限制
-        'defaultPath' => PUBLIC_PATH . 'upload/',//默认保存路径,
-        'enable_type' => ['jpg', 'png', 'jpeg']
-    ],
-    'bs' => [
-        'is_developer' => true
-    ],
-    //版本配置，整型
-    'version' => [
-        'app' => 1,
-        'sql' => 3,
-        'file' => 1
-    ],
+    'limit_request'=>[
+        'open'=>false
+    ]
 ];

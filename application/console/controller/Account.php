@@ -7,6 +7,7 @@ namespace app\console\controller;
 use app\common\controller\AppCommon;
 use app\service\CommonUser;
 use app\service\ConfigService;
+use app\service\DiyLog;
 use app\service\Msg;
 use app\service\VerifyCode;
 use app\service\WechatService;
@@ -22,6 +23,8 @@ class Account extends Controller
     private $keyBackTo = 'bs_shop_console_back_uri';
     private $keyWxAuthBackTo = 'wx_authed_back_uri';//微信授权临时key
     private $defaultUrl;
+    //授权代理域名
+    protected $wxAuthDomain = 'https://wxauth.alipay168.cn';
 
 
     public function __construct(Request $request = null)
@@ -160,13 +163,21 @@ class Account extends Controller
             data_return('未配置公众号信息', -1);
         }
         if ($conf['pt'] == 'wei1-top') {
-            if (empty($this->param['openid']) && IS_AJAX) {
+
+            if (empty($this->param['bscode']) && IS_AJAX) {
                 $type = !empty($conf['userinfo']) ? 'userInfo' : 'openid';
                 $curl = URL_WEB . trim(url('/console/account/login', ['from' => 'wx-login']), '/');
-                $url = "https://wxauth.alipay168.cn/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
+                $url = $this->wxAuthDomain . "/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
                 data_return('正在跳转，请稍后...', 0, ['url' => $url, 'from' => 'code']);
-            } elseif (!empty($this->param['openid']) && IS_AJAX) {
-                $this->wx_login_logic($this->param['openid']);
+            } elseif (!empty($this->param['bscode']) && IS_AJAX) {
+                //获取信息
+                $url = $this->wxAuthDomain . "/weixin/gzh/get_info";
+                $req = @json_decode(curl_post_request_array($url, ['bscode' => $this->param['bscode'], 'akey' => $conf['akey']], 10), true);
+                if (empty($req['data']) || !empty($req['code'])) {
+                    data_return('授权失败' . (empty($req['msg']) ? '' : ':' . $req['msg']), -1);
+                }
+
+                $this->wx_login_logic($req['data']['openid']);
             }
 
         } else {
@@ -230,7 +241,7 @@ class Account extends Controller
             if (empty($this->param['openid']) && IS_AJAX) {
                 $type = !empty($conf['userinfo']) ? 'userInfo' : 'openid';
                 $curl = URL_WEB . trim(url('/mall/user/setting', ['from' => 'wx-bind']), '/');
-                $url = "https://wxauth.alipay168.cn/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
+                $url = $this->wxAuthDomain. "/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
                 data_return('正在跳转授权，请稍后...', 0, ['url' => $url, 'from' => 'code']);
             } elseif (!empty($this->param['openid']) && IS_AJAX) {
                 $openid = $this->param['openid'];

@@ -39,38 +39,45 @@ class Home extends Mall
     //微信授权缓存openid
     public function wx_openid()
     {
-        if (cookie('authbacktourl')){
+        if (cookie('authbacktourl')) {
             $authbacktourl = cookie('authbacktourl');
-            cookie('authbacktourl',null);
-        }else{
+            cookie('authbacktourl', null);
+        } else {
             $authbacktourl = url('index');
         }
 
-        if (!empty($this->param['from'])&&$this->param['from']=='gzh'){
+        if (!empty($this->param['from']) && $this->param['from'] == 'gzh') {
             if (empty($this->param['code'])) {
                 return $this->error('获取code授权失败');
             }
             $getOpenid = WechatService::get_openid($this->param['code']);
-            if (empty($getOpenid['data']['openid'])){
-                return $this->error('微信授权失败:'.$getOpenid['msg']);
+            if (empty($getOpenid['data']['openid'])) {
+                return $this->error('微信授权失败:' . $getOpenid['msg']);
             }
             //todo 用户信息的获取
             cookie('my_gzh_openid', $getOpenid['data']['openid']);
 
             $conf = WechatService::get_gzh_conf();
-            if (!empty($conf['pt']) && $conf['pt'] =='gzh' && !empty($conf['userinfo'])) {
-                $info = WechatService::get_user_info($getOpenid['data']['openid'],$this->param['state'],$getOpenid['data']['access_token']);
-                if (!empty($info['data']['nickname'])){
-                    CommonUser::update($this->uid,['nickname'=>$info['data']['nickname']]);
+            if (!empty($conf['pt']) && $conf['pt'] == 'gzh' && !empty($conf['userinfo'])) {
+                $info = WechatService::get_user_info($getOpenid['data']['openid'], $this->param['state'], $getOpenid['data']['access_token']);
+                if (!empty($info['data']['nickname'])) {
+                    CommonUser::update($this->uid, ['nickname' => $info['data']['nickname']]);
                 }
 
             }
 
             return $this->redirect($authbacktourl);
-        }else{
-            $openid = input('openid');
-            if (!empty($openid)) {
-                cookie('my_gzh_openid', $openid);
+        } else {
+            $bscode = input('bscode', '');
+            if (!empty($bscode)) {
+
+                $conf = WechatService::get_gzh_conf();
+                $url = $this->wxAuthDomain . "/weixin/gzh/get_info";
+                $req = @json_decode(curl_post_request_array($url, ['bscode' => $this->param['bscode'], 'akey' => $conf['akey']], 10), true);
+                if (empty($req['data']) || !empty($req['code'])) {
+                    return $this->error('微信授权失败' . (empty($req['msg']) ? '' : ':' . $req['msg']));
+                }
+                cookie('my_gzh_openid', $req['data']['openid']);
 
                 return $this->redirect($authbacktourl);
             }
@@ -113,7 +120,7 @@ class Home extends Mall
     //获取导航图标
     public function get_navs()
     {
-        $data = AppCommon::data_list_nopage('navs', ['status' => 0, 's_time' => ['<=', time()], 'e_time' => ['>=', time()]],  'id,title,url,img');
+        $data = AppCommon::data_list_nopage('navs', ['status' => 0, 's_time' => ['<=', time()], 'e_time' => ['>=', time()]], 'id,title,url,img');
         if (!empty($data)) {
             array_walk($data, function (&$v) {
                 if (stripos($v['img'], 'http') === false) {
@@ -144,9 +151,8 @@ class Home extends Mall
         if ($data) {
             $data['content'] = htmlspecialchars_decode($data['content']);
             $data['add_time'] = date('Y-m-d', $data['add_time']);
-            AppCommon::db('article')->where(['id'=>$data['id']])->setInc('count_view',1,5);
+            AppCommon::db('article')->where(['id' => $data['id']])->setInc('count_view', 1, 5);
         }
-
 
 
         data_return('ok', 0, [
@@ -158,15 +164,15 @@ class Home extends Mall
     public function get_xieyi_info()
     {
         $data = null;
-        $gtype = !empty($this->param['gtype'])?trim($this->param['gtype']):'reg';
-        if ($gtype=='reg'){
+        $gtype = !empty($this->param['gtype']) ? trim($this->param['gtype']) : 'reg';
+        if ($gtype == 'reg') {
             $data = AppCommon::data_get('article_sys', ['id' => 1, 'status' => 1], '*');
         }
 
         if (!empty($data)) {
             $data['content'] = htmlspecialchars_decode($data['content']);
             $data['add_time'] = date('Y-m-d', $data['add_time']);
-            AppCommon::db('article')->where(['id'=>$data['id']])->setInc('count_view',1,5);
+            AppCommon::db('article')->where(['id' => $data['id']])->setInc('count_view', 1, 5);
         }
 
         data_return('ok', 0, [

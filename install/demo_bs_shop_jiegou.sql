@@ -45,7 +45,7 @@ CREATE TABLE `bs_admin_login_log`  (
   `add_time` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `ip` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 124 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 128 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_admin_menu
@@ -78,7 +78,7 @@ CREATE TABLE `bs_admin_msg`  (
   `read_time` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '阅读时间',
   `is_favorite` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '是否已收藏',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 49 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '后台管理的消息' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 53 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '后台管理的消息' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_admin_role
@@ -160,7 +160,7 @@ CREATE TABLE `bs_cart`  (
   `abc` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT 'ces',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `uid`(`uid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 97 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 100 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_common_user
@@ -182,7 +182,7 @@ CREATE TABLE `bs_common_user`  (
   `openid_wx` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '微信公众号openid',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `idx_uid_status`(`uid`, `status`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 110 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 113 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_common_user_address
@@ -200,7 +200,7 @@ CREATE TABLE `bs_common_user_address`  (
   `mobile` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '收货人号码',
   `username` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '收货人',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 57625 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 57627 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_common_user_credit_log
@@ -217,7 +217,7 @@ CREATE TABLE `bs_common_user_credit_log`  (
   `type` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '账户类型：1-购买商品，2-充值记录，3-提现记录',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `uid_type`(`uid`, `type`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 246 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户余额交易流水表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 252 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户余额交易流水表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_common_user_credits
@@ -230,7 +230,7 @@ CREATE TABLE `bs_common_user_credits`  (
   `point` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '积分',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `uid`(`uid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 106 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户账户表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 109 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户账户表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_common_user_login_log
@@ -242,7 +242,7 @@ CREATE TABLE `bs_common_user_login_log`  (
   `add_time` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `ip` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 175 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 179 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_common_user_msg
@@ -257,7 +257,7 @@ CREATE TABLE `bs_common_user_msg`  (
   `read_time` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '查看时间',
   `add_time` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '发送时间',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 113 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户消息记录' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 116 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户消息记录' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_common_user_point_log
@@ -273,7 +273,7 @@ CREATE TABLE `bs_common_user_point_log`  (
   `after_num` int(10) NOT NULL DEFAULT 0 COMMENT '交易后',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `uid_type`(`uid`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 105 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户积分流水表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 109 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '用户积分流水表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_config
@@ -295,7 +295,7 @@ CREATE TABLE `bs_error_log`  (
   `content` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL,
   `add_time` int(10) NULL DEFAULT 0,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1201 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '异常日志' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 1210 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '异常日志' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_feedback
@@ -380,7 +380,7 @@ CREATE TABLE `bs_goods_favorite`  (
   `goods_id` int(10) UNSIGNED NOT NULL DEFAULT 0,
   `uid` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '收藏用户',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 57 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 62 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_navs
@@ -428,10 +428,11 @@ CREATE TABLE `bs_order`  (
   `content_virtual` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '虚拟商品发货信息',
   `tihuo_address` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '提货地址',
   `ip_address` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '下单IP地址',
+  `is_settlement` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '是否已结算，1-已结算',
   PRIMARY KEY (`id`) USING BTREE,
   INDEX `uid`(`uid`) USING BTREE,
   INDEX `order_sn`(`order_sn`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 14831 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单表' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 14836 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单表' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_order_goods
@@ -446,7 +447,7 @@ CREATE TABLE `bs_order_goods`  (
   `price` decimal(10, 2) UNSIGNED NOT NULL DEFAULT 0.00 COMMENT '商品单价',
   `count` int(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT '购买数量',
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 14802 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单商品' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 14808 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单商品' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Table structure for bs_order_recharge
@@ -486,7 +487,8 @@ CREATE TABLE `bs_order_refund_apply_log`  (
   `add_time` int(10) UNSIGNED NULL DEFAULT 0,
   `up_time` int(10) UNSIGNED NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 11 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单售后申请' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 13 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '订单售后申请' ROW_FORMAT = Dynamic;
+
 
 -- ----------------------------
 -- Table structure for bs_plugins
@@ -585,23 +587,27 @@ CREATE TABLE `bs_version`  (
   `file_version` int(10) NULL DEFAULT 0 COMMENT '文件版本'
 ) ENGINE = MyISAM CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Fixed;
 
+-- ----------------------------
+-- Table structure for bs_withdraw_log
+-- ----------------------------
 DROP TABLE IF EXISTS `bs_withdraw_log`;
-CREATE TABLE `bs_withdraw_log` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `uid` varchar(50) NOT NULL DEFAULT '',
-  `uid_type` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '用户类型，1-普通用户，2-商家',
-  `order_no` varchar(32) NOT NULL DEFAULT '' COMMENT '申请单号',
-  `num` decimal(10,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '申请金额',
-  `fee` decimal(10,2) unsigned NOT NULL DEFAULT '0.00' COMMENT '手续费',
-  `add_time` int(10) NOT NULL DEFAULT '0' COMMENT '申请时间',
-  `up_time` int(10) NOT NULL DEFAULT '0' COMMENT '更新时间',
-  `status` tinyint(1) NOT NULL DEFAULT '0' COMMENT '0-待审核，1-已通过，-1-已驳回',
-  `fail_text` varchar(500) NOT NULL DEFAULT '' COMMENT '驳回原因',
-  `username` varchar(32) NOT NULL DEFAULT '' COMMENT '真实姓名',
-  `to_account` varchar(64) NOT NULL DEFAULT '' COMMENT '提现账户，如支付宝账号、手机号、银行卡号等',
-  `to_type` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '提现方式：1-支付宝，2-微信，3-银行卡',
-  `imgs` varchar(1000) DEFAULT '' COMMENT '转账凭证，由后台上传',
-  PRIMARY KEY (`id`),
-  KEY `idx_uid_type` (`uid`,`uid_type`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='提现申请记录';
+CREATE TABLE `bs_withdraw_log`  (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `uid` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '',
+  `uid_type` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '用户类型，1-普通用户，2-商家',
+  `order_no` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '申请单号',
+  `num` decimal(10, 2) UNSIGNED NOT NULL DEFAULT 0.00 COMMENT '申请金额',
+  `fee` decimal(10, 2) UNSIGNED NOT NULL DEFAULT 0.00 COMMENT '手续费',
+  `add_time` int(10) NOT NULL DEFAULT 0 COMMENT '申请时间',
+  `up_time` int(10) NOT NULL DEFAULT 0 COMMENT '更新时间',
+  `status` tinyint(1) NOT NULL DEFAULT 0 COMMENT '0-待审核，1-已通过，-1-已驳回',
+  `fail_text` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '驳回原因',
+  `username` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '真实姓名',
+  `to_account` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL DEFAULT '' COMMENT '提现账户，如支付宝账号、手机号、银行卡号等',
+  `to_type` tinyint(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT '提现方式：1-支付宝，2-微信，3-银行卡',
+  `imgs` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT '' COMMENT '转账凭证，由后台上传',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_uid_type`(`uid`, `uid_type`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '提现申请记录' ROW_FORMAT = Dynamic;
+
 SET FOREIGN_KEY_CHECKS = 1;

@@ -88,8 +88,7 @@ class Uploader
         } elseif ($upload_type == 'qiniu') {
             $toPath = stripos($toPath, 'bs_shop') !== false ? trim($toPath, '/') . '/' . $fileName : ('bs_shop/' . ltrim($toPath, '/') . '/' . $fileName);
 
-            $toPath = str_replace([PUBLIC_PATH, '//'], '', $toPath);
-
+            $toPath = str_replace([PUBLIC_PATH, '//'], ['', '/'], $toPath);
 
             $res = self::qiniu_upload($files['tmp_name'], $toPath);
             if (empty($res['url'])) {
@@ -161,7 +160,6 @@ class Uploader
 
         // 上传到七牛后保存的文件名
         //$key = 'my-php-logo.png';
-
 
         // 初始化 UploadManager 对象并进行文件的上传。
         $uploadMgr = new UploadManager();

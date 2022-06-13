@@ -17,7 +17,9 @@ class App
     //app初始化行为监听
     function run($params)
     {
-        $this->limit_request($params);
+        if (config('limit_request.open')){
+            $this->limit_request($params);
+        }
         //异常监听
         if (defined('BS_CATCH_ERROR') && BS_CATCH_ERROR) {
             ErrorService::catch_error(BS_CATCH_ERROR);
@@ -41,7 +43,7 @@ class App
         }
 
         //数据库查询日志监控
-        Db::listen(function ($sql, $time, $explain, $master) {
+        /*Db::listen(function ($sql, $time, $explain, $master) {
             DiyLog::$save_path = RUNTIME_PATH . '/log/diy/sql/' . date('Ym') . '/';
             if ($time >= 5 && stripos($sql, 'SHOW COLUMNS') === false && stripos($sql, 'SHOW TABLES') === false) {
 
@@ -51,7 +53,7 @@ class App
             } elseif (stripos($sql, 'SHOW COLUMNS') === false && stripos($sql, 'SHOW TABLES') === false) {
                 DiyLog::file(['sql' => $sql, 'time' => $time, 'explain' => $explain, 'master' => $master], date('d') . '.log');
             }
-        });
+        });*/
     }
 
     function appEnd($params)

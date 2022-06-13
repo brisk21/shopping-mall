@@ -62,11 +62,15 @@ class Order extends Mall
                 data_return('订单号缺失', -1);
             }
 
-            $order = ServerOrder::get(trim($this->param['order_sn']));
+            $order = ServerOrder::get(trim($this->param['order_sn']), 'order_sn,status,price,pay_price,add_time,up_time,send_time,pay_time,pay_type,trans_id,address,store_num,express_com,express_no,refund_total,receive_time,order_type,code_tihuo,tihuo_address,is_del');
             if (empty($order) || $order['is_del']) {
                 data_return('订单找不到了', -1);
             }
             $order['address'] = json_decode($order['address'], true);
+            $order['add_time'] = date('Y-m-d H:i:s', $order['add_time']);
+            $order['pay_time'] = $order['pay_time'] ? date('Y-m-d H:i:s', $order['pay_time']) : 0;
+            $order['receive_time'] = $order['receive_time'] ? date('Y-m-d H:i:s', $order['receive_time']) : 0;
+            $order['send_time'] = $order['send_time'] ? date('Y-m-d H:i:s', $order['send_time']) : 0;
             $address = $order['address'];
 
             $goods = AppCommon::data_list('order_goods', ['order_sn' => $order['order_sn']], '1,50');
@@ -77,11 +81,15 @@ class Order extends Mall
                 $v['commented'] = AppCommon::data_get('goods_comment', ['order_goods_id' => intval($v['id'])], 'id');
             }
             unset($v);
+            if (!empty($order['store_num'])) {
+                $store = AppCommon::data_get('stores', ['store_num' => $order['store_num']], 'store_num,store_logo,store_name');
+            }
 
             data_return('ok', 0, [
                 'order' => $order,
                 'address' => $address,
-                'goods_list' => $goods
+                'goods_list' => $goods,
+                'store_info' => !empty($store) ? $store : null
             ]);
         }
     }
@@ -113,8 +121,14 @@ class Order extends Mall
         $orders = AppCommon::data_list('order', $where, $page, 'order_sn,price,status,pay_time,pay_price,add_time,order_type,code_tihuo,tihuo_address,express_no', 'id desc');
 
         if (!empty($orders)) {
+            $goods = AppCommon::data_list_nopage('order_goods', ['order_sn' => ['in', array_column($orders, 'order_sn')]], '*');
+            $goodsList = [];
+            foreach ($goods as $v) {
+                $goodsList[$v['order_sn']][] = $v;
+            }
+
             foreach ($orders as &$order) {
-                $order['goods_list'] = AppCommon::data_list('order_goods', ['order_sn' => $order['order_sn']], 1, '*');
+                $order['goods_list'] = $goodsList[$order['order_sn']];
             }
             unset($order);
         }

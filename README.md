@@ -1,5 +1,5 @@
 # thinkphp5购物商城
-
+嗐，失恋了，随缘吧
 #### 介绍
 用tp5开发一个购物商城，从简单到复杂，商品、搜索、购物车、订单、收藏、充值、交易记录等，  **用最简单的方式写商城，会点php和jq的都可以维护二开** 。
 
@@ -7,9 +7,29 @@
 
 这是一个适合个人和企业使用的中小型商城，可以自定义扩展和二开。
 
+插件开源集合地址：[https://gitee.com/brisklan/bs-shop-plugins](https://gitee.com/brisklan/bs-shop-plugins)
+
+基础版 
 ###### 在线体验(注册自动有1000体验余额): [http://demo.bs.shop.wei1.top/](http://demo.bs.shop.wei1.top/) 
 
+
 后台(部分功能)：http://demo.bs.shop.wei1.top/admin/
+
+/////////////////////
+
+多商户自动拆单版本 [https://vip.bs.wei1.top/ ](https://vip.bs.wei1.top/)
+ 
+ 高级版功能简介：基础版+多商户功能（商家管理、提现管理、货款管理、店铺管理、商家入驻、商户中心等）
+ 
+/////////////////////
+ 
+ 导购版本开发中，编译后可正常下单、跟单、返利，由于还有很多功能在开发中，所以暂未开源(基于一个uniapp开源商城二次开发，h5在线版暂不支持购买返现)，在线预览[http://h5.dg.wei1.top/](http://h5.dg.wei1.top/)
+ ![ 首页](./public/test/dg-h5-0.jpg "购物版首页")
+ ![ 商品搜索](./public/test/dg-h5-1.jpg "搜索")
+ 
+ 
+ 
+
 
 
 ###### 运行效果
@@ -34,7 +54,7 @@
 商品管理
 ![ 后台](./public/test/admin2.png "后台")
 
-应用中心（测试中）
+应用中心
 
 ![ 后台](./public/test/admin3.png "后台")
 
@@ -47,7 +67,7 @@
 基于thinkphp5开发，环境可以用lnmp或者lamp
 
 #### 安装教程
-
+建议用php7+ 
 1. 下载源码
 
    
@@ -56,6 +76,8 @@
    
    github：<a href="https://github.com/brisk21/shopping-mall">https://github.com/brisk21/shopping-mall</a>
 
+    
+    如 git clone https://gitee.com/brisklan/thinkphp5-shopping-mall bs_shop 
 2. 解压源码
 
 3. 虚拟域名指向public（宝塔需要将运行目录指向public）

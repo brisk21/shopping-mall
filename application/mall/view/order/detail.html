@@ -1,7 +1,7 @@
 <!DOCTYPE html >
 <html lang="zh">
 <head>
-<title>订单详情</title>
+  <title>订单详情</title>
   <{include file="public/header" /}>
   <style>
     .pay{
@@ -14,7 +14,9 @@
       overflow: hidden;
       text-align: center;
     }
-
+    .orderInfo>p{
+      margin-top: 10px;
+    }
   </style>
 </head>
 <body ontouchstart>
@@ -38,14 +40,17 @@
     </div>
   </div>
   <div class="wy-media-box weui-media-box_text">
-    <div class="weui-media-box__bd " id="pro-list">
-
-
-    </div>
+    <div class="weui-media-box__bd " id="pro-list"></div>
   </div>
   <div class="wy-media-box weui-media-box_text">
     <div class="mg10-0 t-c">总金额：<span class="wy-pro-pri mg-tb-5">¥<em class="num font-20 totalMoney">0.00</em></span></div>
     <div class="mg10-0 btn-div"><a href="javascript:create('wechat')" class="weui-btn weui-btn_primary pay">微信付款</a> <a href="javascript:create('credit')" class="weui-btn weui-btn_default pay pay_credit">余额支付</a></div>
+  </div>
+  <div class="wy-media-box weui-media-box_text orderInfo" style="display: none">
+
+  </div>
+  <div class="wy-media-box weui-media-box_text action_div"  >
+
   </div>
 </div>
 <{include file="public/footer" /}>
@@ -87,13 +92,141 @@
         $("#pro-list").append(item)
       }
 
-      if (res.data.order.status !=0){
+      var order = res.data.order;
+
+      var orderItem = '<p class="weui-media-box__hd" >订单：<span onclick="copy(this)">'+order.order_sn+'</span></p>';
+      orderItem += '<p class="weui-media-box__hd">下单时间：'+order.add_time+'</p>';
+      if (order.pay_time!=0){
+        orderItem += '<p class="weui-media-box__hd">支付时间：'+order.pay_time+' </p>';
+        if (order.send_time!=0){
+          orderItem += '<p class="weui-media-box__hd">发货时间：'+order.send_time+' </p>';
+        }
+        var payType = '其它';
+        if (order.pay_type=='credit'){
+          payType = '余额'
+        }else if(order.pay_type=='wechat'){
+          payType = '微信'
+        }else if(order.pay_type=='alipay'){
+          payType = '支付宝'
+        }
+        orderItem += '<p class="weui-media-box__hd">支付方式：'+payType+'</p>';
+
+      }
+
+      if (order.receive_time!=0){
+        orderItem += '<p class="weui-media-box__hd">收货时间：'+order.receive_time+' </p>';
+      }
+      if (order.pay_price>0){
+        orderItem += '<p class="weui-media-box__hd">实付：<span style="color:red;">'+order.pay_price+'</span> 元</p>';
+      }
+      if (order.refund_total>0){
+        orderItem += '<p class="weui-media-box__hd">累计退款：<span style="color:red;">'+order.refund_total+'</span> 元</p>';
+      }
+      if (order.code_tihuo){
+        orderItem += '<p class="weui-media-box__hd" >提货码：<span onclick="copy(this)">'+order.code_tihuo+'</span> </p>';
+      }
+      if (res.data.store_info){
+        orderItem += '<p class="weui-media-box__hd" ><span class="to-contact weui-btn  weui-btn_mini weui-btn_plain-primary" >联系卖家</span> </p>';
+      }
+
+      var actionBtns='';
+
+      if(order.status==1){
+
+        if (order.order_type==2){
+          actionBtns+='<div class="tihuo-address" ><b>提货地址</b>：<span onclick="copy(this)">'+order.tihuo_address+'</span></div>';
+          actionBtns+='提货码：<span onclick="copy(this,false,1500)" class="tihuo-code">'+order.code_tihuo+'</span>';
+          actionBtns+='<a href="javascript:;" class="ords-btn-com receipt " data-sn="'+order.order_sn+'">确认取货</a>';
+        }else {
+          actionBtns+='商品正在打包中，请您耐心等待....';
+        }
+        actionBtns+='<a href="javascript:;" class="ords-btn-com refund" data-sn="'+order.order_sn+'">申请退款</a>';
+      }else if(order.status==2){
+        if (order.order_type==3){
+          actionBtns+='<a href="<{:url(\'/mall/order/virtual\')}>?order_sn='+order.order_sn+'" class="ords-btn-com " data-sn="'+order.order_sn+'">查看发货</a>';
+          actionBtns+='<a href="javascript:;" class="ords-btn-com receipt" data-sn="'+order.order_sn+'">确认收货</a>';
+        }else {
+
+          actionBtns+='<a href="javascript:;" class="ords-btn-com receipt" data-sn="'+order.order_sn+'">确认收货</a>';
+
+        }
+
+      }else if(order.status==3){
+        if (order.order_type==3){
+          actionBtns+='<a href="<{:url(\'/mall/order/virtual\')}>?order_sn='+order.order_sn+'" class="ords-btn-com " data-sn="'+order.order_sn+'">查看发货</a>';
+        }
+        actionBtns+=' <a href="<{:url(\'/mall/order/detail2\')}>?order_sn='+order.order_sn+'" class="ords-btn-com" data-sn="'+order.order_sn+'">评价</a>';
+      }else if (order.status=='-1'){
+        actionBtns+='<a href="javascript:;" class="ords-btn-dele" data-sn="'+order.order_sn+'">删除订单</a>';
+      }else{
+        if (order.order_type==3){
+          actionBtns+='<a href="<{:url(\'/mall/order/virtual\')}>?order_sn='+order.order_sn+'" class="ords-btn-com " data-sn="'+order.order_sn+'">查看发货</a>';
+        }
+
+
+      }
+      if (order.express_no){
+        actionBtns+='<a href="<{:url(\'/mall/order/express\')}>?order_sn='+order.order_sn+'" class="ords-btn-com express" data-sn="'+order.order_sn+'">查看物流</a>';
+      }
+      if (actionBtns.length>0){
+        $(".action_div").html(actionBtns)
+      }
+
+
+
+
+
+      $(".orderInfo").show();
+      $(".orderInfo").html(orderItem)
+
+      if (order.status !=0){
         $(".btn-div").hide()
       }
-      $(".totalMoney").text(res.data.order.price);
+      $(".totalMoney").text(order.price);
 
     });
   }
+  $(document).on("click", ".refund", function() {
+    var ordersn = $(this).data('sn')
+    location.href = "<{:url('/mall/order/refund')}>?order_sn="+ordersn
+  });
+  $(document).on("click", ".ords-btn-dele", function() {
+    var order_sn = $(this).data('sn');
+    $.confirm("您确定要删除此订单吗?", "确认删除?", function() {
+
+      bs_request("<{:url('/mall/order/del')}>",{order_sn:order_sn},function (res) {
+
+        $.toast(res.msg,res.code==0?'success':'cancel',1000);
+        if (res.code==0){
+          $(".order-item-"+order_sn).remove()
+        }
+      })
+    }, function() {
+      //取消操作
+    });
+  });
+
+  $(document).on("click", ".receipt", function() {
+    var order_sn = $(this).data('sn');
+    $.confirm("您已经收到货了吗", "是否已经收到货?", function() {
+
+      bs_request("<{:url('/mall/order/receive')}>",{order_sn:order_sn},function (res) {
+
+        //$.toast(res.msg,res.code==0?'success':'cancel');
+        if (res.code==0){
+          $.alert("好东西记得五星好评哦，赶快去评价吧！", "收货完成！",function (res) {
+            location.href = "<{:url('/mall/order/detail2')}>?order_sn="+order_sn
+          });
+        }else {
+          $.toast(res.msg,'cancel');
+        }
+      })
+    }, function() {
+      //取消操作
+    });
+
+
+  });
 
   function create(type){
     if (type=='credit'){
@@ -122,7 +255,7 @@
             return $.alert(ret.msg);
           }
         }else {
-            callpay(ret.data.payParam)
+          callpay(ret.data.payParam)
         }
       })
 

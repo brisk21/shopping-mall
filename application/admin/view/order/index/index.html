@@ -4,7 +4,8 @@
     <title>BS_SHOP-后台管理</title>
     <{include file="public/header"}>
     <{include file="public/data_tables_css"}>
-
+    <link type="text/css" rel="stylesheet" href="/static/adminlte/plugins/jedate-6.5.0/skin/jedate.css">
+    <script type="text/javascript" src="/static/adminlte/plugins/jedate-6.5.0/src/jedate.js"></script>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed">
 <!-- Site wrapper -->
@@ -79,7 +80,9 @@
 
                                     <input name="keyword" type="text" class="form-control " placeholder="订单号搜索" value="">
                                 </div>
-
+                                <div class="col-auto">
+                                    <div class="jeinpbox "><input autocomplete="off" type="text" class="jeinput form-control" id="time" placeholder="下单时间" name="time"></div>
+                                </div>
                                 <div class="col-auto">
                                     <button type="submit" class="btn btn-primary mb-2 "><i class="fas fa-search"></i></button>
                                     <a  href="<{:url('index')}>"  class="btn btn-default mb-2 bs-left-30" title="重置"><i class="fas fa-history"></i></a>
@@ -96,7 +99,6 @@
                                 <th>#</th>
                                 <th>商品信息</th>
                                 <th>下单用户</th>
-                                <th>店铺</th>
                                 <th>订单号</th>
                                 <th>状态</th>
                                 <th>订单类型</th>
@@ -117,15 +119,6 @@
                                 </td>
                                 <td>
                                     <a href="<{:url('/admin/user.index/index',['keyword'=>$item.uid])}>"><{$item.user.account}></a>
-                                </td>
-
-                                <td>
-                                    <{if !empty($item.store) }>
-                                    <a href="<{:url(null,['store_num'=>$item.store_num])}>"><{$item.store.store_name}></a>
-
-                                    <{else}>
-                                    未知
-                                    <{/if}>
                                 </td>
                                 <td><{$item.order_sn}></td>
                                 <td>
@@ -189,6 +182,12 @@
 <{include file="public/footer"}>
 <!-- DataTables  & Plugins -->
 <{include file="public/data_tables"}>
+<script>
+    jeDate("#time",{
+        format: "YYYY-MM-DD",
+        range:" 至 "
+    });
+</script>
 <script>
     $(function () {
 

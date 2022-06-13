@@ -23,6 +23,8 @@ class Mall extends Controller
     //前后分离key
     public $key_cache_user_token = 'common_user_token';
     public $session_prefix = 'bs_';
+    //授权代理域名
+    protected $wxAuthDomain = 'https://wxauth.alipay168.cn';
 
     public function __construct(Request $request = null)
     {
@@ -74,11 +76,11 @@ class Mall extends Controller
             if (!IS_AJAX) {
                 cookie('authbacktourl', \request()->url());
                 $curl = URL_WEB . url('/mall/home/wx_openid');
-                $url = "https://wxauth.alipay168.cn/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
+                $url = $this->wxAuthDomain."/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
                 return $this->redirect($url);
             } elseif (empty($openid)) {
                 $curl = URL_WEB . url('/mall/home/wx_openid');
-                $url = "https://wxauth.alipay168.cn/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
+                $url = $this->wxAuthDomain."/weixin/gzh/$type/akey/" . $conf['akey'] . ".html?my_redirect_uri=" . urlencode($curl);
                 data_return('微信环境检测，即将进入首页...', 30002, $url);
             }
         } else {

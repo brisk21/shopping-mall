@@ -8,7 +8,6 @@ use app\admin\controller\com\Admin;
 use app\common\controller\AppCommon;
 use app\service\Msg;
 use app\service\Order;
-use app\service\Order as ServerOrder;
 use app\service\Page;
 
 class Index extends Admin
@@ -24,8 +23,7 @@ class Index extends Admin
 
         $pay_type = !empty($this->param['pay_type']) ? trim($this->param['pay_type']) : '';
         $keyword = !empty($this->param['keyword']) ? trim($this->param['keyword']) : '';
-        $store_num = !empty($this->param['store_num']) ? trim($this->param['store_num']) : '';
-
+        $timeSet = !empty($this->param['time']) ? explode(' 至 ', $this->param['time']) : '';
         $orderBy = 'id desc';
 
         //-1-已取消，0-待支付，1-已支付，2-待收货，3-已完，-2-已退款
@@ -39,13 +37,12 @@ class Index extends Admin
         if (!empty($keyword)) {
             $where['order_sn'] = $keyword;
         }
-        if (!empty($store_num)) {
-            $where['store_num'] = $store_num;
-        }
         if (!empty($pay_type)) {
             $where['pay_type'] = $pay_type;
         }
-
+        if (!empty($timeSet[1])) {
+            $where['add_time'] = ['between', [strtotime($timeSet[0] . ' 00:00:00'), strtotime($timeSet[1] . ' 23:59:59')]];
+        }
         $status = [
             '-1' => '<span class="bs-grey">已取消</span>',
             '-2' => '<span class="bs-red">已退款</span>',
@@ -64,11 +61,6 @@ class Index extends Admin
         $data = AppCommon::data_list('order', $where, $page . ',' . $pageSize, 'id,order_sn,uid,status,price,	pay_price,add_time,up_time,send_time,pay_time,pay_type,trans_id,address,cancel_pay_time,store_num,is_del,pay_openid,order_type', $orderBy);
 
         if (!empty($data)) {
-            $num = array_unique(array_column($data,'store_num'));
-            $stores = AppCommon::data_list_nopage('stores',['store_num'=>['in',$num]],'store_num,store_name,store_logo');
-            if (!empty($stores)){
-                $stores = array_column($stores,null,'store_num');
-            }
             foreach ($data as &$v) {
                 $v['typeDesc'] = isset($type[$v['order_type']]) ? $type[$v['order_type']] : $type[0];
                 $v['statusDesc'] = $status[$v['status']];
@@ -82,9 +74,6 @@ class Index extends Admin
                     $v['goods']['thumb'] = '';
                 }
 
-                if (isset($stores[$v['store_num']])){
-                    $v['store'] = $stores[$v['store_num']];
-                }
 
                 $v['user'] = AppCommon::data_get('common_user', ['uid' => $v['uid']], 'account,nickname');
                 if (empty($v['user'])) {
@@ -270,7 +259,7 @@ class Index extends Admin
         if (empty($this->param['order_sn'])) {
             data_return('订单参数有误', -1);
         }
-        $order = ServerOrder::get($this->param['order_sn']);
+        $order = Order::get($this->param['order_sn']);
         if (empty($order)) {
             data_return('订单未找到', -1);
         }

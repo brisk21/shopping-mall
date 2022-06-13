@@ -5,8 +5,10 @@ namespace app\admin\controller\com;
 
 
 use app\common\controller\AppCommon;
+use app\service\ConfigService;
 use app\service\DiyLog;
 use app\service\ErrorService;
+use app\service\UpdateService;
 use think\Controller;
 use think\Request;
 //ErrorService::catch_error();
@@ -49,7 +51,13 @@ class Admin extends Controller
             }
             return $this->error('无权操作');
         }
-
+        $webConf = ConfigService::get('web');
+        $version = UpdateService::get_version();
+        $conf = [
+            'bs_title' => !empty($webConf['title']) ? $webConf['title'] : 'BS后台管理',
+            'version' => !empty($version['old']['app_version']) ? 'v' . $version['old']['app_version'] . '.0' : 'v1.0',
+        ];
+        $this->assign('webConf', $conf);
         $this->assign('menu', $this->get_menu());
     }
 

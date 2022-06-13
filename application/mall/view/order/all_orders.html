@@ -73,7 +73,7 @@
         var orders = res.data.orders;
         for (var i=0;i<orders.length;i++){
           var item = '<div class="weui-panel weui-panel_access order-item-'+orders[i].order_sn+'" >\n' +
-                  '          <div class="weui-panel__hd"><span>单号：'+orders[i].order_sn+'</span><span class="ord-status-txt-ts fr">';
+                  '          <div class="weui-panel__hd"><a href="<{:url(\'detail\')}>?order_sn='+orders[i].order_sn+'">单号：'+orders[i].order_sn+'</a><span class="ord-status-txt-ts fr">';
 
 
 

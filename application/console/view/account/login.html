@@ -41,7 +41,7 @@
     $(function () {
         var code = bs_get_param('code');
         var from = bs_get_param('from');
-        var openid = bs_get_param('openid');
+        var bscode = bs_get_param('bscode');
         $(".login-tmp-account").on('click',function () {
             $.confirm('确定用游客身份登录吗？',function () {
                 bs_request("<{:url('do_login')}>",{
@@ -57,11 +57,11 @@
                 })
             })
         });
-        if (code||openid){
+        if (code||bscode){
             wxlogin({
                 code:code,
                 from:from,
-                openid:openid,
+                bscode:bscode,
             })
         }
         $(".login-wx-account").on('click',function () {

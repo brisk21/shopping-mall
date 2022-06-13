@@ -20,3 +20,10 @@ bin-release/
 
 .idea/
 runtime/
+.env
+application/plugin/
+data/plugins/
+*.htaccess
+.env
+.env-t
+public/static/plugins/
