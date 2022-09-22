@@ -10,20 +10,20 @@
 插件开源集合地址：[https://gitee.com/brisklan/bs-shop-plugins](https://gitee.com/brisklan/bs-shop-plugins)
 
 基础版 
-###### 在线体验(注册自动有1000体验余额): [http://demo.bs.shop.wei1.top/](http://demo.bs.shop.wei1.top/) 
+###### 在线体验(注册自动有1000体验余额): [http://demo.bs.shop.alipay168.cn/](http://demo.bs.shop.alipay168.cn/) 
 
 
-后台(部分功能)：http://demo.bs.shop.wei1.top/admin/
+后台(部分功能)：http://demo.bs.shop.alipay168.cn/admin/
 
 /////////////////////
 
-多商户自动拆单版本 [https://vip.bs.wei1.top/ ](https://vip.bs.wei1.top/)
+多商户自动拆单版本 [https://vip.bs.alipay168.cn/ ](https://vip.bs.alipay168.cn/)
  
  高级版功能简介：基础版+多商户功能（商家管理、提现管理、货款管理、店铺管理、商家入驻、商户中心等）
  
 /////////////////////
  
- 导购版本开发中，编译后可正常下单、跟单、返利，由于还有很多功能在开发中，所以暂未开源(基于一个uniapp开源商城二次开发，h5在线版暂不支持购买返现)，在线预览[http://h5.dg.wei1.top/](http://h5.dg.wei1.top/)
+ 导购版本开发中，编译后可正常下单、跟单、返利，由于还有很多功能在开发中，所以暂未开源(基于一个uniapp开源商城二次开发，h5在线版暂不支持购买返现)，在线预览[http://h5.dg.alipay168.cn/](http://h5.dg.alipay168.cn/)
  ![ 首页](./public/test/dg-h5-0.jpg "购物版首页")
  ![ 商品搜索](./public/test/dg-h5-1.jpg "搜索")
  
@@ -59,7 +59,7 @@
 ![ 后台](./public/test/admin3.png "后台")
 
 #### 接口文档
-  [https://doc.bs.shop.wei1.top/](https://doc.bs.shop.wei1.top/)  <br>
+  [https://doc.bs.shop.alipay168.cn/](https://doc.bs.shop.alipay168.cn/)  <br>
 客户端（商城端）的接口文档在doc目录的html里面，直接打开即可。
 生成：用apidoc的@0.19.1生成，tpl为生成模板（已自定义样式）
 ![ apidoc](./public/test/doc1.png "apidoc")
@@ -141,7 +141,7 @@ RewriteRule ^(.*)$ index.php?/$1 [QSA,PT,L]
 ![微信交流群②](./public/test/qr.png "微信交流群②")
 
 
-###### 基于这个开发的一个返利版（建议在微信下直接授权登录）：[返利版demo](https://wx.wei1.top/union/store.user/index.html)
+###### 基于这个开发的一个返利版（建议在微信下直接授权登录）：[返利版demo](https://wx.alipay168.cn/union/store.user/index.html)
 这是MVC模式，已上线使用。
 
 ![返利版demo](https://images.gitee.com/uploads/images/2021/1123/142916_e316c296_2065616.png "微信截图_20211123142709.png")
